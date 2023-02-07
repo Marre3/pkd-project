@@ -1,1 +1,2 @@
-# PKD Project (group 32: Alexander Björkman, Elias Swanberg, Mauritz Hamrin Sverredal)
+# PKD Project (group 32)
+* Group members: Alexander Björkman, Elias Swanberg, Mauritz Hamrin Sverredal
