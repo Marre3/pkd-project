@@ -154,11 +154,23 @@ function is_rook(piece: BoardPiece): boolean {
 }
 
 function is_bishop(piece: BoardPiece): boolean {
-    return piece.piece == Piece.Rook
+    return piece.piece == Piece.Bishop
 }
 
 function is_queen(piece: BoardPiece): boolean {
-    return piece.piece == Piece.Rook
+    return piece.piece == Piece.Queen
+}
+
+function is_knight(piece: BoardPiece): boolean {
+    return piece.piece == Piece.Knight
+}
+
+function is_king(piece: BoardPiece): boolean {
+    return piece.piece == Piece.King
+}
+
+function is_pawn(piece: BoardPiece): boolean {
+    return piece.piece == Piece.Pawn
 }
 
 function get_piece_moves(piece: BoardPiece, state: BoardState): Moves {
