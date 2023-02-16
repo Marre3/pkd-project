@@ -29,7 +29,7 @@ export default function Home() {
                 /> 
                 <div>
                     This project was made as part of an assignment for the PKD course in <br /> 
-                    Uppsala University The source can be found here: <br />
+                    Uppsala University. The source can be found here: <br />
                     <a href="https://github.com/Marre3/pkd-project">https://github.com/Marre3/pkd-project</a>
                 </div>
             </div>
