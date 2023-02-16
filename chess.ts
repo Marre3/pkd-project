@@ -7,9 +7,9 @@ export type BoardState = {
     pieces: BoardPiece[],
     en_passant_square: Coordinates | null,
     turn: Color
-    
+
     // Hardcoded right now to literal. But the flexibility is a bonus.
-    width: 8; 
+    width: 8;
     height: 8;
 }
 type Coordinates = { x: number, y: number }
@@ -98,7 +98,7 @@ export function position_from_fen(FEN: string): BoardState {
     return board
 }
 
-function export_to_fen(state: BoardState): string {
+export function export_to_fen(state: BoardState): string {
     function row_to_fen(y: number): string {
         let s = ""
         let empty_count = 0
