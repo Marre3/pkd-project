@@ -1,13 +1,13 @@
 enum Piece { Pawn, Knight, Bishop, Rook, Queen, King };
 enum Color { White, Black };
 
-type BoardPiece = { piece: Piece, color: Color, square: Coordinates };
+type BoardPiece = { piece: Piece, color: Color, square: Coordinates }
 type BoardState = {
     pieces: BoardPiece[],
     en_passant_square: Coordinates | null,
     turn: Color
 }
-type Coordinates = { x: number, y: number };
+type Coordinates = { x: number, y: number }
 type Move = { from: Coordinates, to: Coordinates, is_castling: boolean, is_en_passant: boolean }
 type Moves = Move[]
 
@@ -16,18 +16,41 @@ function get_piece_by_letter(letter: string): Piece {
     return letter === "p"
         ? Piece.Pawn
         : letter === "n"
-        ? Piece.Knight
-        : letter === "b"
-        ? Piece.Bishop
-        : letter === "r"
-        ? Piece.Rook
-        : letter === "q"
-        ? Piece.Queen
-        : Piece.King
+            ? Piece.Knight
+            : letter === "b"
+                ? Piece.Bishop
+                : letter === "r"
+                    ? Piece.Rook
+                    : letter === "q"
+                        ? Piece.Queen
+                        : Piece.King
+}
+
+function get_letter_by_piece(boardPiece: BoardPiece | null): string {
+    if (!is_piece(boardPiece)) return "E"
+
+    const piece = boardPiece.piece
+    const color = boardPiece.color
+
+    return piece === Piece.Pawn
+        ? get_letter_by_color("P", color)
+        : piece === Piece.Knight
+            ? get_letter_by_color("N", color)
+            : piece === Piece.Bishop
+                ? get_letter_by_color("B", color)
+                : piece === Piece.Rook
+                    ? get_letter_by_color("R", color)
+                    : piece === Piece.Queen
+                        ? get_letter_by_color("Q", color)
+                        : get_letter_by_color("K", color)
 }
 
 function get_color_by_letter(letter: string): Color {
     return letter.toLowerCase() === letter ? Color.Black : Color.White
+}
+
+function get_letter_by_color(letter: string, color: Color) {
+    return color === Color.White ? letter.toUpperCase() : letter.toLowerCase()
 }
 
 function position_from_fen(FEN: string): BoardState {
@@ -49,7 +72,7 @@ function position_from_fen(FEN: string): BoardState {
                 piece_placement = true
             } else if (["P", "N", "B", "R", "Q", "K", "p", "n", "b", "r", "q", "k"].includes(c)) {
                 board.pieces.push(
-                    {piece: get_piece_by_letter(c), color: get_color_by_letter(c), square: make_coordinates(x, y)},
+                    { piece: get_piece_by_letter(c), color: get_color_by_letter(c), square: make_coordinates(x, y) },
                 )
                 ++x
             } else if (["1", "2", "3", "4", "5", "6", "7", "8"].includes(c)) {
@@ -73,11 +96,11 @@ function get_default_board(): BoardState  {
 }
 
 function make_coordinates(x: number, y: number): Coordinates {
-    return { x, y };
+    return { x, y }
 }
 
 function out_of_bounds(coordinates: Coordinates) {
-    return coordinates.x < 1 || coordinates.x > 8 || coordinates.y < 1 || coordinates.y > 8;
+    return coordinates.x < 1 || coordinates.x > 8 || coordinates.y < 1 || coordinates.y > 8
 }
 
 function get_piece_by_square(coordinates: Coordinates, state: BoardState): BoardPiece | null {
@@ -102,9 +125,10 @@ function square_has_piece(coordinates: Coordinates, state: BoardState, color?: C
 function get_regular_moves(piece: BoardPiece, state: BoardState, directions: [number, number][]): Moves {
     const moves: Moves = []
     for (const direction of directions) {
-        let pos: Coordinates = {x: piece.square.x + direction[0], y: piece.square.y + direction[1]}
+        let pos: Coordinates = { x: piece.square.x + direction[0], y: piece.square.y + direction[1] }
+
         while (!out_of_bounds(pos) && (!square_has_piece(pos, state, piece.color))) {
-            moves.push({ from: piece.square, to: {x: pos.x, y: pos.y}, is_castling: false, is_en_passant: false })
+            moves.push({ from: piece.square, to: { x: pos.x, y: pos.y }, is_castling: false, is_en_passant: false })
             pos.x = pos.x + direction[0]
             pos.y = pos.y + direction[1]
         }
@@ -141,10 +165,10 @@ function get_piece_moves(piece: BoardPiece, state: BoardState): Moves {
     return is_rook(piece)
         ? get_rook_moves(piece, state)
         : is_bishop(piece)
-        ? get_bishop_moves(piece, state)
-        : is_queen(piece)
-        ? get_queen_moves(piece, state)
-        : []
+            ? get_bishop_moves(piece, state)
+            : is_queen(piece)
+                ? get_queen_moves(piece, state)
+                : []
 
 }
 
@@ -216,16 +240,19 @@ function get_legal_moves(state: BoardState): Moves {
     return moves
 }
 
-const board = get_default_board()
-console.log(get_legal_moves(board))
-console.log(get_legal_moves(board).length)
-console.log(square_has_piece({x: 1, y:1}, board))
+function draw(state: BoardState) {
+    for (let y = 8; y >= 1; --y) {
+        let s = ""
+        for (let x = 1; x <= 8; ++x) {
+            const p = get_piece_by_square(make_coordinates(x, y), board)
 
-for (let y = 1; y <= 8; ++y) {
-    let s = ""
-    for (let x = 1; x <= 8; ++x) {
-        const p = get_piece_by_square(make_coordinates(x, y), board)
-        s = s + "  " + p?.piece + "  "
+            s = s + " " + get_letter_by_piece(p) + " "
+        }
+
+        console.log(s)
     }
-    console.log(s)
 }
+
+const board = position_from_fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
+
+draw(board)
