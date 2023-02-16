@@ -49,7 +49,7 @@ function get_color_by_letter(letter: string): Color {
     return letter.toLowerCase() === letter ? Color.Black : Color.White
 }
 
-function get_letter_by_color(letter: string, color: Color) {
+function get_letter_by_color(letter: string, color: Color): string {
     return color === Color.White ? letter.toUpperCase() : letter.toLowerCase()
 }
 
@@ -239,7 +239,7 @@ function get_legal_moves(state: BoardState): Moves {
     return moves
 }
 
-function draw(state: BoardState) {
+function draw(state: BoardState): void {
     for (let y = 8; y >= 1; --y) {
         let s = ""
         for (let x = 1; x <= 8; ++x) {
