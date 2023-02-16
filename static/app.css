@@ -1,0 +1,69 @@
+@font-face {
+    font-family: 'RobotoSlab';
+    src: url('/RobotoSlab-VariableFont_wght.ttf') format('truetype');
+    font-display: swap;
+}
+
+body {
+    background-color: #333333;
+    margin: 0;
+    color: white;
+    font-family: 'RobotoSlab';
+}
+
+.about {
+    display: flex;
+    background-color: #DDDDDD;
+    margin: 6px;
+    padding: 6px;
+    border-radius: 4px;
+    color: black;
+}
+.about div {
+    margin: 2px;
+    margin-left: 12px;
+}
+
+.app-container {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    flex-flow: nowrap column;
+}
+
+.chess-board {
+    width: 800px;
+    height: 800px;
+    display: flex;
+    flex-flow: nowrap column;
+}
+
+.chess-board .row {
+    display: flex;
+    height: 100%;
+}
+
+.chess-board .tile {
+    background: gray;    
+    width: 100%;
+    display: flex;
+    flex-flow: nowrap column;
+    justify-content: center;
+
+}
+
+.chess-board .tile.black {
+    background: brown;
+}
+
+.chess-board .piece {
+    font-size: 60px;
+    text-align: center;
+    color: black;
+}
+
+header {
+    font-size: 2em;
+    padding-top: 6px;
+    height: 1.5em;
+}

@@ -1,11 +1,15 @@
-enum Piece { Pawn, Knight, Bishop, Rook, Queen, King };
-enum Color { White, Black };
+enum Piece { Pawn = 6, Knight = 5, Bishop = 4, Rook = 3, Queen = 2, King = 1 };
+export enum Color { White, Black };
 
-type BoardPiece = { piece: Piece, color: Color, square: Coordinates };
-type BoardState = {
+export type BoardPiece = { piece: Piece, color: Color, square: Coordinates };
+export type BoardState = {
     pieces: BoardPiece[],
     en_passant_square: Coordinates | null,
     turn: Color
+    
+    // Hardcoded right now to literal. But the flexibility is a bonus.
+    width: 8; 
+    height: 8;
 }
 type Coordinates = { x: number, y: number };
 type Move = { from: Coordinates, to: Coordinates, is_castling: boolean, is_en_passant: boolean }
@@ -30,8 +34,10 @@ function get_color_by_letter(letter: string): Color {
     return letter.toLowerCase() === letter ? Color.Black : Color.White
 }
 
-function position_from_fen(FEN: string): BoardState {
-    let board: BoardState = {
+export function position_from_fen(FEN: string): BoardState {
+    const board: BoardState = {
+        width: 8,
+        height: 8,
         pieces: [],
         en_passant_square: null,
         turn: Color.White
@@ -68,8 +74,12 @@ function position_from_fen(FEN: string): BoardState {
     return board
 }
 
-function get_default_board(): BoardState  {
-    return {
+export function get_default_board(): BoardState  {
+    return position_from_fen('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1')
+    // Kept in case anyone wanted it...
+    /*return {
+        width: 8,
+        height: 8,
         pieces: [
             {piece: Piece.Rook, color: Color.White, square: make_coordinates(1, 1)},
             {piece: Piece.Rook, color: Color.White, square: make_coordinates(8, 1)},
@@ -78,15 +88,15 @@ function get_default_board(): BoardState  {
         ],
         en_passant_square: null,
         turn: Color.White
-    }
+    }*/
 }
 
 function make_coordinates(x: number, y: number): Coordinates {
     return { x, y };
 }
 
-function out_of_bounds(coordinates: Coordinates) {
-    return coordinates.x < 1 || coordinates.x > 8 || coordinates.y < 1 || coordinates.y > 8;
+function out_of_bounds(state: BoardState, coordinates: Coordinates) {
+    return coordinates.x < 1 || coordinates.x > state.width || coordinates.y < 1 || coordinates.y > state.height;
 }
 
 function get_piece_by_square(coordinates: Coordinates, state: BoardState): BoardPiece | null {
@@ -111,8 +121,8 @@ function square_has_piece(coordinates: Coordinates, state: BoardState, color?: C
 function get_regular_moves(piece: BoardPiece, state: BoardState, directions: [number, number][]): Moves {
     const moves: Moves = []
     for (const direction of directions) {
-        let pos: Coordinates = {x: piece.square.x + direction[0], y: piece.square.y + direction[1]}
-        while (!out_of_bounds(pos) && (!square_has_piece(pos, state, piece.color))) {
+        const pos: Coordinates = {x: piece.square.x + direction[0], y: piece.square.y + direction[1]}
+        while (!out_of_bounds(state, pos) && (!square_has_piece(pos, state, piece.color))) {
             moves.push({ from: piece.square, to: {x: pos.x, y: pos.y}, is_castling: false, is_en_passant: false })
             pos.x = pos.x + direction[0]
             pos.y = pos.y + direction[1]
