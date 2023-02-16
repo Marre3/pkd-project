@@ -1,7 +1,8 @@
-enum Piece { Pawn = 6, Knight = 5, Bishop = 4, Rook = 3, Queen = 2, King = 1 };
-export enum Color { White, Black };
+enum Piece { Pawn, Knight, Bishop, Rook, Queen, King }
+enum Color { White, Black }
 
-export type BoardPiece = { piece: Piece, color: Color, square: Coordinates }
+type BoardPiece = { piece: Piece, color: Color, square: Coordinates }
+
 export type BoardState = {
     pieces: BoardPiece[],
     en_passant_square: Coordinates | null,
@@ -98,20 +99,7 @@ export function position_from_fen(FEN: string): BoardState {
 }
 
 export function get_default_board(): BoardState  {
-    return position_from_fen('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1')
-    // Kept in case anyone wanted it...
-    /*return {
-        width: 8,
-        height: 8,
-        pieces: [
-            {piece: Piece.Rook, color: Color.White, square: make_coordinates(1, 1)},
-            {piece: Piece.Rook, color: Color.White, square: make_coordinates(8, 1)},
-            {piece: Piece.Rook, color: Color.Black, square: make_coordinates(1, 8)},
-            {piece: Piece.Rook, color: Color.Black, square: make_coordinates(8, 8)}
-        ],
-        en_passant_square: null,
-        turn: Color.White
-    }*/
+    return position_from_fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
 }
 
 function make_coordinates(x: number, y: number): Coordinates {

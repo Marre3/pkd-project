@@ -1,7 +1,5 @@
 import { Head } from "$fresh/runtime.ts";
-import { get_default_board } from "../chess.ts";
 import { ChessBoard } from "../components/ChessBoard.tsx";
-//import Counter from "../islands/Counter.tsx";
 
 export default function Home() {
     return (
@@ -19,7 +17,7 @@ export default function Home() {
                 </header>
             </div>
             <div>
-                <ChessBoard board={get_default_board()} />
+                <ChessBoard board_fen={"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"} />
             </div>
             <div class="about">
                 <img
