@@ -98,7 +98,7 @@ export function position_from_fen(FEN: string): BoardState {
     return board
 }
 
-export function get_default_board(): BoardState  {
+function get_default_board(): BoardState  {
     return position_from_fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
 }
 
@@ -161,11 +161,23 @@ function is_rook(piece: BoardPiece): boolean {
 }
 
 function is_bishop(piece: BoardPiece): boolean {
-    return piece.piece == Piece.Rook
+    return piece.piece == Piece.Bishop
 }
 
 function is_queen(piece: BoardPiece): boolean {
-    return piece.piece == Piece.Rook
+    return piece.piece == Piece.Queen
+}
+
+function is_knight(piece: BoardPiece): boolean {
+    return piece.piece == Piece.Knight
+}
+
+function is_king(piece: BoardPiece): boolean {
+    return piece.piece == Piece.King
+}
+
+function is_pawn(piece: BoardPiece): boolean {
+    return piece.piece == Piece.Pawn
 }
 
 function get_piece_moves(piece: BoardPiece, state: BoardState): Moves {
@@ -197,9 +209,54 @@ function get_prospective_moves(state: BoardState): Moves {
     return moves
 }
 
-function get_legal_moves(state: BoardState): Moves {
-    const moves: Moves = []
+function get_king_position(state: BoardState, color: Color): Coordinates {
+    for (const piece of state.pieces) {
+        if (piece.piece == Piece.King && piece.color == color) {
+            return piece.square
+        }
+    }
+    throw new Error(`Invalid board position, no king found! State: ${state}, color: ${color}`)
+}
 
+function is_check(state: BoardState, color: Color): boolean {
+    for (const move of get_prospective_moves(state)) {
+        if (move.to == get_king_position(state, color)) {
+            return true
+        }
+    }
+    return false
+}
+
+function other_color(color: Color): Color {
+    return color == Color.Black ? Color.White : Color.Black
+}
+
+function apply_move(state: BoardState, move: Move): BoardState {
+    const old_piece = get_piece_by_square(move.from, state)
+    if (old_piece == null) {
+        throw new Error(`Invalid move ${move}, origin piece does not exist`)
+    }
+    const new_piece = {
+        piece: old_piece.piece,
+        color: old_piece.color,
+        square: move.to
+    }
+    return {
+        pieces: state.pieces.filter(
+            (p: BoardPiece) => (p.square != move.to && p.square != move.from),
+        ).concat([new_piece]),
+        en_passant_square: null,
+        turn: other_color(state.turn),
+        width: 8,
+        height: 8,
+    }
+}
+
+function get_legal_moves(state: BoardState): Moves {
+    let moves: Moves = get_prospective_moves(state)
+    moves = moves.filter(
+        (move: Move) => ! is_check(apply_move(state, move), state.turn),
+    )
     return moves
 }
 
