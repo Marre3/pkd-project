@@ -1,11 +1,16 @@
-enum Piece { Pawn, Knight, Bishop, Rook, Queen, King };
-enum Color { White, Black };
+enum Piece { Pawn, Knight, Bishop, Rook, Queen, King }
+enum Color { White, Black }
 
 type BoardPiece = { piece: Piece, color: Color, square: Coordinates }
-type BoardState = {
+
+export type BoardState = {
     pieces: BoardPiece[],
     en_passant_square: Coordinates | null,
     turn: Color
+    
+    // Hardcoded right now to literal. But the flexibility is a bonus.
+    width: 8; 
+    height: 8;
 }
 type Coordinates = { x: number, y: number }
 type Move = { from: Coordinates, to: Coordinates, is_castling: boolean, is_en_passant: boolean }
@@ -53,8 +58,10 @@ function get_letter_by_color(letter: string, color: Color): string {
     return color === Color.White ? letter.toUpperCase() : letter.toLowerCase()
 }
 
-function position_from_fen(FEN: string): BoardState {
-    let board: BoardState = {
+export function position_from_fen(FEN: string): BoardState {
+    const board: BoardState = {
+        width: 8,
+        height: 8,
         pieces: [],
         en_passant_square: null,
         turn: Color.White
@@ -143,8 +150,8 @@ function make_coordinates(x: number, y: number): Coordinates {
     return { x, y }
 }
 
-function out_of_bounds(coordinates: Coordinates) {
-    return coordinates.x < 1 || coordinates.x > 8 || coordinates.y < 1 || coordinates.y > 8
+function out_of_bounds(state: BoardState, coordinates: Coordinates) {
+    return coordinates.x < 1 || coordinates.x > state.width || coordinates.y < 1 || coordinates.y > state.height
 }
 
 function get_piece_by_square(coordinates: Coordinates, state: BoardState): BoardPiece | null {
@@ -169,9 +176,9 @@ function square_has_piece(coordinates: Coordinates, state: BoardState, color?: C
 function get_regular_moves(piece: BoardPiece, state: BoardState, directions: [number, number][]): Moves {
     const moves: Moves = []
     for (const direction of directions) {
-        let pos: Coordinates = { x: piece.square.x + direction[0], y: piece.square.y + direction[1] }
+        const pos: Coordinates = { x: piece.square.x + direction[0], y: piece.square.y + direction[1] }
 
-        while (!out_of_bounds(pos) && (!square_has_piece(pos, state, piece.color))) {
+        while (!out_of_bounds(state, pos) && (!square_has_piece(pos, state, piece.color))) {
             moves.push({ from: piece.square, to: { x: pos.x, y: pos.y }, is_castling: false, is_en_passant: false })
             pos.x = pos.x + direction[0]
             pos.y = pos.y + direction[1]
@@ -283,7 +290,9 @@ function apply_move(state: BoardState, move: Move): BoardState {
             (p: BoardPiece) => (p.square != move.to && p.square != move.from),
         ).concat([new_piece]),
         en_passant_square: null,
-        turn: other_color(state.turn)
+        turn: other_color(state.turn),
+        width: 8,
+        height: 8,
     }
 }
 
