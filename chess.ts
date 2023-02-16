@@ -200,6 +200,24 @@ function get_queen_moves(piece: BoardPiece, state: BoardState): Moves {
     return get_rook_moves(piece, state).concat(get_bishop_moves(piece, state))
 }
 
+function get_knight_moves(piece: BoardPiece, state: BoardState): Moves {
+    const moves: Moves = []
+    for (const diff of [[2, 1], [1, 2], [-1, 2], [-2, 1], [-2, -1], [-1, -2], [1, -2], [2, -1]]) {
+        const square = make_coordinates(piece.square.x + diff[0], piece.square.y + diff[1])
+        if (! out_of_bounds(state, square) && ! square_has_piece(square, state, piece.color)) {
+            moves.push(
+                {
+                    from: piece.square,
+                    to: square,
+                    is_castling: false,
+                    is_en_passant: false
+                }
+            )
+        }
+    }
+    return moves
+}
+
 function is_rook(piece: BoardPiece): boolean {
     return piece.piece == Piece.Rook
 }
@@ -231,6 +249,8 @@ function get_piece_moves(piece: BoardPiece, state: BoardState): Moves {
         ? get_bishop_moves(piece, state)
         : is_queen(piece)
         ? get_queen_moves(piece, state)
+        : is_knight(piece)
+        ? get_knight_moves(piece, state)
         : []
 }
 
@@ -321,3 +341,4 @@ const board = position_from_fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w K
 
 draw(board)
 console.log(export_to_fen(board))
+console.log(get_legal_moves(board))
