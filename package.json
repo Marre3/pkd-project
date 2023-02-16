@@ -2,9 +2,10 @@
   "name": "pkd-project",
   "version": "1.0.0",
   "description": "PKD Project",
-  "main": "index.js",
+  "main": "chess.js",
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "start": "tsc --strict chess.ts --target es2022 && node chess.js"
   },
   "repository": {
     "type": "git",

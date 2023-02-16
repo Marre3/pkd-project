@@ -1,326 +1,205 @@
 enum Piece { Pawn, Knight, Bishop, Rook, Queen, King };
 enum Color { White, Black };
 
-type BoardPiece = { piece: Piece, color: Color, square: string };
-type Board = Array<Array<BoardPiece | undefined>>;
-type Player = { color: Color, pieces: Array<Array<BoardPiece>> };
-type Game = { board: Board, white: Player, black: Player, moves: Array<Move>, turn: Color };
+type BoardPiece = { piece: Piece, color: Color, square: Coordinates };
+type BoardState = {
+    pieces: BoardPiece[],
+    en_passant_square: Coordinates | null,
+    turn: Color
+}
 type Coordinates = { x: number, y: number };
-type Move = { boardPiece: BoardPiece, from: Coordinates, to: Coordinates }
+type Move = { from: Coordinates, to: Coordinates, is_castling: boolean, is_en_passant: boolean }
+type Moves = Move[]
 
-function setup_player_piece_arrays(player: Player): void {
-	for (let i = 0; i < 6; i++) {
-		player.pieces[i] = [];
-	}
+function get_piece_by_letter(letter: string): Piece {
+    letter = letter.toLowerCase()
+    return letter === "p"
+        ? Piece.Pawn
+        : letter === "n"
+        ? Piece.Knight
+        : letter === "b"
+        ? Piece.Bishop
+        : letter === "r"
+        ? Piece.Rook
+        : letter === "q"
+        ? Piece.Queen
+        : Piece.King
 }
 
-function setup_player_pieces(white: Player, black: Player, board: Board): void {
-	for (let x = 0; x < 8; x++) {
-		for (let y = 0; y < 8; y++) {
-			const boardPiece = board_piece_at_coordinates(make_coordinates(x, y), board);
-
-			if (boardPiece !== undefined) {
-				const piece = boardPiece.piece;
-
-				if (boardPiece.color === Color.White) {
-					white.pieces[piece].push(boardPiece);
-				} else {
-					black.pieces[piece].push(boardPiece);
-				}
-			}
-		}
-	}
+function get_color_by_letter(letter: string): Color {
+    return letter.toLowerCase() === letter ? Color.Black : Color.White
 }
 
-function get_default_board(): Board  {
-	const board: Board = [];
-
-	// Initial setup
-	for (let x = 0; x < 8; x++) {
-		board[x] = [];
-
-		for (let y = 0; y < 8; y++) {
-			board[x][y] = undefined;
-		}
-	}
-
-	// White pieces
-	board[0][0] = { piece: Piece.Rook, color: Color.White, square: "a1" };
-	board[1][0] = { piece: Piece.Knight, color: Color.White, square: "b1" };
-	board[2][0] = { piece: Piece.Bishop, color: Color.White, square: "c1" };
-	board[3][0] = { piece: Piece.Queen, color: Color.White, square: "d1" };
-	board[4][0] = { piece: Piece.King, color: Color.White, square: "e1" };
-	board[5][0] = { piece: Piece.Bishop, color: Color.White, square: "f1" };
-	board[6][0] = { piece: Piece.Knight, color: Color.White, square: "g1" };
-	board[7][0] = { piece: Piece.Rook, color: Color.White, square: "h1" };
-
-	// White pawns
-	board[0][1] = { piece: Piece.Pawn, color: Color.White, square: "a2" };
-	board[1][1] = { piece: Piece.Pawn, color: Color.White, square: "b2" };
-	board[2][1] = { piece: Piece.Pawn, color: Color.White, square: "c2" };
-	board[3][1] = { piece: Piece.Pawn, color: Color.White, square: "d2" };
-	board[4][1] = { piece: Piece.Pawn, color: Color.White, square: "e2" };
-	board[5][1] = { piece: Piece.Pawn, color: Color.White, square: "f2" };
-	board[6][1] = { piece: Piece.Pawn, color: Color.White, square: "g2" };
-	board[7][1] = { piece: Piece.Pawn, color: Color.White, square: "h2" };
-
-	// Black pieces
-	board[0][7] = { piece: Piece.Rook, color: Color.Black, square: "a8" };
-	board[1][7] = { piece: Piece.Knight, color: Color.Black, square: "b8" };
-	board[2][7] = { piece: Piece.Bishop, color: Color.Black, square: "c8" };
-	board[3][7] = { piece: Piece.Queen, color: Color.Black, square: "d8" };
-	board[4][7] = { piece: Piece.King, color: Color.Black, square: "e8" };
-	board[5][7] = { piece: Piece.Bishop, color: Color.Black, square: "f8" };
-	board[6][7] = { piece: Piece.Knight, color: Color.Black, square: "g8" };
-	board[7][7] = { piece: Piece.Rook, color: Color.Black, square: "h8" };
-
-	// Black pawns
-	board[0][6] = { piece: Piece.Pawn, color: Color.Black, square: "a7" };
-	board[1][6] = { piece: Piece.Pawn, color: Color.Black, square: "b7" };
-	board[2][6] = { piece: Piece.Pawn, color: Color.Black, square: "c7" };
-	board[3][6] = { piece: Piece.Pawn, color: Color.Black, square: "d7" };
-	board[4][6] = { piece: Piece.Pawn, color: Color.Black, square: "e7" };
-	board[5][6] = { piece: Piece.Pawn, color: Color.Black, square: "f7" };
-	board[6][6] = { piece: Piece.Pawn, color: Color.Black, square: "g7" };
-	board[7][6] = { piece: Piece.Pawn, color: Color.Black, square: "h7" };
-
-	return board;
+function position_from_fen(FEN: string): BoardState {
+    let board: BoardState = {
+        pieces: [],
+        en_passant_square: null,
+        turn: Color.White
+    }
+    let x = 1
+    let y = 8
+    let piece_placement = false
+    let active_color = false
+    for (const c of FEN) {
+        if (!piece_placement) {
+            if (c == "/") {
+                --y
+                x = 1
+            } else if (c == " ") {
+                piece_placement = true
+            } else if (["P", "N", "B", "R", "Q", "K", "p", "n", "b", "r", "q", "k"].includes(c)) {
+                board.pieces.push(
+                    {piece: get_piece_by_letter(c), color: get_color_by_letter(c), square: make_coordinates(x, y)},
+                )
+                ++x
+            } else if (["1", "2", "3", "4", "5", "6", "7", "8"].includes(c)) {
+                x = x + parseInt(c)
+            }
+        } else if (!active_color) {
+            if (c == "w") {
+                board.turn = Color.White
+            } else if (c == "b") {
+                board.turn = Color.Black
+            } else {
+                active_color = true
+            }
+        }
+    }
+    return board
 }
 
-function create_new_game(): Game {
-	const white: Player = { color: Color.White, pieces: [] }
-	const black: Player = { color: Color.Black, pieces: [] }
-
-	setup_player_piece_arrays(white);
-	setup_player_piece_arrays(black);
-
-	const board = get_default_board();
-
-	setup_player_pieces(white, black, board);
-
-	const game: Game = { board, white, black, moves: [], turn: Color.White };
-
-	return game;
+function get_default_board(): BoardState  {
+    return {
+        pieces: [
+            {piece: Piece.Rook, color: Color.White, square: make_coordinates(1, 1)},
+            {piece: Piece.Rook, color: Color.White, square: make_coordinates(8, 1)},
+            {piece: Piece.Rook, color: Color.Black, square: make_coordinates(1, 8)},
+            {piece: Piece.Rook, color: Color.Black, square: make_coordinates(8, 8)}
+        ],
+        en_passant_square: null,
+        turn: Color.White
+    }
 }
 
 function make_coordinates(x: number, y: number): Coordinates {
-	return { x, y };
-}
-
-function coordinates_to_square(coordinates: Coordinates): string {
-	return String.fromCharCode(97 + coordinates.x) + (coordinates.y + 1).toString();
-}
-
-function square_to_coordinates(square: string): Coordinates {
-	return { x: square.charCodeAt(0) - 97, y: Number(square[1]) - 1 };
-}
-
-function board_piece_at_square(square: string, board: Board): BoardPiece | undefined {
-	return board[square.charCodeAt(0) - 97][Number(square[1]) - 1];
-}
-
-function board_piece_at_coordinates(coordinates: Coordinates, board: Board): BoardPiece | undefined {
-	return board[coordinates.x][coordinates.y];
-}
-
-function board_piece_to_coordinates(boardPiece: BoardPiece): Coordinates {
-	return square_to_coordinates(boardPiece.square);
+    return { x, y };
 }
 
 function out_of_bounds(coordinates: Coordinates) {
-	return coordinates.x < 0 || coordinates.x > 7 || coordinates.y < 0 || coordinates.y > 7;
+    return coordinates.x < 1 || coordinates.x > 8 || coordinates.y < 1 || coordinates.y > 8;
 }
 
-function can_move_by_rules(boardPiece: BoardPiece, to: Coordinates, game: Game): boolean {
-	function can_pawn(): boolean {
-		if (boardPiece.color === Color.White) {
-			// one step forward
-			if (to.y - from.y === 1 && to.x - from.x === 0) return true;
-
-			// two steps forward (only pawns on second rank)
-			if (from.y === 1 && (to.y - from.y === 2 && to.x - from.x === 0)) return true;
-
-			// en passant
-			if (from.y === 4 && to.y - from.y === 1 && Math.abs(to.x - from.x) === 1) {
-				let enemyBoardPiece: BoardPiece | undefined = board_piece_at_coordinates(make_coordinates(to.x, from.y), game.board);
-
-				if (enemyBoardPiece === undefined || enemyBoardPiece.color === boardPiece.color 
-					|| enemyBoardPiece.piece !== Piece.Pawn || game.moves.length === 0) return false;
-
-					const lastMove: Move = game.moves[game.moves.length - 1];
-				
-				if (lastMove.boardPiece === enemyBoardPiece && lastMove.from.y === 6) return true;
-			}
-		} else {
-			// one step forward
-			if (from.y - to.y === 1 && to.x - from.x === 0) return true;
-
-			// two steps forward (only pawns on seventh rank)
-			if (from.y === 6 && (from.y - to.y === 2 && to.x - from.x === 0)) return true;
-
-			// en passant
-			if (from.y === 3 && from.y - to.y === 1 && Math.abs(to.x - from.x) === 1) {
-				const enemyBoardPiece: BoardPiece | undefined = board_piece_at_coordinates(make_coordinates(to.x, from.y), game.board);
-
-				if (enemyBoardPiece === undefined || enemyBoardPiece.color === boardPiece.color 
-					|| enemyBoardPiece.piece !== Piece.Pawn || game.moves.length === 0) return false;
-
-					const lastMove: Move = game.moves[game.moves.length - 1];
-				
-				if (lastMove.boardPiece === enemyBoardPiece && lastMove.from.y === 1) return true;
-			}
-		}
-
-		return false;
-	}
-
-	function can_knight(): boolean {
-		return ((Math.abs(to.x - from.x) === 2 && Math.abs(to.y - from.y) === 1)
-			|| (Math.abs(to.x - from.x) === 1 && Math.abs(to.y - from.y) === 2));
-	}
-
-	function can_bishop(): boolean {
-		return to.x - from.x !== 0 && Math.abs(to.x - from.x) === Math.abs(to.y - from.y);
-	}
-
-	function can_rook(): boolean {
-		return ((to.x - from.x !== 0 && to.y - from.y === 0) || (to.x - from.x == 0 && to.y - from.y !== 0));
-	}
-
-	function can_queen(): boolean {
-		return can_bishop() || can_rook();
-	}
-
-	function can_king(): boolean {
-		const diff_x = Math.abs(to.x - from.x);
-		const diff_y = Math.abs(to.y - from.y);
-
-		if (diff_x === 0 && diff_y === 0) return false;
-
-		// castle stuff
-
-		return (diff_x <= 1 && diff_y <= 1);
-	}
-
-	const from = square_to_coordinates(boardPiece.square);
-
-	if (out_of_bounds(from) || out_of_bounds(to)) return false;
-
-	const piece = boardPiece.piece;
-
-	return piece === Piece.Pawn
-	? can_pawn()
-	: piece === Piece.Knight
-	? can_knight()
-	: piece === Piece.Bishop
-	? can_bishop()
-	: piece === Piece.Rook
-	? can_rook()
-	: piece === Piece.Queen
-	? can_queen()
-	: can_king();
+function get_piece_by_square(coordinates: Coordinates, state: BoardState): BoardPiece | null {
+    for (const piece of state.pieces) {
+        if (piece.square.x == coordinates.x && piece.square.y == coordinates.y) {
+            return piece
+        }
+    }
+    return null
 }
 
-function can_actually_move(boardPiece: BoardPiece, to: Coordinates, game: Game) {
-	if (boardPiece === undefined || game.turn !== boardPiece.color) return false;
-	if (!can_move_by_rules(boardPiece, to, game)) return false;
-
-	const board_piece_at_to: BoardPiece | undefined = board_piece_at_coordinates(make_coordinates(to.x, to.y), board);
-
-	if (board_piece_at_to !== undefined && board_piece_at_to.color === boardPiece.color) return false;
-
-	// not in check
-	// free way between
-
-	return true;
+function is_piece(piece: BoardPiece | null): piece is BoardPiece {
+    return piece != null
 }
 
-function move_board_piece_to_coordinates(boardPiece: BoardPiece, toCoordinates: Coordinates, game: Game): boolean {
-	if (!can_actually_move(boardPiece, toCoordinates, game)) return false;
+function square_has_piece(coordinates: Coordinates, state: BoardState, color?: Color): boolean {
+    const square_piece = get_piece_by_square(coordinates, state)
+    return is_piece(square_piece) && (typeof color === "undefined" || square_piece.color == color)
 
-	const board: Board = game.board;
-	const fromCoordinates: Coordinates = board_piece_to_coordinates(boardPiece);
-
-	boardPiece.square = coordinates_to_square(make_coordinates(toCoordinates.x, toCoordinates.y));
-
-	board[toCoordinates.x][toCoordinates.y] = boardPiece;
-	board[fromCoordinates.x][fromCoordinates.y] = undefined;
-
-	// if en passant also remove piece next to from
-
-	game.moves[game.moves.length] = { boardPiece, from: fromCoordinates, to: toCoordinates };
-	game.turn = boardPiece.color === Color.White ? Color.Black : Color.White;
-
-	return true;
 }
 
-function board_piece_to_char(boardPiece: BoardPiece | undefined): string {
-	if (boardPiece === undefined) return "E";
+function get_regular_moves(piece: BoardPiece, state: BoardState, directions: [number, number][]): Moves {
+    const moves: Moves = []
+    for (const direction of directions) {
+        let pos: Coordinates = {x: piece.square.x + direction[0], y: piece.square.y + direction[1]}
+        while (!out_of_bounds(pos) && (!square_has_piece(pos, state, piece.color))) {
+            moves.push({ from: piece.square, to: {x: pos.x, y: pos.y}, is_castling: false, is_en_passant: false })
+            pos.x = pos.x + direction[0]
+            pos.y = pos.y + direction[1]
+        }
 
-	const piece = boardPiece.piece;
-
-	return piece === Piece.Pawn
-	? "P"
-	: piece === Piece.Knight
-	? "N"
-	: piece === Piece.Bishop
-	? "B"
-	: piece === Piece.Rook
-	? "R"
-	: piece === Piece.Queen
-	? "Q"
-	: piece === Piece.King
-	? "K"
-	: "";
+    }
+    return moves
 }
 
-function draw(board: Board): void {
-	for (let y = 7; y >= 0; y--) {
-		let rank = "";
-
-		for (let x = 0; x <= 7; x++) {
-			const boardPiece: BoardPiece | undefined = board_piece_at_coordinates(make_coordinates(x, y), board);
-
-			if (boardPiece !== undefined && boardPiece.color === Color.White) {
-				rank += '\x1B[37m';
-			} else if (boardPiece !== undefined && boardPiece.color === Color.Black) {
-				rank += '\x1B[36m';
-			} else {
-				rank += '\x1B[32m';
-			}
-
-			rank += board_piece_to_char(board_piece_at_coordinates(make_coordinates(x, y), board)) + " ";
-		}
-
-		console.log(rank + '\x1B[37m');
-	}
+function get_rook_moves(piece: BoardPiece, state: BoardState): Moves {
+    return get_regular_moves(piece, state, [[1, 0], [-1, 0], [0, 1], [0, -1]])
 }
 
-const game: Game = create_new_game();
-const board: Board = game.board;
-const white: Player = game.white;
-const black: Player = game.black;
-
-draw(board);
-
-for (let i = 0; i < white.pieces[Piece.Pawn].length; i++) {
-	console.log(white.pieces[Piece.Pawn][i]);
+function get_bishop_moves(piece: BoardPiece, state: BoardState): Moves {
+    return get_regular_moves(piece, state, [[1, 1], [1, -1], [-1, 1], [-1, -1]])
 }
 
-move_board_piece_to_coordinates(board_piece_at_square("e2", board) as BoardPiece, square_to_coordinates("e4"), game);
-move_board_piece_to_coordinates(board_piece_at_square("e7", board) as BoardPiece, square_to_coordinates("e6"), game);
-move_board_piece_to_coordinates(board_piece_at_square("e4", board) as BoardPiece, square_to_coordinates("e5"), game);
-move_board_piece_to_coordinates(board_piece_at_square("f7", board) as BoardPiece, square_to_coordinates("f5"), game);
-
-draw(board);
-
-for (let i = 0; i < white.pieces[Piece.Pawn].length; i++) {
-	console.log(white.pieces[Piece.Pawn][i]);
+function get_queen_moves(piece: BoardPiece, state: BoardState): Moves {
+    return get_rook_moves(piece, state).concat(get_bishop_moves(piece, state))
 }
 
-//en passant
-console.log(can_move_by_rules(board_piece_at_square("e5", board) as BoardPiece, square_to_coordinates("f6"), game));
+function is_rook(piece: BoardPiece): boolean {
+    return piece.piece == Piece.Rook
+}
+
+function is_bishop(piece: BoardPiece): boolean {
+    return piece.piece == Piece.Rook
+}
+
+function is_queen(piece: BoardPiece): boolean {
+    return piece.piece == Piece.Rook
+}
+
+function get_piece_moves(piece: BoardPiece, state: BoardState): Moves {
+    return is_rook(piece)
+        ? get_rook_moves(piece, state)
+        : is_bishop(piece)
+        ? get_bishop_moves(piece, state)
+        : is_queen(piece)
+        ? get_queen_moves(piece, state)
+        : []
+
+}
+
+function get_player_pieces(state: BoardState, color: Color): BoardPiece[] {
+    const pieces: BoardPiece[] = []
+    for (const piece of state.pieces) {
+        if (piece.color == color) {
+            pieces.push(piece)
+        }
+    }
+    return pieces
+}
 
 
-console.log(can_move_by_rules(board_piece_at_square("d1", board) as BoardPiece, square_to_coordinates("d3"), game));
-console.log(can_move_by_rules(board_piece_at_square("d2", board) as BoardPiece, square_to_coordinates("d5"), game));
+function get_prospective_moves(state: BoardState): Moves {
+    let moves: Moves = []
+    for (const piece of get_player_pieces(state, state.turn)) {
+        moves = moves.concat(get_piece_moves(piece, state))
+    }
+    return moves
+}
+
+function get_legal_moves(state: BoardState): Moves {
+    const moves: Moves = []
+
+    return moves
+}
+
+// const board = get_default_board()
+// console.log(get_prospective_moves(board))
+// console.log(get_prospective_moves(board).length)
+// console.log(square_has_piece({x: 1, y:1}, board))
+const board = position_from_fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
+console.log(board)
+console.log(get_prospective_moves(board))
+console.log(get_prospective_moves(board).length)
+
+// for (const p of board.pieces) {
+//     console.log(p.square)
+// }
+
+for (let y = 1; y <= 8; ++y) {
+    let s = ""
+    for (let x = 1; x <= 8; ++x) {
+        const p = get_piece_by_square(make_coordinates(x, y), board)
+        s = s + "  " + p?.piece + "  "
+    }
+    console.log(s)
+}
