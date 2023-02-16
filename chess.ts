@@ -98,6 +98,50 @@ export function position_from_fen(FEN: string): BoardState {
     return board
 }
 
+function export_to_fen(state: BoardState): string {
+    function row_to_fen(y: number): string {
+        let s = ""
+        let empty_count = 0
+        for (let x = 1; x <= 8; ++x) {
+            const p = get_piece_by_square(make_coordinates(x, y), board)
+            if (p === null) {
+                ++empty_count
+            } else {
+                if (empty_count > 0) {
+                    s += empty_count.toString()
+                    empty_count = 0
+                }
+                s += get_letter_by_piece(p)
+            }
+        }
+        if (empty_count > 0) {
+            s += empty_count.toString()
+        }
+        return s
+    }
+    function get_castling_rights_string(state: BoardState): string {
+        // TODO
+        return "KQkq"
+    }
+    function get_en_passant_string(state: BoardState): string {
+        // TODO
+        return "-"
+    }
+    return (
+        [8, 7, 6, 5, 4, 3, 2, 1].map(row_to_fen).join("/")
+        + " "
+        + (state.turn === Color.White ? "w" : "b")
+        + " "
+        + get_castling_rights_string(state)
+        + " "
+        + get_en_passant_string(state)
+        + " "
+        + "0" //TODO
+        + " "
+        + "1" //TODO
+    )
+}
+
 function get_default_board(): BoardState  {
     return position_from_fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
 }
@@ -276,3 +320,4 @@ function draw(state: BoardState): void {
 const board = position_from_fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
 
 draw(board)
+console.log(export_to_fen(board))
