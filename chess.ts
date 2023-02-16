@@ -16,14 +16,14 @@ function get_piece_by_letter(letter: string): Piece {
     return letter === "p"
         ? Piece.Pawn
         : letter === "n"
-            ? Piece.Knight
-            : letter === "b"
-                ? Piece.Bishop
-                : letter === "r"
-                    ? Piece.Rook
-                    : letter === "q"
-                        ? Piece.Queen
-                        : Piece.King
+        ? Piece.Knight
+        : letter === "b"
+        ? Piece.Bishop
+        : letter === "r"
+        ? Piece.Rook
+        : letter === "q"
+        ? Piece.Queen
+        : Piece.King
 }
 
 function get_letter_by_piece(boardPiece: BoardPiece | null): string {
@@ -35,14 +35,14 @@ function get_letter_by_piece(boardPiece: BoardPiece | null): string {
     return piece === Piece.Pawn
         ? get_letter_by_color("P", color)
         : piece === Piece.Knight
-            ? get_letter_by_color("N", color)
-            : piece === Piece.Bishop
-                ? get_letter_by_color("B", color)
-                : piece === Piece.Rook
-                    ? get_letter_by_color("R", color)
-                    : piece === Piece.Queen
-                        ? get_letter_by_color("Q", color)
-                        : get_letter_by_color("K", color)
+        ? get_letter_by_color("N", color)
+        : piece === Piece.Bishop
+        ? get_letter_by_color("B", color)
+        : piece === Piece.Rook
+        ? get_letter_by_color("R", color)
+        : piece === Piece.Queen
+        ? get_letter_by_color("Q", color)
+        : get_letter_by_color("K", color)
 }
 
 function get_color_by_letter(letter: string): Color {
@@ -165,11 +165,10 @@ function get_piece_moves(piece: BoardPiece, state: BoardState): Moves {
     return is_rook(piece)
         ? get_rook_moves(piece, state)
         : is_bishop(piece)
-            ? get_bishop_moves(piece, state)
-            : is_queen(piece)
-                ? get_queen_moves(piece, state)
-                : []
-
+        ? get_bishop_moves(piece, state)
+        : is_queen(piece)
+        ? get_queen_moves(piece, state)
+        : []
 }
 
 function get_player_pieces(state: BoardState, color: Color): BoardPiece[] {
