@@ -107,24 +107,18 @@ export function position_from_fen(FEN: string): BoardState {
 
 export function export_to_fen(state: BoardState): string {
     function row_to_fen(y: number): string {
-        let s = ""
-        let empty_count = 0
-        for (let x = 1; x <= 8; ++x) {
-            const p = get_piece_by_square(make_coordinates(x, y), state)
-            if (p === null) {
-                ++empty_count
-            } else {
-                if (empty_count > 0) {
-                    s += empty_count.toString()
-                    empty_count = 0
-                }
-                s += get_letter_by_piece(p)
-            }
-        }
-        if (empty_count > 0) {
-            s += empty_count.toString()
-        }
-        return s
+        return [1, 2, 3, 4, 5, 6, 7, 8].map(
+            (x) => get_letter_by_piece(
+                get_piece_by_square(make_coordinates(x, y), state)
+            )
+        ).map(
+            (c) => c === "E" ? "1" : c
+        ).reduce(
+            (l, r) => (
+                ["1", "2", "3", "4", "5", "6", "7"].includes(l)
+                && r === "1"
+            ) ? (parseInt(l) + parseInt(r)).toString() : l + r
+        )
     }
     function get_castling_rights_string(state: BoardState): string {
         // TODO
