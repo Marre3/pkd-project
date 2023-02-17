@@ -214,10 +214,10 @@ function get_queen_moves(piece: BoardPiece, state: BoardState): Moves {
     return get_rook_moves(piece, state).concat(get_bishop_moves(piece, state))
 }
 
-function get_knight_moves(piece: BoardPiece, state: BoardState): Moves {
+function get_fixed_distance_moves(piece: BoardPiece, state: BoardState, offsets: [number, number][]): Moves {
     const moves: Moves = []
-    for (const diff of [[2, 1], [1, 2], [-1, 2], [-2, 1], [-2, -1], [-1, -2], [1, -2], [2, -1]]) {
-        const square = make_coordinates(piece.square.x + diff[0], piece.square.y + diff[1])
+    for (const offset of offsets) {
+        const square = make_coordinates(piece.square.x + offset[0], piece.square.y + offset[1])
         if (! out_of_bounds(state, square) && ! square_has_piece(square, state, piece.color)) {
             moves.push(
                 {
@@ -233,24 +233,21 @@ function get_knight_moves(piece: BoardPiece, state: BoardState): Moves {
     return moves
 }
 
+function get_knight_moves(piece: BoardPiece, state: BoardState): Moves {
+    return get_fixed_distance_moves(
+        piece,
+        state,
+        [[2, 1], [1, 2], [-1, 2], [-2, 1], [-2, -1], [-1, -2], [1, -2], [2, -1]]
+    )
+}
+
 function get_king_moves(piece: BoardPiece, state: BoardState): Moves {
     // TODO: Castling
-    const moves: Moves = []
-    for (const diff of [[1, 1], [0, 1], [0, -1], [-1, 1], [-1, 0], [-1, -1], [0, -1], [1, -1]]) {
-        const square = make_coordinates(piece.square.x + diff[0], piece.square.y + diff[1])
-        if (! out_of_bounds(state, square) && ! square_has_piece(square, state, piece.color)) {
-            moves.push(
-                {
-                    from: piece.square,
-                    to: square,
-                    piece_type: piece.piece,
-                    is_castling: false,
-                    is_en_passant: false
-                }
-            )
-        }
-    }
-    return moves
+    return get_fixed_distance_moves(
+        piece,
+        state,
+        [[1, 1], [0, 1], [0, -1], [-1, 1], [-1, 0], [-1, -1], [0, -1], [1, -1]]
+    )
 }
 
 function get_pawn_moves(piece: BoardPiece, state: BoardState): Moves {
@@ -294,7 +291,6 @@ function get_pawn_moves(piece: BoardPiece, state: BoardState): Moves {
             )
         }
     }
-
     return moves
 }
 
@@ -341,7 +337,6 @@ function get_piece_moves(piece: BoardPiece, state: BoardState): Moves {
 function get_player_pieces(state: BoardState, color: Color): BoardPiece[] {
     return state.pieces.filter((piece) => piece.color === color)
 }
-
 
 function get_prospective_moves(state: BoardState): Moves {
     let moves: Moves = []
