@@ -110,7 +110,7 @@ export function export_to_fen(state: BoardState): string {
         let s = ""
         let empty_count = 0
         for (let x = 1; x <= 8; ++x) {
-            const p = get_piece_by_square(make_coordinates(x, y), board)
+            const p = get_piece_by_square(make_coordinates(x, y), state)
             if (p === null) {
                 ++empty_count
             } else {
