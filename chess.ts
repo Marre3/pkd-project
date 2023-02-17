@@ -148,7 +148,7 @@ export function export_to_fen(state: BoardState): string {
     )
 }
 
-function get_default_board(): BoardState  {
+export function get_default_board(): BoardState  {
     return position_from_fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
 }
 
@@ -395,7 +395,7 @@ function apply_move(state: BoardState, move: Move): BoardState {
     }
 }
 
-function get_legal_moves(state: BoardState): Moves {
+export function get_legal_moves(state: BoardState): Moves {
     let moves: Moves = get_prospective_moves(state)
     moves = moves.filter(
         (move: Move) => ! is_check(apply_move(state, move), state.turn),
@@ -419,5 +419,3 @@ function draw(state: BoardState): void {
 const board = get_default_board()
 
 draw(board)
-console.log(export_to_fen(board))
-console.log(get_legal_moves(board))
