@@ -339,13 +339,7 @@ function get_piece_moves(piece: BoardPiece, state: BoardState): Moves {
 }
 
 function get_player_pieces(state: BoardState, color: Color): BoardPiece[] {
-    const pieces: BoardPiece[] = []
-    for (const piece of state.pieces) {
-        if (piece.color == color) {
-            pieces.push(piece)
-        }
-    }
-    return pieces
+    return state.pieces.filter((piece) => piece.color === color)
 }
 
 
