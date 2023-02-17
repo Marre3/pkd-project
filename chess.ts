@@ -156,12 +156,9 @@ function out_of_bounds(state: BoardState, coordinates: Coordinates) {
 }
 
 function get_piece_by_square(coordinates: Coordinates, state: BoardState): BoardPiece | null {
-    for (const piece of state.pieces) {
-        if (piece.square.x == coordinates.x && piece.square.y == coordinates.y) {
-            return piece
-        }
-    }
-    return null
+    return state.pieces.find(
+        (piece) => piece.square.x == coordinates.x && piece.square.y == coordinates.y
+    ) || null
 }
 
 function is_piece(piece: BoardPiece | null): piece is BoardPiece {
