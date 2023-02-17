@@ -237,6 +237,49 @@ function get_king_moves(piece: BoardPiece, state: BoardState): Moves {
     return moves
 }
 
+function get_pawn_moves(piece: BoardPiece, state: BoardState): Moves {
+    // TODO: google en passant
+    // TODO: piece promotion
+    const moves: Moves = []
+    const one_square_ahead = make_coordinates(
+        piece.square.x,
+        piece.color === Color.White ? piece.square.y + 1 : piece.square.y - 1
+    )
+    const two_squares_ahead = make_coordinates(
+        piece.square.x,
+        piece.color === Color.White ? piece.square.y + 2 : piece.square.y - 2
+    )
+    if (! square_has_piece(one_square_ahead, state)) {
+        moves.push(
+            {
+                from: piece.square,
+                to: one_square_ahead,
+                is_castling: false,
+                is_en_passant: false
+            }
+        )
+
+        if (
+            (
+                piece.color === Color.White && piece.square.y === 2
+                || piece.color === Color.Black && piece.square.y === 7
+            )
+            && ! square_has_piece(two_squares_ahead, state)
+        ) {
+            moves.push(
+                {
+                    from: piece.square,
+                    to: two_squares_ahead,
+                    is_castling: false,
+                    is_en_passant: false
+                }
+            )
+        }
+    }
+
+    return moves
+}
+
 function is_rook(piece: BoardPiece): boolean {
     return piece.piece == Piece.Rook
 }
@@ -272,7 +315,9 @@ function get_piece_moves(piece: BoardPiece, state: BoardState): Moves {
         ? get_knight_moves(piece, state)
         : is_king(piece)
         ? get_king_moves(piece, state)
-        : []
+        : is_pawn(piece)
+        ? get_pawn_moves(piece, state)
+        : [] // Should be unreachable
 }
 
 function get_player_pieces(state: BoardState, color: Color): BoardPiece[] {
@@ -327,6 +372,7 @@ function apply_move(state: BoardState, move: Move): BoardState {
         square: move.to
     }
     return {
+        // TODO: handle en passant
         pieces: state.pieces.filter(
             (p: BoardPiece) => (p.square != move.to && p.square != move.from),
         ).concat([new_piece]),
@@ -358,8 +404,7 @@ function draw(state: BoardState): void {
     }
 }
 
-// const board = position_from_fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
-const board = position_from_fen("rnbqkbnr/pppppppp/8/8/8/8/PPP3PP/RNBQKBNR w KQkq - 0 1")
+const board = get_default_board()
 
 draw(board)
 console.log(export_to_fen(board))
