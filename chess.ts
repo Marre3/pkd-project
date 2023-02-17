@@ -357,12 +357,7 @@ function get_king_position(state: BoardState, color: Color): Coordinates {
 }
 
 function is_check(state: BoardState, color: Color): boolean {
-    for (const move of get_prospective_moves(state)) {
-        if (move.to == get_king_position(state, color)) {
-            return true
-        }
-    }
-    return false
+    return get_prospective_moves(state).some((move) => (move.to == get_king_position(state, color)))
 }
 
 function other_color(color: Color): Color {
@@ -391,12 +386,11 @@ function apply_move(state: BoardState, move: Move): BoardState {
     }
 }
 
+/** Exclude moves which would put the player's own king in check */
 export function get_legal_moves(state: BoardState): Moves {
-    let moves: Moves = get_prospective_moves(state)
-    moves = moves.filter(
+    return get_prospective_moves(state).filter(
         (move: Move) => ! is_check(apply_move(state, move), state.turn),
     )
-    return moves
 }
 
 function draw(state: BoardState): void {
@@ -407,11 +401,9 @@ function draw(state: BoardState): void {
 
             s = s + " " + get_letter_by_piece(p) + " "
         }
-
         console.log(s)
     }
 }
-
 const board = get_default_board()
 
 draw(board)
