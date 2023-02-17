@@ -133,10 +133,10 @@ export function export_to_fen(state: BoardState): string {
     }
     function get_castling_rights_string(state: BoardState): string {
         return (
-            state.castling.white_kingside ? "K" : ""
-            + state.castling.white_queenside ? "Q" : ""
-            + state.castling.black_kingside ? "k" : ""
-            + state.castling.black_queenside ? "q" : ""
+            (state.castling.white_kingside ? "K" : "")
+            + (state.castling.white_queenside ? "Q" : "")
+            + (state.castling.black_kingside ? "k" : "")
+            + (state.castling.black_queenside ? "q" : "")
         ) || "-"
     }
     function get_en_passant_string(state: BoardState): string {
