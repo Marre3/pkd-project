@@ -201,10 +201,12 @@ function get_regular_moves(piece: BoardPiece, state: BoardState, directions: [nu
                     is_en_passant: false
                 }
             )
+
+            if (square_has_piece(pos, state, other_color(piece.color))) break
+
             pos.x = pos.x + direction[0]
             pos.y = pos.y + direction[1]
         }
-
     }
     return moves
 }
@@ -411,6 +413,6 @@ function draw(state: BoardState): void {
         console.log(s)
     }
 }
-const board = get_default_board()
+const board = position_from_fen("rnbqkbnr/pppppppp/8/8/8/8/1PPPPPPP/RNBQKBNR w KQkq - 0 1")
 
 draw(board)
