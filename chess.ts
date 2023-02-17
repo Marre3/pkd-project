@@ -7,7 +7,12 @@ export type BoardState = {
     pieces: BoardPiece[],
     en_passant_square: Coordinates | null,
     turn: Color
-
+    castling: {
+        white_kingside: boolean,
+        white_queenside: boolean,
+        black_kingside: boolean,
+        black_queenside: boolean
+    }
     // Hardcoded right now to literal. But the flexibility is a bonus.
     width: 8;
     height: 8;
@@ -70,6 +75,12 @@ export function position_from_fen(FEN: string): BoardState {
         width: 8,
         height: 8,
         pieces: [],
+        castling: {
+            white_kingside: true,
+            white_queenside: true,
+            black_kingside: true,
+            black_queenside: true
+        },
         en_passant_square: null,
         turn: Color.White
     }
@@ -366,12 +377,13 @@ function apply_move(state: BoardState, move: Move): BoardState {
         square: move.to
     }
     return {
-        // TODO: handle en passant
+        // TODO: handle en passant and castling rights
         pieces: state.pieces.filter(
             (p: BoardPiece) => (p.square != move.to && p.square != move.from),
         ).concat([new_piece]),
         en_passant_square: null,
         turn: other_color(state.turn),
+        castling: state.castling,
         width: 8,
         height: 8,
     }
