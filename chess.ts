@@ -41,19 +41,20 @@ function get_letter_by_piece(boardPiece: BoardPiece | null): string {
     if (!is_piece(boardPiece)) return "E"
 
     const piece = boardPiece.piece
-    const color = boardPiece.color
-
-    return piece === Piece.Pawn
-        ? get_letter_by_color("P", color)
+    return get_letter_by_color(
+        piece === Piece.Pawn
+        ? "P"
         : piece === Piece.Knight
-        ? get_letter_by_color("N", color)
+        ? "N"
         : piece === Piece.Bishop
-        ? get_letter_by_color("B", color)
+        ? "B"
         : piece === Piece.Rook
-        ? get_letter_by_color("R", color)
+        ? "R"
         : piece === Piece.Queen
-        ? get_letter_by_color("Q", color)
-        : get_letter_by_color("K", color)
+        ? "Q"
+        : "K",
+        boardPiece.color
+    )
 }
 
 function get_color_by_letter(letter: string): Color {
