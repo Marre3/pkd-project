@@ -13,7 +13,13 @@ export type BoardState = {
     height: 8;
 }
 type Coordinates = { x: number, y: number }
-type Move = { from: Coordinates, to: Coordinates, is_castling: boolean, is_en_passant: boolean }
+type Move = {
+    from: Coordinates,
+    to: Coordinates,
+    piece_type: Piece,
+    is_castling: boolean,
+    is_en_passant: boolean
+}
 type Moves = Move[]
 
 function get_piece_by_letter(letter: string): Piece {
@@ -179,7 +185,15 @@ function get_regular_moves(piece: BoardPiece, state: BoardState, directions: [nu
         const pos: Coordinates = { x: piece.square.x + direction[0], y: piece.square.y + direction[1] }
 
         while (!out_of_bounds(state, pos) && (!square_has_piece(pos, state, piece.color))) {
-            moves.push({ from: piece.square, to: { x: pos.x, y: pos.y }, is_castling: false, is_en_passant: false })
+            moves.push(
+                {
+                    from: piece.square,
+                    to: { x: pos.x, y: pos.y },
+                    piece_type: piece.piece,
+                    is_castling: false,
+                    is_en_passant: false
+                }
+            )
             pos.x = pos.x + direction[0]
             pos.y = pos.y + direction[1]
         }
@@ -209,6 +223,7 @@ function get_knight_moves(piece: BoardPiece, state: BoardState): Moves {
                 {
                     from: piece.square,
                     to: square,
+                    piece_type: piece.piece,
                     is_castling: false,
                     is_en_passant: false
                 }
@@ -228,6 +243,7 @@ function get_king_moves(piece: BoardPiece, state: BoardState): Moves {
                 {
                     from: piece.square,
                     to: square,
+                    piece_type: piece.piece,
                     is_castling: false,
                     is_en_passant: false
                 }
@@ -254,6 +270,7 @@ function get_pawn_moves(piece: BoardPiece, state: BoardState): Moves {
             {
                 from: piece.square,
                 to: one_square_ahead,
+                piece_type: piece.piece,
                 is_castling: false,
                 is_en_passant: false
             }
@@ -270,6 +287,7 @@ function get_pawn_moves(piece: BoardPiece, state: BoardState): Moves {
                 {
                     from: piece.square,
                     to: two_squares_ahead,
+                    piece_type: piece.piece,
                     is_castling: false,
                     is_en_passant: false
                 }
