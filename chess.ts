@@ -92,6 +92,7 @@ export function position_from_fen(FEN: string): BoardState {
     let y = 8
     let piece_placement = false
     let active_color = false
+    let en_passant = false
     let halfmove = false
     let fullmove = false
     for (const c of FEN) {
@@ -116,6 +117,10 @@ export function position_from_fen(FEN: string): BoardState {
                 board.turn = Color.Black
             } else {
                 active_color = true
+            }
+        } else if (!en_passant) {
+            if (c === " ") {
+                en_passant = true
             }
         } else if (!halfmove) {
             if (c === " ") {
