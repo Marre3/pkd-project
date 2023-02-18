@@ -151,8 +151,10 @@ export function export_to_fen(state: BoardState): string {
         ) || "-"
     }
     function get_en_passant_string(state: BoardState): string {
-        // TODO
-        return "-"
+        return state.en_passant_square === null
+            ? "-"
+            : coordinates_to_notation(state.en_passant_square)
+
     }
     return (
         [8, 7, 6, 5, 4, 3, 2, 1].map(row_to_fen).join("/")
