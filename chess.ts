@@ -120,6 +120,13 @@ export function coordinates_to_notation(coordinates: Coordinates): string {
     return String.fromCharCode(96 + coordinates.x) + coordinates.y.toString()
 }
 
+export function coordinates_from_notation(notation: string): Coordinates {
+    return make_coordinates(
+        notation.charCodeAt(0) - 96,
+        parseInt(notation[1])
+    )
+}
+
 export function export_to_fen(state: BoardState): string {
     function row_to_fen(y: number): string {
         return [1, 2, 3, 4, 5, 6, 7, 8].map(
