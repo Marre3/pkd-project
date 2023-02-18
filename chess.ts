@@ -117,9 +117,8 @@ export function position_from_fen(FEN: string): BoardState {
 }
 
 function coordinates_to_notation(coordinates: Coordinates): string {
-    return String.fromCharCode(64 + coordinates.x) + coordinates.y.toString()
+    return String.fromCharCode(96 + coordinates.x) + coordinates.y.toString()
 }
-
 
 export function export_to_fen(state: BoardState): string {
     function row_to_fen(y: number): string {
