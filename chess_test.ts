@@ -13,6 +13,11 @@ Deno.test("export_starting_position", () => {
     assertEquals(export_to_fen(board), starting_position_fen)
 })
 
+Deno.test("export_en_passant", () => {
+    const fen = "rnbqkbnr/ppp2ppp/4p3/3pP3/8/8/PPPP1PPP/RNBQKBNR w KQkq d6 0 3"
+    assertEquals(export_to_fen(position_from_fen(fen)), fen)
+})
+
 Deno.test("starting_position_number_of_moves", () => {
     const board = get_default_board()
     assertEquals(get_legal_moves(board).length, 20)
