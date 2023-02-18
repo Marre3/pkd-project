@@ -1,5 +1,7 @@
 import { assertEquals } from "https://deno.land/std@0.177.0/testing/asserts.ts";
-import { coordinates_from_notation, coordinates_to_notation, export_to_fen, get_default_board, get_legal_moves, make_coordinates, position_from_fen, move_to_algebraic_notation, Piece } from './chess.ts'
+
+import { Piece } from "./game_types.ts"
+import { coordinates_from_notation, coordinates_to_notation, export_to_fen, get_default_board, get_legal_moves, make_coordinates, position_from_fen, move_to_algebraic_notation} from './chess.ts'
 
 
 Deno.test("basic_fen", () => {
