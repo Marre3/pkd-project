@@ -553,13 +553,23 @@ export function move_to_algebraic_notation(state: BoardState, move: Move): strin
 
     const to_square: string = coordinates_to_square(move.to)
     const capture: boolean = square_has_piece(move.to, state, other_color(state.turn)) || move.is_en_passant
+    let symbol = ""
+    const board_after_move = apply_move(state, move)
+
+    if (is_check(board_after_move, other_color(state.turn))) {
+        if (get_legal_moves(board_after_move).length > 0) {
+            symbol = "+"
+        } else {
+            symbol = "#"
+        }
+    }
 
     if (!capture) {
         const from_notation = construct_notation_for_from_coordinates(false)
-        return from_notation + to_square
+        return from_notation + to_square + symbol
     } else {
         const from_notation = construct_notation_for_from_coordinates(true)
-        return from_notation + "x" + to_square
+        return from_notation + "x" + to_square + symbol
     }
 }
 
