@@ -137,9 +137,9 @@ export function export_to_fen(state: BoardState): string {
             (c) => c === "E" ? "1" : c
         ).reduce(
             (l, r) => (
-                ["1", "2", "3", "4", "5", "6", "7"].includes(l)
+                ["1", "2", "3", "4", "5", "6", "7"].includes(l.slice(-1))
                 && r === "1"
-            ) ? (parseInt(l) + parseInt(r)).toString() : l + r
+            ) ? l.slice(0, -1) + (parseInt(l.slice(-1)) + 1).toString() : l + r
         )
     }
     function get_castling_rights_string(state: BoardState): string {
