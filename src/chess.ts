@@ -1,3 +1,4 @@
+import { get_piece_by_square, is_piece, square_has_piece } from "./board.ts";
 import { coordinates_from_notation, coordinates_to_notation, file_to_character, make_coordinates } from "./coordinates.ts";
 import { BoardPiece, BoardState, Color, Coordinates, Move, Moves, Piece } from "./game_types.ts"
 
@@ -138,21 +139,6 @@ export function get_default_board(): BoardState  {
 
 function out_of_bounds(state: BoardState, coordinates: Coordinates) {
     return coordinates.x < 1 || coordinates.x > state.width || coordinates.y < 1 || coordinates.y > state.height
-}
-
-export function get_piece_by_square(coordinates: Coordinates, state: BoardState): BoardPiece | null {
-    return state.pieces.find(
-        (piece) => piece.square.x == coordinates.x && piece.square.y == coordinates.y
-    ) || null
-}
-
-function is_piece(piece: BoardPiece | null): piece is BoardPiece {
-    return piece != null
-}
-
-function square_has_piece(coordinates: Coordinates, state: BoardState, color?: Color): boolean {
-    const square_piece = get_piece_by_square(coordinates, state)
-    return is_piece(square_piece) && (typeof color === "undefined" || square_piece.color == color)
 }
 
 function get_regular_moves(piece: BoardPiece, state: BoardState, directions: [number, number][]): Moves {
