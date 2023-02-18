@@ -79,12 +79,16 @@ export function position_from_fen(FEN: string): BoardState {
         for (const row of piece_data.split("/")) {
             let x = 1
             for (const c of row) {
-                if (["P", "N", "B", "R", "Q", "K", "p", "n", "b", "r", "q", "k"].includes(c)) {
+                if (isNaN(parseInt(c))) {
                     pieces.push(
-                        { piece: get_piece_by_letter(c), color: get_color_by_letter(c), square: make_coordinates(x, y) },
+                        {
+                            piece: get_piece_by_letter(c),
+                            color: get_color_by_letter(c),
+                            square: make_coordinates(x, y)
+                        },
                     )
                     ++x
-                } else if (["1", "2", "3", "4", "5", "6", "7", "8"].includes(c)) {
+                } else {
                     x = x + parseInt(c)
                 }
             }
