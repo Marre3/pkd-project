@@ -159,9 +159,9 @@ export function export_to_fen(state: BoardState): string {
         + " "
         + get_en_passant_string(state)
         + " "
-        + "0" //TODO
+        + state.halfmove_clock.toString()
         + " "
-        + "1" //TODO
+        + state.fullmove_number.toString()
     )
 }
 
