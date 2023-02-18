@@ -1,8 +1,9 @@
 import { BoardState } from "./game_types.ts"
 import { make_coordinates } from "./coordinates.ts"
 import { get_piece_by_square } from "./board.ts";
-import { get_default_board, move_to_algebraic_notation, get_letter_by_piece} from "./chess.ts"
+import { get_default_board } from "./chess.ts"
 import { get_legal_moves } from "./moves.ts";
+import { get_letter_by_piece, move_to_algebraic_notation } from "./notation.ts";
 
 export function draw(state: BoardState): void {
     for (let y = 8; y >= 1; --y) {
