@@ -1,4 +1,4 @@
-enum Piece { Pawn, Knight, Bishop, Rook, Queen, King }
+export enum Piece { Pawn, Knight, Bishop, Rook, Queen, King }
 enum Color { White, Black }
 
 type BoardPiece = { piece: Piece, color: Color, square: Coordinates }
@@ -194,7 +194,6 @@ function is_piece(piece: BoardPiece | null): piece is BoardPiece {
 function square_has_piece(coordinates: Coordinates, state: BoardState, color?: Color): boolean {
     const square_piece = get_piece_by_square(coordinates, state)
     return is_piece(square_piece) && (typeof color === "undefined" || square_piece.color == color)
-
 }
 
 function get_regular_moves(piece: BoardPiece, state: BoardState, directions: [number, number][]): Moves {
@@ -212,10 +211,12 @@ function get_regular_moves(piece: BoardPiece, state: BoardState, directions: [nu
                     is_en_passant: false
                 }
             )
+
+            if (square_has_piece(pos, state, other_color(piece.color))) break
+
             pos.x = pos.x + direction[0]
             pos.y = pos.y + direction[1]
         }
-
     }
     return moves
 }
@@ -272,13 +273,21 @@ function get_pawn_moves(piece: BoardPiece, state: BoardState): Moves {
     // TODO: google en passant
     // TODO: piece promotion
     const moves: Moves = []
-    const one_square_ahead = make_coordinates(
+    const one_square_ahead: Coordinates = make_coordinates(
         piece.square.x,
         piece.color === Color.White ? piece.square.y + 1 : piece.square.y - 1
     )
-    const two_squares_ahead = make_coordinates(
+    const two_squares_ahead: Coordinates = make_coordinates(
         piece.square.x,
         piece.color === Color.White ? piece.square.y + 2 : piece.square.y - 2
+    )
+    const first_capture_square: Coordinates = make_coordinates(
+        piece.square.x - 1,
+        piece.color === Color.White ? piece.square.y + 1 : piece.square.y - 1
+    )
+    const second_capture_square: Coordinates = make_coordinates(
+        piece.square.x + 1,
+        piece.color === Color.White ? piece.square.y + 1 : piece.square.y - 1
     )
     if (! square_has_piece(one_square_ahead, state)) {
         moves.push(
@@ -309,6 +318,35 @@ function get_pawn_moves(piece: BoardPiece, state: BoardState): Moves {
             )
         }
     }
+    const en_passant_first_square: boolean = state.en_passant_square !== null 
+        && state.en_passant_square.x === first_capture_square.x 
+        && state.en_passant_square.y === first_capture_square.y
+    const en_passant_second_square: boolean = state.en_passant_square !== null 
+        && state.en_passant_square.x === second_capture_square.x 
+        && state.en_passant_square.y === second_capture_square.y
+    if (square_has_piece(first_capture_square, state, other_color(piece.color)) || en_passant_first_square) {
+        moves.push(
+            {
+                from: piece.square,
+                to: first_capture_square,
+                piece_type: piece.piece,
+                is_castling: false,
+                is_en_passant: en_passant_first_square
+            }
+        )
+    }
+    if (square_has_piece(second_capture_square, state, other_color(piece.color)) || en_passant_second_square) {
+        moves.push(
+            {
+                from: piece.square,
+                to: second_capture_square,
+                piece_type: piece.piece,
+                is_castling: false,
+                is_en_passant: en_passant_second_square
+            }
+        )
+    }
+
     return moves
 }
 
@@ -391,12 +429,33 @@ function apply_move(state: BoardState, move: Move): BoardState {
         color: old_piece.color,
         square: move.to
     }
+    const allows_en_passant: boolean = move.piece_type === Piece.Pawn 
+        && (state.turn === Color.White
+            ? move.from.y === 2 && move.to.y == 4
+            : move.from.y === 7 && move.to.y == 5)
+    const en_passant_square: Coordinates | null = allows_en_passant
+        ? (state.turn === Color.White
+            ? make_coordinates(move.to.x, move.to.y - 1)
+            : make_coordinates(move.to.x, move.to.y + 1))
+        : null
+    const capture_en_passant: boolean = move.piece_type === Piece.Pawn
+        && state.en_passant_square !== null
+        && state.en_passant_square.x === move.to.x
+        && state.en_passant_square.y === move.to.y
+    const capture_en_passant_pawn_square: Coordinates | null = capture_en_passant
+        ? make_coordinates(move.to.x, move.from.y)
+        : null
+
     return {
         // TODO: handle en passant and castling rights
         pieces: state.pieces.filter(
-            (p: BoardPiece) => (p.square != move.to && p.square != move.from),
+            (p: BoardPiece) => (!(p.square.x === move.to.x && p.square.y === move.to.y)
+                && !(p.square.x === move.from.x && p.square.y === move.from.y)
+                && (capture_en_passant_pawn_square === null
+                    ? true
+                    : !(p.square.x === capture_en_passant_pawn_square.x && p.square.y === capture_en_passant_pawn_square.y)))
         ).concat([new_piece]),
-        en_passant_square: null,
+        en_passant_square,
         turn: other_color(state.turn),
         castling: state.castling,
         halfmove_clock: state.halfmove_clock + 1, // TODO: Reset on pawn move or capture
@@ -413,6 +472,81 @@ export function get_legal_moves(state: BoardState): Moves {
     )
 }
 
+function get_legal_moves_by_piece(state: BoardState, piece: BoardPiece): Moves {
+    return get_piece_moves(piece, state).filter(
+        (move: Move) => ! is_check(apply_move(state, move), state.turn),
+    )
+}
+
+function can_piece_move_to(state: BoardState, piece: BoardPiece, to: Coordinates): boolean {
+    return get_legal_moves_by_piece(state, piece).map(
+        (m: Move) => m.to).some(
+            (c: Coordinates) => c.x === to.x && c.y === to.y)
+}
+
+export function move_to_algebraic_notation(state: BoardState, move: Move): string | null {
+    function get_pieces_of_type(type: Piece, file?: number, rank?: number): BoardPiece[] {
+        let pieces: BoardPiece[] = []
+        for (const piece of state.pieces) {
+            if (piece.color === state.turn && piece.piece === type) {
+                if (typeof file !== "undefined" && piece.square.x !== file) continue
+                if (typeof rank !== "undefined" && piece.square.y !== rank) continue
+                pieces = pieces.concat(piece)
+            }
+        }
+        return pieces
+    }
+
+    function coordinates_to_square(coordinates: Coordinates): string {
+        return String.fromCharCode(96 + coordinates.x) + coordinates.y.toString()
+    }
+
+    function file_to_character(file: number): string {
+        return String.fromCharCode(96 + file)
+    }
+
+    function construct_notation_for_from_coordinates(capture: boolean): string {
+        if (move.piece_type === Piece.Pawn) {
+            if (capture) return file_to_character(move.from.x)
+            return ""
+        } else if (move.piece_type === Piece.King) {
+            return "K"
+        }
+
+        let notation = get_letter_by_piece(piece).toUpperCase()
+        const allowed_pieces_on_same_rank: BoardPiece[] = get_pieces_of_type(move.piece_type, undefined, move.from.y).filter(
+            (p: BoardPiece) => can_piece_move_to(state, p, move.to))
+        
+        if (allowed_pieces_on_same_rank.length > 1) notation += file_to_character(move.from.x)
+
+        const allowed_pieces_on_same_file: BoardPiece[] = get_pieces_of_type(move.piece_type, move.from.x).filter(
+            (p: BoardPiece) => can_piece_move_to(state, p, move.to))
+        
+        if (allowed_pieces_on_same_file.length > 1) notation += move.from.y.toString()
+
+        return notation
+    }
+    
+    const piece = get_piece_by_square(move.from, state)
+
+    if (!is_piece(piece) || state.turn !== piece.color) return null
+
+    // TODO: handle castling
+
+    if (!can_piece_move_to(state, piece, move.to)) return null
+
+    const to_square: string = coordinates_to_square(move.to)
+    const capture: boolean = square_has_piece(move.to, state, other_color(state.turn)) || move.is_en_passant
+
+    if (!capture) {
+        const from_notation = construct_notation_for_from_coordinates(false)
+        return from_notation + to_square
+    } else {
+        const from_notation = construct_notation_for_from_coordinates(true)
+        return from_notation + "x" + to_square
+    }
+}
+
 function draw(state: BoardState): void {
     for (let y = 8; y >= 1; --y) {
         let s = ""
@@ -427,3 +561,7 @@ function draw(state: BoardState): void {
 const board = get_default_board()
 
 draw(board)
+
+for (const move of get_legal_moves(board)) {
+    console.log(move_to_algebraic_notation(board, move))
+}
