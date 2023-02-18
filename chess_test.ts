@@ -1,5 +1,5 @@
 import { assertEquals } from "https://deno.land/std@0.177.0/testing/asserts.ts";
-import { coordinates_to_notation, export_to_fen, get_default_board, get_legal_moves, make_coordinates, position_from_fen } from './chess.ts'
+import { coordinates_from_notation, coordinates_to_notation, export_to_fen, get_default_board, get_legal_moves, make_coordinates, position_from_fen } from './chess.ts'
 
 Deno.test("basic_fen", () => {
     const board = position_from_fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
@@ -29,4 +29,17 @@ Deno.test("test_coordinates_to_notation", () => {
     assertEquals(coordinates_to_notation(make_coordinates(5, 2)), "e2")
     assertEquals(coordinates_to_notation(make_coordinates(6, 5)), "f5")
     assertEquals(coordinates_to_notation(make_coordinates(7, 3)), "g3")
+})
+
+Deno.test("test_coordinates_from_notation", () => {
+    for (let x = 1; x <= 8; ++x) {
+        for (let y = 1; y <= 8; ++y) {
+            assertEquals(
+                make_coordinates(x, y),
+                coordinates_from_notation(
+                    coordinates_to_notation(make_coordinates(x, y))
+                )
+            )
+        }
+    }
 })
