@@ -1,3 +1,4 @@
+import { coordinates_from_notation, coordinates_to_notation, file_to_character, make_coordinates } from "./coordinates.ts";
 import { BoardPiece, BoardState, Color, Coordinates, Move, Moves, Piece } from "./game_types.ts"
 
 function get_piece_by_letter(letter: string): Piece {
@@ -85,20 +86,6 @@ export function position_from_fen(FEN: string): BoardState {
     }
 }
 
-function file_to_character(file: number): string {
-    return String.fromCharCode(96 + file)
-}
-
-export function coordinates_to_notation(coordinates: Coordinates): string {
-    return file_to_character(coordinates.x) + coordinates.y.toString()
-}
-
-export function coordinates_from_notation(notation: string): Coordinates {
-    return make_coordinates(
-        notation.charCodeAt(0) - 96,
-        parseInt(notation[1])
-    )
-}
 
 export function export_to_fen(state: BoardState): string {
     function row_to_fen(y: number): string {
@@ -148,9 +135,6 @@ export function get_default_board(): BoardState  {
     return position_from_fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
 }
 
-export function make_coordinates(x: number, y: number): Coordinates {
-    return { x, y }
-}
 
 function out_of_bounds(state: BoardState, coordinates: Coordinates) {
     return coordinates.x < 1 || coordinates.x > state.width || coordinates.y < 1 || coordinates.y > state.height
