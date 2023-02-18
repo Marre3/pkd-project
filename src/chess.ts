@@ -44,7 +44,7 @@ function get_piece_by_letter(letter: string): Piece {
         : Piece.King
 }
 
-function get_letter_by_piece(boardPiece: BoardPiece | null): string {
+export function get_letter_by_piece(boardPiece: BoardPiece | null): string {
     if (!is_piece(boardPiece)) return "E"
 
     const piece = boardPiece.piece
@@ -185,7 +185,7 @@ function out_of_bounds(state: BoardState, coordinates: Coordinates) {
     return coordinates.x < 1 || coordinates.x > state.width || coordinates.y < 1 || coordinates.y > state.height
 }
 
-function get_piece_by_square(coordinates: Coordinates, state: BoardState): BoardPiece | null {
+export function get_piece_by_square(coordinates: Coordinates, state: BoardState): BoardPiece | null {
     return state.pieces.find(
         (piece) => piece.square.x == coordinates.x && piece.square.y == coordinates.y
     ) || null
@@ -567,23 +567,4 @@ export function move_to_algebraic_notation(state: BoardState, move: Move): strin
         const from_notation = construct_notation_for_from_coordinates(true)
         return from_notation + "x" + to_square + symbol
     }
-}
-
-function draw(state: BoardState): void {
-    for (let y = 8; y >= 1; --y) {
-        let s = ""
-        for (let x = 1; x <= 8; ++x) {
-            const p = get_piece_by_square(make_coordinates(x, y), state)
-
-            s = s + " " + get_letter_by_piece(p) + " "
-        }
-        console.log(s)
-    }
-}
-const board = get_default_board()
-
-draw(board)
-
-for (const move of get_legal_moves(board)) {
-    console.log(move_to_algebraic_notation(board, move))
 }
