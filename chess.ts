@@ -486,7 +486,7 @@ function can_piece_move_to(state: BoardState, piece: BoardPiece, to: Coordinates
             (c: Coordinates) => c.x === to.x && c.y === to.y)
 }
 
-export function move_to_algebraic_notation(state: BoardState, move: Move): string | null {
+export function move_to_algebraic_notation(state: BoardState, move: Move): string {
     function get_pieces_of_type(type: Piece, file?: number, rank?: number): BoardPiece[] {
         let pieces: BoardPiece[] = []
         for (const piece of state.pieces) {
@@ -534,11 +534,23 @@ export function move_to_algebraic_notation(state: BoardState, move: Move): strin
     
     const piece = get_piece_by_square(move.from, state)
 
-    if (!is_piece(piece) || state.turn !== piece.color) return null
+    if (!is_piece(piece)) {
+        throw new Error(`No piece found at: ${coordinates_to_notation(move.from)}`)
+    }
+    
+    if (state.turn !== piece.color) {
+        throw new Error(`The piece at: ${coordinates_to_notation(move.from)} is of the wrong color`)
+    }
+
+    if (piece.piece !== move.piece_type) {
+        throw new Error(`The piece at: ${coordinates_to_notation(move.from)} is of the wrong piece type`)
+    }
 
     // TODO: handle castling
 
-    if (!can_piece_move_to(state, piece, move.to)) return null
+    if (!can_piece_move_to(state, piece, move.to)) {
+        throw new Error(`The piece at: ${coordinates_to_notation(move.from)} cannot move to ${coordinates_to_notation(move.to)}`)
+    }
 
     const to_square: string = coordinates_to_square(move.to)
     const capture: boolean = square_has_piece(move.to, state, other_color(state.turn)) || move.is_en_passant
