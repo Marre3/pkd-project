@@ -13,6 +13,8 @@ export type BoardState = {
         black_kingside: boolean,
         black_queenside: boolean
     }
+    halfmove_clock: number,
+    fullmove_number: number,
     // Hardcoded right now to literal. But the flexibility is a bonus.
     width: 8;
     height: 8;
@@ -71,49 +73,56 @@ function get_letter_by_color(letter: string, color: Color): string {
 }
 
 export function position_from_fen(FEN: string): BoardState {
-    const board: BoardState = {
+    function get_pieces(piece_data: string): BoardPiece[] {
+        let y = 8
+        const pieces: BoardPiece[] = []
+        for (const row of piece_data.split("/")) {
+            let x = 1
+            for (const c of row) {
+                if (isNaN(parseInt(c))) {
+                    pieces.push(
+                        {
+                            piece: get_piece_by_letter(c),
+                            color: get_color_by_letter(c),
+                            square: make_coordinates(x, y)
+                        },
+                    )
+                    ++x
+                } else {
+                    x = x + parseInt(c)
+                }
+            }
+            --y
+        }
+        return pieces
+    }
+    const parts = FEN.split(" ")
+    return {
         width: 8,
         height: 8,
-        pieces: [],
+        pieces: get_pieces(parts[0]),
         castling: {
-            white_kingside: true,
-            white_queenside: true,
-            black_kingside: true,
-            black_queenside: true
+            white_kingside: parts[2].includes("K"),
+            white_queenside: parts[2].includes("Q"),
+            black_kingside: parts[2].includes("k"),
+            black_queenside: parts[2].includes("q")
         },
-        en_passant_square: null,
-        turn: Color.White
+        halfmove_clock: parseInt(parts[4]),
+        fullmove_number: parseInt(parts[5]),
+        en_passant_square: parts[3] === "-" ? null : coordinates_from_notation(parts[3]),
+        turn: parts[1] === "w" ? Color.White : Color.Black
     }
-    let x = 1
-    let y = 8
-    let piece_placement = false
-    let active_color = false
-    for (const c of FEN) {
-        if (!piece_placement) {
-            if (c == "/") {
-                --y
-                x = 1
-            } else if (c == " ") {
-                piece_placement = true
-            } else if (["P", "N", "B", "R", "Q", "K", "p", "n", "b", "r", "q", "k"].includes(c)) {
-                board.pieces.push(
-                    { piece: get_piece_by_letter(c), color: get_color_by_letter(c), square: make_coordinates(x, y) },
-                )
-                ++x
-            } else if (["1", "2", "3", "4", "5", "6", "7", "8"].includes(c)) {
-                x = x + parseInt(c)
-            }
-        } else if (!active_color) {
-            if (c == "w") {
-                board.turn = Color.White
-            } else if (c == "b") {
-                board.turn = Color.Black
-            } else {
-                active_color = true
-            }
-        }
-    }
-    return board
+}
+
+export function coordinates_to_notation(coordinates: Coordinates): string {
+    return String.fromCharCode(96 + coordinates.x) + coordinates.y.toString()
+}
+
+export function coordinates_from_notation(notation: string): Coordinates {
+    return make_coordinates(
+        notation.charCodeAt(0) - 96,
+        parseInt(notation[1])
+    )
 }
 
 export function export_to_fen(state: BoardState): string {
@@ -126,9 +135,9 @@ export function export_to_fen(state: BoardState): string {
             (c) => c === "E" ? "1" : c
         ).reduce(
             (l, r) => (
-                ["1", "2", "3", "4", "5", "6", "7"].includes(l)
+                ["1", "2", "3", "4", "5", "6", "7"].includes(l.slice(-1))
                 && r === "1"
-            ) ? (parseInt(l) + parseInt(r)).toString() : l + r
+            ) ? l.slice(0, -1) + (parseInt(l.slice(-1)) + 1).toString() : l + r
         )
     }
     function get_castling_rights_string(state: BoardState): string {
@@ -140,8 +149,10 @@ export function export_to_fen(state: BoardState): string {
         ) || "-"
     }
     function get_en_passant_string(state: BoardState): string {
-        // TODO
-        return "-"
+        return state.en_passant_square === null
+            ? "-"
+            : coordinates_to_notation(state.en_passant_square)
+
     }
     return (
         [8, 7, 6, 5, 4, 3, 2, 1].map(row_to_fen).join("/")
@@ -152,9 +163,9 @@ export function export_to_fen(state: BoardState): string {
         + " "
         + get_en_passant_string(state)
         + " "
-        + "0" //TODO
+        + state.halfmove_clock.toString()
         + " "
-        + "1" //TODO
+        + state.fullmove_number.toString()
     )
 }
 
@@ -447,6 +458,8 @@ function apply_move(state: BoardState, move: Move): BoardState {
         en_passant_square,
         turn: other_color(state.turn),
         castling: state.castling,
+        halfmove_clock: state.halfmove_clock + 1, // TODO: Reset on pawn move or capture
+        fullmove_number: state.fullmove_number + (state.turn === Color.Black ? 1 : 0),
         width: 8,
         height: 8,
     }
