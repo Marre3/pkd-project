@@ -273,19 +273,19 @@ function get_pawn_moves(piece: BoardPiece, state: BoardState): Moves {
     // TODO: google en passant
     // TODO: piece promotion
     const moves: Moves = []
-    const one_square_ahead: Coordinates = make_coordinates(
+    const one_square_ahead = make_coordinates(
         piece.square.x,
         piece.color === Color.White ? piece.square.y + 1 : piece.square.y - 1
     )
-    const two_squares_ahead: Coordinates = make_coordinates(
+    const two_squares_ahead = make_coordinates(
         piece.square.x,
         piece.color === Color.White ? piece.square.y + 2 : piece.square.y - 2
     )
-    const first_capture_square: Coordinates = make_coordinates(
+    const first_capture_square = make_coordinates(
         piece.square.x - 1,
         piece.color === Color.White ? piece.square.y + 1 : piece.square.y - 1
     )
-    const second_capture_square: Coordinates = make_coordinates(
+    const second_capture_square = make_coordinates(
         piece.square.x + 1,
         piece.color === Color.White ? piece.square.y + 1 : piece.square.y - 1
     )
