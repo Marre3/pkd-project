@@ -212,7 +212,9 @@ function get_regular_moves(piece: BoardPiece, state: BoardState, directions: [nu
                 }
             )
 
-            if (square_has_piece(pos, state, other_color(piece.color))) break
+            if (square_has_piece(pos, state, other_color(piece.color))) {
+                break
+            }
 
             pos.x = pos.x + direction[0]
             pos.y = pos.y + direction[1]
@@ -516,12 +518,16 @@ export function move_to_algebraic_notation(state: BoardState, move: Move): strin
         const allowed_pieces_on_same_rank: BoardPiece[] = get_pieces_of_type(move.piece_type, undefined, move.from.y).filter(
             (p: BoardPiece) => can_piece_move_to(state, p, move.to))
         
-        if (allowed_pieces_on_same_rank.length > 1) notation += file_to_character(move.from.x)
+        if (allowed_pieces_on_same_rank.length > 1) {
+            notation += file_to_character(move.from.x)
+        }
 
         const allowed_pieces_on_same_file: BoardPiece[] = get_pieces_of_type(move.piece_type, move.from.x).filter(
             (p: BoardPiece) => can_piece_move_to(state, p, move.to))
         
-        if (allowed_pieces_on_same_file.length > 1) notation += move.from.y.toString()
+        if (allowed_pieces_on_same_file.length > 1) {
+            notation += move.from.y.toString()
+        }
 
         return notation
     }
