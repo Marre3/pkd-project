@@ -73,75 +73,41 @@ function get_letter_by_color(letter: string, color: Color): string {
 }
 
 export function position_from_fen(FEN: string): BoardState {
-    const board: BoardState = {
+    function get_pieces(piece_data: string): BoardPiece[] {
+        let y = 8
+        const pieces: BoardPiece[] = []
+        for (const row of piece_data.split("/")) {
+            let x = 1
+            for (const c of row) {
+                if (["P", "N", "B", "R", "Q", "K", "p", "n", "b", "r", "q", "k"].includes(c)) {
+                    pieces.push(
+                        { piece: get_piece_by_letter(c), color: get_color_by_letter(c), square: make_coordinates(x, y) },
+                    )
+                    ++x
+                } else if (["1", "2", "3", "4", "5", "6", "7", "8"].includes(c)) {
+                    x = x + parseInt(c)
+                }
+            }
+            --y
+        }
+        return pieces
+    }
+    const parts = FEN.split(" ")
+    return {
         width: 8,
         height: 8,
-        pieces: [],
+        pieces: get_pieces(parts[0]),
         castling: {
-            white_kingside: true,
-            white_queenside: true,
-            black_kingside: true,
-            black_queenside: true
+            white_kingside: parts[2].includes("K"),
+            white_queenside: parts[2].includes("Q"),
+            black_kingside: parts[2].includes("k"),
+            black_queenside: parts[2].includes("q")
         },
-        halfmove_clock: 0,
-        fullmove_number: 0,
-        en_passant_square: null,
-        turn: Color.White
+        halfmove_clock: parseInt(parts[4]),
+        fullmove_number: parseInt(parts[5]),
+        en_passant_square: parts[3] === "-" ? null : coordinates_from_notation(parts[3]),
+        turn: parts[1] === "w" ? Color.White : Color.Black
     }
-    let x = 1
-    let y = 8
-    let piece_placement = false
-    let active_color = false
-    let en_passant = false
-    let halfmove = false
-    let fullmove = false
-    for (const c of FEN) {
-        if (!piece_placement) {
-            if (c == "/") {
-                --y
-                x = 1
-            } else if (c == " ") {
-                piece_placement = true
-            } else if (["P", "N", "B", "R", "Q", "K", "p", "n", "b", "r", "q", "k"].includes(c)) {
-                board.pieces.push(
-                    { piece: get_piece_by_letter(c), color: get_color_by_letter(c), square: make_coordinates(x, y) },
-                )
-                ++x
-            } else if (["1", "2", "3", "4", "5", "6", "7", "8"].includes(c)) {
-                x = x + parseInt(c)
-            }
-        } else if (!active_color) {
-            if (c == "w") {
-                board.turn = Color.White
-            } else if (c == "b") {
-                board.turn = Color.Black
-            } else {
-                active_color = true
-            }
-        } else if (!en_passant) {
-            if (c === " ") {
-                en_passant = true
-            }
-        } else if (!halfmove) {
-            if (c === " ") {
-                halfmove = true
-            } else {
-                // TODO: This only handles single digits, I have
-                // a better solution that I will implement...
-                board.halfmove_clock = parseInt(c)
-            }
-        } else if (!fullmove) {
-            if (c === " ") {
-                fullmove = true
-            } else {
-                // TODO: This only handles single digits, I have
-                // a better solution that I will implement...
-                board.fullmove_number = parseInt(c)
-            }
-
-        }
-    }
-    return board
 }
 
 export function coordinates_to_notation(coordinates: Coordinates): string {
