@@ -454,8 +454,7 @@ function apply_move(state: BoardState, move: Move): BoardState {
             (p: BoardPiece) => (!(p.square.x === move.to.x && p.square.y === move.to.y)
                 && !(p.square.x === move.from.x && p.square.y === move.from.y)
                 && (capture_en_passant_pawn_square === null
-                    ? true
-                    : !(p.square.x === capture_en_passant_pawn_square.x && p.square.y === capture_en_passant_pawn_square.y)))
+                    || !(p.square.x === capture_en_passant_pawn_square.x && p.square.y === capture_en_passant_pawn_square.y)))
         ).concat([new_piece]),
         en_passant_square,
         turn: other_color(state.turn),
