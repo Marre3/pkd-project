@@ -507,8 +507,7 @@ export function move_to_algebraic_notation(state: BoardState, move: Move): strin
 
     function construct_notation_for_from_coordinates(capture: boolean): string {
         if (move.piece_type === Piece.Pawn) {
-            if (capture) return file_to_character(move.from.x)
-            return ""
+            return capture ? file_to_character(move.from.x) : ""
         } else if (move.piece_type === Piece.King) {
             return "K"
         }
