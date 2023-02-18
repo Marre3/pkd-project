@@ -116,7 +116,7 @@ export function position_from_fen(FEN: string): BoardState {
     return board
 }
 
-function coordinates_to_notation(coordinates: Coordinates): string {
+export function coordinates_to_notation(coordinates: Coordinates): string {
     return String.fromCharCode(96 + coordinates.x) + coordinates.y.toString()
 }
 
@@ -166,7 +166,7 @@ export function get_default_board(): BoardState  {
     return position_from_fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
 }
 
-function make_coordinates(x: number, y: number): Coordinates {
+export function make_coordinates(x: number, y: number): Coordinates {
     return { x, y }
 }
 
