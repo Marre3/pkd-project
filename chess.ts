@@ -13,6 +13,8 @@ export type BoardState = {
         black_kingside: boolean,
         black_queenside: boolean
     }
+    halfmove_clock: number,
+    fullmove_number: number,
     // Hardcoded right now to literal. But the flexibility is a bonus.
     width: 8;
     height: 8;
@@ -81,6 +83,8 @@ export function position_from_fen(FEN: string): BoardState {
             black_kingside: true,
             black_queenside: true
         },
+        halfmove_clock: 0,
+        fullmove_number: 0,
         en_passant_square: null,
         turn: Color.White
     }
@@ -88,6 +92,8 @@ export function position_from_fen(FEN: string): BoardState {
     let y = 8
     let piece_placement = false
     let active_color = false
+    let halfmove = false
+    let fullmove = false
     for (const c of FEN) {
         if (!piece_placement) {
             if (c == "/") {
@@ -111,6 +117,23 @@ export function position_from_fen(FEN: string): BoardState {
             } else {
                 active_color = true
             }
+        } else if (!halfmove) {
+            if (c === " ") {
+                halfmove = true
+            } else {
+                // TODO: This only handles single digits, I have
+                // a better solution that I will implement...
+                board.halfmove_clock = parseInt(c)
+            }
+        } else if (!fullmove) {
+            if (c === " ") {
+                fullmove = true
+            } else {
+                // TODO: This only handles single digits, I have
+                // a better solution that I will implement...
+                board.fullmove_number = parseInt(c)
+            }
+
         }
     }
     return board
@@ -401,6 +424,8 @@ function apply_move(state: BoardState, move: Move): BoardState {
         en_passant_square: null,
         turn: other_color(state.turn),
         castling: state.castling,
+        halfmove_clock: state.halfmove_clock + 1, // TODO: Reset on pawn move or capture
+        fullmove_number: state.fullmove_number + (state.turn === Color.Black ? 1 : 0),
         width: 8,
         height: 8,
     }
