@@ -114,8 +114,12 @@ export function position_from_fen(FEN: string): BoardState {
     }
 }
 
+function file_to_character(file: number): string {
+    return String.fromCharCode(96 + file)
+}
+
 export function coordinates_to_notation(coordinates: Coordinates): string {
-    return String.fromCharCode(96 + coordinates.x) + coordinates.y.toString()
+    return file_to_character(coordinates.x) + coordinates.y.toString()
 }
 
 export function coordinates_from_notation(notation: string): Coordinates {
@@ -320,11 +324,11 @@ function get_pawn_moves(piece: BoardPiece, state: BoardState): Moves {
             )
         }
     }
-    const en_passant_first_square: boolean = state.en_passant_square !== null 
-        && state.en_passant_square.x === first_capture_square.x 
+    const en_passant_first_square: boolean = state.en_passant_square !== null
+        && state.en_passant_square.x === first_capture_square.x
         && state.en_passant_square.y === first_capture_square.y
-    const en_passant_second_square: boolean = state.en_passant_square !== null 
-        && state.en_passant_square.x === second_capture_square.x 
+    const en_passant_second_square: boolean = state.en_passant_square !== null
+        && state.en_passant_square.x === second_capture_square.x
         && state.en_passant_square.y === second_capture_square.y
     if (square_has_piece(first_capture_square, state, other_color(piece.color)) || en_passant_first_square) {
         moves.push(
@@ -431,7 +435,7 @@ function apply_move(state: BoardState, move: Move): BoardState {
         color: old_piece.color,
         square: move.to
     }
-    const allows_en_passant: boolean = move.piece_type === Piece.Pawn 
+    const allows_en_passant: boolean = move.piece_type === Piece.Pawn
         && (state.turn === Color.White
             ? move.from.y === 2 && move.to.y == 4
             : move.from.y === 7 && move.to.y == 5)
@@ -498,14 +502,6 @@ export function move_to_algebraic_notation(state: BoardState, move: Move): strin
         return pieces
     }
 
-    function coordinates_to_square(coordinates: Coordinates): string {
-        return String.fromCharCode(96 + coordinates.x) + coordinates.y.toString()
-    }
-
-    function file_to_character(file: number): string {
-        return String.fromCharCode(96 + file)
-    }
-
     function construct_notation_for_from_coordinates(capture: boolean): string {
         if (move.piece_type === Piece.Pawn) {
             return capture ? file_to_character(move.from.x) : ""
@@ -516,27 +512,27 @@ export function move_to_algebraic_notation(state: BoardState, move: Move): strin
         let notation = get_letter_by_piece(piece).toUpperCase()
         const allowed_pieces_on_same_rank: BoardPiece[] = get_pieces_of_type(move.piece_type, undefined, move.from.y).filter(
             (p: BoardPiece) => can_piece_move_to(state, p, move.to))
-        
+
         if (allowed_pieces_on_same_rank.length > 1) {
             notation += file_to_character(move.from.x)
         }
 
         const allowed_pieces_on_same_file: BoardPiece[] = get_pieces_of_type(move.piece_type, move.from.x).filter(
             (p: BoardPiece) => can_piece_move_to(state, p, move.to))
-        
+
         if (allowed_pieces_on_same_file.length > 1) {
             notation += move.from.y.toString()
         }
 
         return notation
     }
-    
+
     const piece = get_piece_by_square(move.from, state)
 
     if (!is_piece(piece)) {
         throw new Error(`No piece found at: ${coordinates_to_notation(move.from)}`)
     }
-    
+
     if (state.turn !== piece.color) {
         throw new Error(`The piece at: ${coordinates_to_notation(move.from)} is of the wrong color`)
     }
@@ -551,7 +547,7 @@ export function move_to_algebraic_notation(state: BoardState, move: Move): strin
         throw new Error(`The piece at: ${coordinates_to_notation(move.from)} cannot move to ${coordinates_to_notation(move.to)}`)
     }
 
-    const to_square: string = coordinates_to_square(move.to)
+    const to_square: string = coordinates_to_notation(move.to)
     const capture: boolean = square_has_piece(move.to, state, other_color(state.turn)) || move.is_en_passant
     let symbol = ""
     const board_after_move = apply_move(state, move)
