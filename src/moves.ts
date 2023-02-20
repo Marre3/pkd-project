@@ -221,11 +221,9 @@ function get_piece_moves(piece: BoardPiece, state: BoardState): Moves {
 }
 
 export function get_prospective_moves(state: BoardState): Moves {
-    let moves: Moves = []
-    for (const piece of get_player_pieces(state, state.turn)) {
-        moves = moves.concat(get_piece_moves(piece, state))
-    }
-    return moves
+    return get_player_pieces(state, state.turn).flatMap(
+        (piece) => get_piece_moves(piece, state)
+    )
 }
 
 export function is_check(state: BoardState, color: Color): boolean {
@@ -267,7 +265,7 @@ export function apply_move(state: BoardState, move: Move): BoardState {
         : null
 
     return {
-        // TODO: handle en passant and castling rights
+        // TODO: handle castling rights
         pieces: state.pieces.filter(
             (p: BoardPiece) => (!(p.square.x === move.to.x && p.square.y === move.to.y)
                 && !(p.square.x === move.from.x && p.square.y === move.from.y)
