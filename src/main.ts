@@ -1,7 +1,7 @@
 import { get_default_board } from "./chess.ts";
 import { draw } from "./draw.ts";
 import { game_result, is_game_over } from "./game.ts";
-import { Color, Result } from "./game_types.ts";
+import { Result } from "./game_types.ts";
 import { apply_move, get_legal_moves } from "./moves.ts";
 import { move_to_algebraic_notation } from "./notation.ts";
 
