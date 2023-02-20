@@ -27,6 +27,7 @@ Deno.test("is_self_check_h5_scholars", () => {
         from: { x: 8, y: 7 },
         to: { x: 8, y: 5 },
         piece_type: 0,
+        is_capture: false,
         is_castling: false,
         is_en_passant: false
     } // h5
