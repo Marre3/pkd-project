@@ -1,4 +1,4 @@
-import { get_piece_by_square, is_piece, other_color, square_has_piece } from "./board.ts";
+import { get_piece_by_square, is_piece, other_color } from "./board.ts";
 import { coordinates_to_notation, file_to_character } from "./coordinates.ts";
 import { BoardPiece, BoardState, Color, Move, Piece } from "./game_types.ts";
 import { apply_move, can_piece_move_to, get_legal_moves, is_check } from "./moves.ts";
