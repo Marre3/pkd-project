@@ -10,7 +10,7 @@ while (! is_game_over(board)) {
     draw(board)
     const input = prompt("move?") ?? ""
     try {
-        board = apply_move_by_notation(board, input!)
+        board = apply_move_by_notation(board, input)
     } catch {
         console.log(`Invalid move ${input}, available moves:`)
         console.log(get_legal_moves(board).map((move) => move_to_algebraic_notation(board, move)).join(", "))
