@@ -119,7 +119,6 @@ export function move_to_algebraic_notation(state: BoardState, move: Move): strin
     }
 
     const to_square: string = coordinates_to_notation(move.to)
-    const capture: boolean = square_has_piece(move.to, state, other_color(state.turn)) || move.is_en_passant
     let symbol = ""
     const board_after_move = apply_move(state, move)
 
@@ -142,11 +141,11 @@ export function move_to_algebraic_notation(state: BoardState, move: Move): strin
         promotion = "=" + get_letter_by_piece_type(move.promotion_piece)
     }
 
-    if (!capture) {
-        const from_notation = construct_notation_for_from_coordinates(false)
-        return from_notation + to_square + promotion + symbol
-    } else {
+    if (move.is_capture) {
         const from_notation = construct_notation_for_from_coordinates(true)
         return from_notation + "x" + to_square + promotion + symbol
+    } else {
+        const from_notation = construct_notation_for_from_coordinates(false)
+        return from_notation + to_square + promotion + symbol
     }
 }

@@ -26,6 +26,7 @@ export type Move = {
     from: Coordinates,
     to: Coordinates,
     piece_type: Piece,
+    is_capture: boolean,
     is_castling: boolean,
     is_en_passant: boolean,
     promotion_piece?: Piece

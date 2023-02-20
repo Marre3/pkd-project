@@ -13,6 +13,7 @@ function get_regular_moves(piece: BoardPiece, state: BoardState, directions: [nu
                     from: piece.square,
                     to: { x: pos.x, y: pos.y },
                     piece_type: piece.piece,
+                    is_capture: square_has_piece(pos, state, other_color(piece.color)),
                     is_castling: false,
                     is_en_passant: false
                 }
@@ -44,13 +45,17 @@ function get_queen_moves(piece: BoardPiece, state: BoardState): Moves {
 function get_fixed_distance_moves(piece: BoardPiece, state: BoardState, offsets: [number, number][]): Moves {
     const moves: Moves = []
     for (const offset of offsets) {
-        const square = make_coordinates(piece.square.x + offset[0], piece.square.y + offset[1])
-        if (! out_of_bounds(state, square) && ! square_has_piece(square, state, piece.color)) {
+        const destination = make_coordinates(piece.square.x + offset[0], piece.square.y + offset[1])
+        if (
+            ! out_of_bounds(state, destination)
+            && ! square_has_piece(destination, state, piece.color)
+        ) {
             moves.push(
                 {
                     from: piece.square,
-                    to: square,
+                    to: destination,
                     piece_type: piece.piece,
+                    is_capture: square_has_piece(destination, state, other_color(piece.color)),
                     is_castling: false,
                     is_en_passant: false
                 }
@@ -85,6 +90,7 @@ function get_pawn_moves(piece: BoardPiece, state: BoardState): Moves {
                 from: piece.square,
                 to,
                 piece_type: piece.piece,
+                is_capture: square_has_piece(to, state),
                 is_castling: false,
                 is_en_passant: false,
                 promotion_piece: Piece.Knight
@@ -95,6 +101,7 @@ function get_pawn_moves(piece: BoardPiece, state: BoardState): Moves {
                 from: piece.square,
                 to,
                 piece_type: piece.piece,
+                is_capture: square_has_piece(to, state),
                 is_castling: false,
                 is_en_passant: false,
                 promotion_piece: Piece.Bishop
@@ -105,6 +112,7 @@ function get_pawn_moves(piece: BoardPiece, state: BoardState): Moves {
                 from: piece.square,
                 to,
                 piece_type: piece.piece,
+                is_capture: square_has_piece(to, state),
                 is_castling: false,
                 is_en_passant: false,
                 promotion_piece: Piece.Rook
@@ -115,6 +123,7 @@ function get_pawn_moves(piece: BoardPiece, state: BoardState): Moves {
                 from: piece.square,
                 to,
                 piece_type: piece.piece,
+                is_capture: square_has_piece(to, state),
                 is_castling: false,
                 is_en_passant: false,
                 promotion_piece: Piece.Queen
@@ -154,6 +163,7 @@ function get_pawn_moves(piece: BoardPiece, state: BoardState): Moves {
                     from: piece.square,
                     to: one_square_ahead,
                     piece_type: piece.piece,
+                    is_capture: false,
                     is_castling: false,
                     is_en_passant: false
                 }
@@ -172,6 +182,7 @@ function get_pawn_moves(piece: BoardPiece, state: BoardState): Moves {
                     from: piece.square,
                     to: two_squares_ahead,
                     piece_type: piece.piece,
+                    is_capture: false,
                     is_castling: false,
                     is_en_passant: false
                 }
@@ -196,6 +207,7 @@ function get_pawn_moves(piece: BoardPiece, state: BoardState): Moves {
                     from: piece.square,
                     to: first_capture_square,
                     piece_type: piece.piece,
+                    is_capture: true,
                     is_castling: false,
                     is_en_passant: en_passant_first_square
                 }
@@ -214,6 +226,7 @@ function get_pawn_moves(piece: BoardPiece, state: BoardState): Moves {
                     from: piece.square,
                     to: second_capture_square,
                     piece_type: piece.piece,
+                    is_capture: true,
                     is_castling: false,
                     is_en_passant: en_passant_second_square
                 }
