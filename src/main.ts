@@ -2,7 +2,7 @@ import { get_default_board } from "./chess.ts";
 import { draw } from "./draw.ts";
 import { apply_move_by_notation, game_result, is_game_over } from "./game.ts";
 import { Result } from "./game_types.ts";
-import { apply_move, get_legal_moves } from "./moves.ts";
+import { get_legal_moves } from "./moves.ts";
 import { move_to_algebraic_notation } from "./notation.ts";
 
 let board = get_default_board()
