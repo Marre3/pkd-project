@@ -252,7 +252,7 @@ export function apply_move(state: BoardState, move: Move): BoardState {
         move.to.x,
         move.to.y + (state.turn === Color.White ? -1 : 1)
     )
-    const capture_square = move.is_en_passant ? state.en_passant_square! : move.to
+    const capture_square = move.is_en_passant ? en_passant_square : move.to
     const new_position: BoardState = {
         // TODO: handle castling rights
         pieces: state.pieces.filter(

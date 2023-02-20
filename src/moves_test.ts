@@ -3,9 +3,10 @@ import { assert, assertEquals, assertExists } from "https://deno.land/std@0.177.
 import { Color, Move } from "./game_types.ts"
 import { get_legal_moves, is_check, is_self_check } from "./moves.ts";
 import { position_from_fen } from "./fen.ts";
-import { other_color } from "./board.ts";
+import { get_piece_by_square, other_color } from "./board.ts";
 import { get_default_board } from "./chess.ts";
 import { apply_move_by_notation } from "./game.ts";
+import { make_coordinates } from "./coordinates.ts";
 
 
 Deno.test("starting_position_number_of_moves", () => {
@@ -21,6 +22,14 @@ Deno.test("apply_move_set_en_passant_square", () => {
     assertExists(board.en_passant_square)
     assertEquals(board.en_passant_square.x, 4)
     assertEquals(board.en_passant_square.y, 6)
+})
+
+Deno.test("en_passant_capture_pawn", () => {
+    let board = get_default_board()
+    for (const move of ["e4", "e6", "e5", "d5", "exd6"]) {
+        board = apply_move_by_notation(board, move)
+    }
+    assert(get_piece_by_square(make_coordinates(4, 5), board) === null)
 })
 
 Deno.test("en_passant_diagonal_pin", () => {
