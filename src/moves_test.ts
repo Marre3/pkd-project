@@ -23,6 +23,12 @@ Deno.test("apply_move_set_en_passant_square", () => {
     assertEquals(board.en_passant_square.y, 6)
 })
 
+Deno.test("en_passant_diagonal_pin", () => {
+    let board = position_from_fen("5k2/2p2b2/8/3P4/2K5/8/8/8 b - - 0 1")
+    board = apply_move_by_notation(board, "c5")
+    assert(board.en_passant_square === null)
+})
+
 Deno.test("is_check_bogo_indian", () => {
     const board = position_from_fen("rnbqk2r/pppp1ppp/4pn2/8/1bPP4/5N2/PP2PPPP/RNBQKB1R w KQkq - 3 4")
     assert(is_check(board, Color.White))
