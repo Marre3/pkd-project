@@ -25,6 +25,7 @@ export type Move = {
     to: Coordinates,
     piece_type: Piece,
     is_castling: boolean,
-    is_en_passant: boolean
+    is_en_passant: boolean,
+    promotion_piece?: Piece
 }
 export type Moves = Move[]
