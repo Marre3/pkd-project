@@ -254,6 +254,7 @@ export function apply_move(state: BoardState, move: Move): BoardState {
     )
     const capture_square = move.is_en_passant ? state.en_passant_square! : move.to
     const new_position: BoardState = {
+        // TODO: handle castling rights
         pieces: state.pieces.filter(
             (p: BoardPiece) => (
                 !(p.square.x === move.from.x && p.square.y === move.from.y)
