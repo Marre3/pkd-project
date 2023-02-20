@@ -194,7 +194,6 @@ export function is_check(state: BoardState, color: Color): boolean {
 }
 
 export function is_checkmate(state: BoardState, color: Color): boolean {
-    console.log(get_legal_moves(state))
     return is_check(state, color) && get_legal_moves(state).length === 0
 }
 
@@ -262,6 +261,8 @@ export function get_legal_moves_by_piece(state: BoardState, piece: BoardPiece): 
 
 export function can_piece_move_to(state: BoardState, piece: BoardPiece, to: Coordinates): boolean {
     return get_legal_moves_by_piece(state, piece).map(
-        (m: Move) => m.to).some(
-            (c: Coordinates) => c.x === to.x && c.y === to.y)
+        (m: Move) => m.to
+    ).some(
+        (c: Coordinates) => c.x === to.x && c.y === to.y
+    )
 }
