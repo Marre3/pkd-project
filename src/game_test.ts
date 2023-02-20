@@ -16,9 +16,9 @@ Deno.test("stalemate_queen", () => {
     assert(is_game_over(board))
 })
 
-Deno.test("en_passant_possible", () => {
+Deno.test("en_passant_possible_fen", () => {
     const board = position_from_fen("rnbqkbnr/ppp2ppp/4p3/3pP3/8/8/PPPP1PPP/RNBQKBNR w KQkq d6 0 3")
-    assertExists(get_move_by_notation(board, "exd6") !== null)
+    assertExists(get_move_by_notation(board, "exd6"))
 })
 
 Deno.test("scholars_mate", () => {

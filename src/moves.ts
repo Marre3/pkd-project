@@ -243,24 +243,25 @@ export function apply_move(state: BoardState, move: Move): BoardState {
         throw new Error(`Invalid move ${move}, origin piece does not exist`)
     }
     const new_piece = {
-        piece: typeof move.promotion_piece === "undefined" ? old_piece.piece : move.promotion_piece,
+        piece: move.promotion_piece ?? old_piece.piece,
         color: old_piece.color,
         square: move.to
     }
-    const allows_en_passant: boolean = move.piece_type === Piece.Pawn
+    const allows_en_passant = move.piece_type === Piece.Pawn
         && (state.turn === Color.White
             ? move.from.y === 2 && move.to.y == 4
             : move.from.y === 7 && move.to.y == 5)
-    const en_passant_square: Coordinates | null = allows_en_passant
-        ? (state.turn === Color.White
-            ? make_coordinates(move.to.x, move.to.y - 1)
-            : make_coordinates(move.to.x, move.to.y + 1))
+    const en_passant_square = allows_en_passant
+        ? make_coordinates(
+            move.to.x,
+            move.to.y + state.turn === Color.White ? -1 : 1
+        )
         : null
-    const capture_en_passant: boolean = move.piece_type === Piece.Pawn
+    const capture_en_passant = move.piece_type === Piece.Pawn
         && state.en_passant_square !== null
         && state.en_passant_square.x === move.to.x
         && state.en_passant_square.y === move.to.y
-    const capture_en_passant_pawn_square: Coordinates | null = capture_en_passant
+    const capture_en_passant_pawn_square = capture_en_passant
         ? make_coordinates(move.to.x, move.from.y)
         : null
 
