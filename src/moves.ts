@@ -247,31 +247,18 @@ export function apply_move(state: BoardState, move: Move): BoardState {
         color: old_piece.color,
         square: move.to
     }
-    const allows_en_passant = move.piece_type === Piece.Pawn
-        && (state.turn === Color.White
-            ? move.from.y === 2 && move.to.y == 4
-            : move.from.y === 7 && move.to.y == 5)
-    const en_passant_square = allows_en_passant
-        ? make_coordinates(
-            move.to.x,
-            move.to.y + (state.turn === Color.White ? -1 : 1)
-        )
-        : null
-    const capture_en_passant = move.piece_type === Piece.Pawn
-        && state.en_passant_square !== null
-        && state.en_passant_square.x === move.to.x
-        && state.en_passant_square.y === move.to.y
-    const capture_en_passant_pawn_square = capture_en_passant
-        ? make_coordinates(move.to.x, move.from.y)
-        : null
 
-    return {
-        // TODO: handle castling rights
+    const en_passant_square = make_coordinates(
+        move.to.x,
+        move.to.y + (state.turn === Color.White ? -1 : 1)
+    )
+    const capture_square = move.is_en_passant ? state.en_passant_square! : move.to
+    const new_position: BoardState = {
         pieces: state.pieces.filter(
-            (p: BoardPiece) => (!(p.square.x === move.to.x && p.square.y === move.to.y)
-                && !(p.square.x === move.from.x && p.square.y === move.from.y)
-                && (capture_en_passant_pawn_square === null
-                    || !(p.square.x === capture_en_passant_pawn_square.x && p.square.y === capture_en_passant_pawn_square.y)))
+            (p: BoardPiece) => (
+                !(p.square.x === move.from.x && p.square.y === move.from.y)
+                && !(p.square.x === capture_square.x && p.square.y === capture_square.y)
+            )
         ).concat([new_piece]),
         en_passant_square: en_passant_square,
         turn: other_color(state.turn),
@@ -281,6 +268,28 @@ export function apply_move(state: BoardState, move: Move): BoardState {
         width: 8,
         height: 8,
     }
+    const allows_en_passant = (
+        move.piece_type === Piece.Pawn
+        && (
+            state.turn === Color.White
+            ? move.from.y === 2 && move.to.y == 4
+            : move.from.y === 7 && move.to.y == 5
+        )
+        && get_player_pieces(
+            new_position, new_position.turn
+        ).filter(
+            (piece) => piece.piece === Piece.Pawn && piece.square.y === (piece.color === Color.White ? 5 : 4)
+        ).flatMap(
+            (piece) => get_legal_moves_by_piece(new_position, piece)
+        ).some(
+            (move) => move.is_en_passant
+        )
+    )
+
+    if (! allows_en_passant) {
+        new_position.en_passant_square = null
+    }
+    return new_position
 }
 
 export function is_self_check(state: BoardState, move: Move) {
