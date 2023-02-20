@@ -14,7 +14,11 @@ export function is_game_over(state: BoardState): boolean {
 }
 
 export function game_result(state: BoardState): Result {
-    return is_checkmate(state)
-        ? (state.turn === Color.Black ? Result["1-0"] : Result["0-1"])
-        : Result["1/2-1/2"]
+    if (is_game_over(state)) {
+        return is_checkmate(state)
+            ? (state.turn === Color.Black ? Result["1-0"] : Result["0-1"])
+            : Result["1/2-1/2"]
+    } else {
+        throw new Error("game_result(): Invalid state, game is still in progress")
+    }
 }
