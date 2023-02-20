@@ -2,10 +2,6 @@ import { BoardPiece, BoardState, Color, Coordinates, Move, Moves, Piece } from "
 import { make_coordinates } from "./coordinates.ts";
 import { get_king_position, get_piece_by_square, get_player_pieces, is_bishop, is_king, is_knight, is_pawn, is_queen, is_rook, other_color, out_of_bounds, square_has_piece } from "./board.ts";
 
-
-
-
-
 function get_regular_moves(piece: BoardPiece, state: BoardState, directions: [number, number][]): Moves {
     const moves: Moves = []
     for (const direction of directions) {
@@ -188,7 +184,18 @@ export function get_prospective_moves(state: BoardState): Moves {
 
 export function is_check(state: BoardState, color: Color): boolean {
     const king_position = get_king_position(state, color)
-    return get_prospective_moves(state).some((move) => (move.to.x === king_position.x && move.to.y === king_position.y))
+    const other_color_state = structuredClone(state)
+    other_color_state.turn = other_color(color)
+    return get_prospective_moves(
+        other_color_state
+    ).some(
+        (move) => (move.to.x === king_position.x && move.to.y === king_position.y)
+    )
+}
+
+export function is_checkmate(state: BoardState, color: Color): boolean {
+    console.log(get_legal_moves(state))
+    return is_check(state, color) && get_legal_moves(state).length === 0
 }
 
 export function apply_move(state: BoardState, move: Move): BoardState {
@@ -236,10 +243,14 @@ export function apply_move(state: BoardState, move: Move): BoardState {
     }
 }
 
+export function is_self_check(state: BoardState, move: Move) {
+    return is_check(apply_move(state, move), state.turn)
+}
+
 /** Exclude moves which would put the player's own king in check */
 export function get_legal_moves(state: BoardState): Moves {
     return get_prospective_moves(state).filter(
-        (move: Move) => ! is_check(apply_move(state, move), state.turn),
+        (move: Move) => ! is_self_check(state, move),
     )
 }
 
