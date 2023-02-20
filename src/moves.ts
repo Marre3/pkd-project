@@ -275,7 +275,7 @@ export function apply_move(state: BoardState, move: Move): BoardState {
         en_passant_square,
         turn: other_color(state.turn),
         castling: state.castling,
-        halfmove_clock: state.halfmove_clock + 1, // TODO: Reset on pawn move or capture
+        halfmove_clock: move.is_capture ? 0 : state.halfmove_clock + 1,
         fullmove_number: state.fullmove_number + (state.turn === Color.Black ? 1 : 0),
         width: 8,
         height: 8,

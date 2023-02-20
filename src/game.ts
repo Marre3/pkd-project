@@ -1,5 +1,21 @@
-import { BoardState, Color, Result } from "./game_types.ts";
-import { get_legal_moves, is_check } from "./moves.ts";
+import { BoardState, Color, Move, Result } from "./game_types.ts";
+import { apply_move, get_legal_moves, is_check } from "./moves.ts";
+import { move_to_algebraic_notation } from "./notation.ts";
+
+export function get_move_by_notation(state: BoardState, move_notation: string): Move | null {
+    return get_legal_moves(state).find(
+        (move) => move_to_algebraic_notation(state, move) === move_notation
+    ) ?? null
+}
+
+export function apply_move_by_notation(state: BoardState, move_notation: string): BoardState {
+    const move = get_move_by_notation(state, move_notation)
+    if (move !== null) {
+        return apply_move(state, move)
+    } else {
+        throw new Error(`Illegal move ${move_notation}`)
+    }
+}
 
 export function is_checkmate(state: BoardState): boolean {
     return is_check(state, state.turn) && get_legal_moves(state).length === 0
