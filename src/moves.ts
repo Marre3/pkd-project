@@ -254,7 +254,7 @@ export function apply_move(state: BoardState, move: Move): BoardState {
     const en_passant_square = allows_en_passant
         ? make_coordinates(
             move.to.x,
-            move.to.y + state.turn === Color.White ? -1 : 1
+            move.to.y + (state.turn === Color.White ? -1 : 1)
         )
         : null
     const capture_en_passant = move.piece_type === Piece.Pawn
