@@ -78,9 +78,54 @@ function get_king_moves(piece: BoardPiece, state: BoardState): Moves {
 }
 
 function get_pawn_moves(piece: BoardPiece, state: BoardState): Moves {
+    function get_promotion_moves(to: Coordinates): Moves {
+        const moves: Moves = []
+        moves.push(
+            {
+                from: piece.square,
+                to,
+                piece_type: piece.piece,
+                is_castling: false,
+                is_en_passant: false,
+                promotion_piece: Piece.Knight
+            }
+        )
+        moves.push(
+            {
+                from: piece.square,
+                to,
+                piece_type: piece.piece,
+                is_castling: false,
+                is_en_passant: false,
+                promotion_piece: Piece.Bishop
+            }
+        )
+        moves.push(
+            {
+                from: piece.square,
+                to,
+                piece_type: piece.piece,
+                is_castling: false,
+                is_en_passant: false,
+                promotion_piece: Piece.Rook
+            }
+        )
+        moves.push(
+            {
+                from: piece.square,
+                to,
+                piece_type: piece.piece,
+                is_castling: false,
+                is_en_passant: false,
+                promotion_piece: Piece.Queen
+            }
+        )
+        return moves
+    }
+
     // TODO: google en passant
     // TODO: piece promotion
-    const moves: Moves = []
+    let moves: Moves = []
     const one_square_ahead = make_coordinates(
         piece.square.x,
         piece.color === Color.White ? piece.square.y + 1 : piece.square.y - 1
@@ -98,15 +143,22 @@ function get_pawn_moves(piece: BoardPiece, state: BoardState): Moves {
         piece.color === Color.White ? piece.square.y + 1 : piece.square.y - 1
     )
     if (! square_has_piece(one_square_ahead, state)) {
-        moves.push(
-            {
-                from: piece.square,
-                to: one_square_ahead,
-                piece_type: piece.piece,
-                is_castling: false,
-                is_en_passant: false
-            }
-        )
+        if (
+            piece.color === Color.White && piece.square.y === 7
+            || piece.color === Color.Black && piece.square.y === 2
+            ) {
+            moves = moves.concat(get_promotion_moves(one_square_ahead))
+        } else {
+            moves.push(
+                {
+                    from: piece.square,
+                    to: one_square_ahead,
+                    piece_type: piece.piece,
+                    is_castling: false,
+                    is_en_passant: false
+                }
+            )
+        }
 
         if (
             (
@@ -133,26 +185,40 @@ function get_pawn_moves(piece: BoardPiece, state: BoardState): Moves {
         && state.en_passant_square.x === second_capture_square.x
         && state.en_passant_square.y === second_capture_square.y
     if (square_has_piece(first_capture_square, state, other_color(piece.color)) || en_passant_first_square) {
-        moves.push(
-            {
-                from: piece.square,
-                to: first_capture_square,
-                piece_type: piece.piece,
-                is_castling: false,
-                is_en_passant: en_passant_first_square
-            }
-        )
+        if (
+            piece.color === Color.White && piece.square.y === 7
+            || piece.color === Color.Black && piece.square.y === 2
+            ) {
+            moves = moves.concat(get_promotion_moves(first_capture_square))
+        } else {
+            moves.push(
+                {
+                    from: piece.square,
+                    to: first_capture_square,
+                    piece_type: piece.piece,
+                    is_castling: false,
+                    is_en_passant: en_passant_first_square
+                }
+            )
+        }
     }
     if (square_has_piece(second_capture_square, state, other_color(piece.color)) || en_passant_second_square) {
-        moves.push(
-            {
-                from: piece.square,
-                to: second_capture_square,
-                piece_type: piece.piece,
-                is_castling: false,
-                is_en_passant: en_passant_second_square
-            }
-        )
+        if (
+            piece.color === Color.White && piece.square.y === 7
+            || piece.color === Color.Black && piece.square.y === 2
+            ) {
+            moves = moves.concat(get_promotion_moves(second_capture_square))
+        } else {
+            moves.push(
+                {
+                    from: piece.square,
+                    to: second_capture_square,
+                    piece_type: piece.piece,
+                    is_castling: false,
+                    is_en_passant: en_passant_second_square
+                }
+            )
+        }
     }
 
     return moves
@@ -203,7 +269,7 @@ export function apply_move(state: BoardState, move: Move): BoardState {
         throw new Error(`Invalid move ${move}, origin piece does not exist`)
     }
     const new_piece = {
-        piece: old_piece.piece,
+        piece: typeof move.promotion_piece === "undefined" ? old_piece.piece : move.promotion_piece,
         color: old_piece.color,
         square: move.to
     }
