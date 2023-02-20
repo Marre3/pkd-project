@@ -272,10 +272,10 @@ export function apply_move(state: BoardState, move: Move): BoardState {
                 && (capture_en_passant_pawn_square === null
                     || !(p.square.x === capture_en_passant_pawn_square.x && p.square.y === capture_en_passant_pawn_square.y)))
         ).concat([new_piece]),
-        en_passant_square,
+        en_passant_square: en_passant_square,
         turn: other_color(state.turn),
-        castling: state.castling,
-        halfmove_clock: move.is_capture ? 0 : state.halfmove_clock + 1,
+        castling: structuredClone(state.castling),
+        halfmove_clock: move.is_capture || move.piece_type === Piece.Pawn ? 0 : state.halfmove_clock + 1,
         fullmove_number: state.fullmove_number + (state.turn === Color.Black ? 1 : 0),
         width: 8,
         height: 8,
