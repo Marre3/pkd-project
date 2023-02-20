@@ -19,7 +19,7 @@ export function get_piece_by_letter(letter: string): Piece {
 }
 
 export function get_letter_by_piece(boardPiece: BoardPiece | null): string {
-    if (!is_piece(boardPiece)) return "E"
+    if (!is_piece(boardPiece)) return "."
 
     const piece = boardPiece.piece
     return get_letter_by_color(
