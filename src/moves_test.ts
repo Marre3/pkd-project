@@ -1,15 +1,26 @@
-import { assert, assertEquals } from "https://deno.land/std@0.177.0/testing/asserts.ts";
+import { assert, assertEquals, assertExists } from "https://deno.land/std@0.177.0/testing/asserts.ts";
 
 import { Color, Move } from "./game_types.ts"
 import { get_legal_moves, is_check, is_self_check } from "./moves.ts";
 import { position_from_fen } from "./fen.ts";
 import { other_color } from "./board.ts";
 import { get_default_board } from "./chess.ts";
+import { apply_move_by_notation } from "./game.ts";
 
 
 Deno.test("starting_position_number_of_moves", () => {
     const board = get_default_board()
     assertEquals(get_legal_moves(board).length, 20)
+})
+
+Deno.test("apply_move_set_en_passant_square", () => {
+    let board = get_default_board()
+    for (const move of ["e4", "e6", "e5", "d5"]) {
+        board = apply_move_by_notation(board, move)
+    }
+    assertExists(board.en_passant_square)
+    assertEquals(board.en_passant_square.x, 4)
+    assertEquals(board.en_passant_square.y, 6)
 })
 
 Deno.test("is_check_bogo_indian", () => {

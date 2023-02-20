@@ -21,6 +21,14 @@ Deno.test("en_passant_possible_fen", () => {
     assertExists(get_move_by_notation(board, "exd6"))
 })
 
+Deno.test("en_passant_possible_moves", () => {
+    let board = get_default_board()
+    for (const move of ["e4", "e6", "e5", "d5"]) {
+        board = apply_move_by_notation(board, move)
+    }
+    assertExists(get_move_by_notation(board, "exd6"))
+})
+
 Deno.test("scholars_mate", () => {
     let board = get_default_board()
     for (const move of ["e4", "e5", "Qh5", "Nc6", "Bc4", "Nf6", "Qxf7#"]) {
