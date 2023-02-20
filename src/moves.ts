@@ -84,52 +84,19 @@ function get_king_moves(piece: BoardPiece, state: BoardState): Moves {
 
 function get_pawn_moves(piece: BoardPiece, state: BoardState): Moves {
     function get_promotion_moves(to: Coordinates): Moves {
-        const moves: Moves = []
-        moves.push(
-            {
+        return [
+            Piece.Knight, Piece.Bishop, Piece.Rook, Piece.Queen
+        ].map(
+            (piece_type) => ({
                 from: piece.square,
-                to,
+                to: to,
                 piece_type: piece.piece,
                 is_capture: square_has_piece(to, state),
                 is_castling: false,
                 is_en_passant: false,
-                promotion_piece: Piece.Knight
-            }
+                promotion_piece: piece_type
+            })
         )
-        moves.push(
-            {
-                from: piece.square,
-                to,
-                piece_type: piece.piece,
-                is_capture: square_has_piece(to, state),
-                is_castling: false,
-                is_en_passant: false,
-                promotion_piece: Piece.Bishop
-            }
-        )
-        moves.push(
-            {
-                from: piece.square,
-                to,
-                piece_type: piece.piece,
-                is_capture: square_has_piece(to, state),
-                is_castling: false,
-                is_en_passant: false,
-                promotion_piece: Piece.Rook
-            }
-        )
-        moves.push(
-            {
-                from: piece.square,
-                to,
-                piece_type: piece.piece,
-                is_capture: square_has_piece(to, state),
-                is_castling: false,
-                is_en_passant: false,
-                promotion_piece: Piece.Queen
-            }
-        )
-        return moves
     }
 
     // TODO: google en passant
