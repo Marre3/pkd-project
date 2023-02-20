@@ -77,7 +77,7 @@ function get_king_moves(piece: BoardPiece, state: BoardState): Moves {
     return get_fixed_distance_moves(
         piece,
         state,
-        [[1, 1], [0, 1], [0, -1], [-1, 1], [-1, 0], [-1, -1], [0, -1], [1, -1]]
+        [[1, 1], [0, 1], [0, -1], [-1, 1], [-1, 0], [-1, -1], [1, 0], [1, -1]]
     )
 }
 
@@ -187,7 +187,8 @@ export function get_prospective_moves(state: BoardState): Moves {
 }
 
 export function is_check(state: BoardState, color: Color): boolean {
-    return get_prospective_moves(state).some((move) => (move.to == get_king_position(state, color)))
+    const king_position = get_king_position(state, color)
+    return get_prospective_moves(state).some((move) => (move.to.x === king_position.x && move.to.y === king_position.y))
 }
 
 export function apply_move(state: BoardState, move: Move): BoardState {
