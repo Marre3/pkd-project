@@ -1,6 +1,26 @@
 import { assertEquals } from "https://deno.land/std@0.177.0/testing/asserts.ts";
-import { coordinates_from_notation, coordinates_to_notation, make_coordinates } from "./coordinates.ts";
+import { coordinates_from_notation, coordinates_to_notation, file_to_character, make_coordinates } from "./coordinates.ts";
 
+Deno.test("test_make_coordinates", () => {
+    for (let x = 1; x <= 8; ++x) {
+        for (let y = 1; y <= 8; ++y) {
+            const coordinates = make_coordinates(x, y)
+            assertEquals(coordinates.x, x)
+            assertEquals(coordinates.y, y)
+        }
+    }
+})
+
+Deno.test("test_file_to_character", () => {
+    assertEquals(file_to_character(1), "a")
+    assertEquals(file_to_character(2), "b")
+    assertEquals(file_to_character(3), "c")
+    assertEquals(file_to_character(4), "d")
+    assertEquals(file_to_character(5), "e")
+    assertEquals(file_to_character(6), "f")
+    assertEquals(file_to_character(7), "g")
+    assertEquals(file_to_character(8), "h")
+})
 
 Deno.test("test_coordinates_to_notation", () => {
     assertEquals(coordinates_to_notation(make_coordinates(1, 1)), "a1")
