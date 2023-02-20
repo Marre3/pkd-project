@@ -53,7 +53,7 @@ export function export_to_fen(state: BoardState): string {
                 get_piece_by_square(make_coordinates(x, y), state)
             )
         ).map(
-            (c) => c === "E" ? "1" : c
+            (c) => c === "." ? "1" : c
         ).reduce(
             (l, r) => (
                 ["1", "2", "3", "4", "5", "6", "7"].includes(l.slice(-1))
