@@ -38,6 +38,20 @@ export function get_letter_by_piece(boardPiece: BoardPiece | null): string {
     )
 }
 
+function get_letter_by_piece_type(piece: Piece): string {
+    return piece === Piece.Knight
+        ? "N"
+        : piece === Piece.Bishop
+        ? "B"
+        : piece === Piece.Rook
+        ? "R"
+        : piece === Piece.Queen
+        ? "Q"
+        : piece === Piece.King
+        ? "K"
+        : "P"
+}
+
 export function get_color_by_letter(letter: string): Color {
     return letter.toLowerCase() === letter ? Color.Black : Color.White
 }
@@ -66,7 +80,7 @@ export function move_to_algebraic_notation(state: BoardState, move: Move): strin
             return "K"
         }
 
-        let notation = get_letter_by_piece(piece).toUpperCase()
+        let notation = get_letter_by_piece_type((piece as BoardPiece).piece)
         const allowed_pieces_on_same_rank: BoardPiece[] = get_pieces_of_type(move.piece_type, undefined, move.from.y).filter(
             (p: BoardPiece) => can_piece_move_to(state, p, move.to))
 
@@ -117,11 +131,22 @@ export function move_to_algebraic_notation(state: BoardState, move: Move): strin
         }
     }
 
+    let promotion = ""
+    if (typeof move.promotion_piece !== "undefined") {
+        const promotion_piece = move.promotion_piece
+
+        if (promotion_piece === Piece.Pawn || promotion_piece === Piece.King) {
+            throw new Error(`The promotion piece: ${promotion_piece} is of an incorrect type`)
+        }
+
+        promotion = "=" + get_letter_by_piece_type(move.promotion_piece)
+    }
+
     if (!capture) {
         const from_notation = construct_notation_for_from_coordinates(false)
-        return from_notation + to_square + symbol
+        return from_notation + to_square + promotion + symbol
     } else {
         const from_notation = construct_notation_for_from_coordinates(true)
-        return from_notation + "x" + to_square + symbol
+        return from_notation + "x" + to_square + promotion + symbol
     }
 }
