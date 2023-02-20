@@ -259,14 +259,6 @@ export function is_check(state: BoardState, color: Color): boolean {
     )
 }
 
-export function is_checkmate(state: BoardState): boolean {
-    return is_check(state, state.turn) && get_legal_moves(state).length === 0
-}
-
-export function is_stalemate(state: BoardState): boolean {
-    return ! is_check(state, state.turn) && get_legal_moves(state).length === 0
-}
-
 export function apply_move(state: BoardState, move: Move): BoardState {
     const old_piece = get_piece_by_square(move.from, state)
     if (old_piece == null) {

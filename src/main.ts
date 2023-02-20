@@ -1,7 +1,7 @@
 import { get_default_board } from "./chess.ts";
 import { draw } from "./draw.ts";
-import { is_game_over } from "./game.ts";
-import { Color } from "./game_types.ts";
+import { game_result, is_game_over } from "./game.ts";
+import { Color, Result } from "./game_types.ts";
 import { apply_move, get_legal_moves } from "./moves.ts";
 import { move_to_algebraic_notation } from "./notation.ts";
 
@@ -20,4 +20,17 @@ while (! is_game_over(board)) {
         console.log(moves.map((move) => move_to_algebraic_notation(board, move)).join(", "))
     }
 }
-console.log(`Game over, ${board.turn === Color.White ? "White" : "Black"} wins`)
+switch (game_result(board)) {
+    case (Result["1-0"]): {
+        console.log("Game over, White wins")
+        break;
+    }
+    case (Result["0-1"]): {
+        console.log("Game over, Black wins")
+        break;
+    }
+    case (Result["1/2-1/2"]): {
+        console.log("Game over, the game is drawn")
+        break;
+    }
+}
