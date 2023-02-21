@@ -2,8 +2,7 @@ import { Head } from "$fresh/runtime.ts";
 import ChessGame from '../islands/ChessGame.tsx'
 
 export default function Home() {
-    return (
-        <>
+    return (<>
         <Head>
             <title>PKD Chess Game</title>
         </Head>
@@ -26,7 +25,6 @@ export default function Home() {
                     <a href="https://github.com/Marre3/pkd-project">https://github.com/Marre3/pkd-project</a>
                 </div>
             </div>
-      </div>
-    </>
-  );
+        </div>
+    </>);
 }
