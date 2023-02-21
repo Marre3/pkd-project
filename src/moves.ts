@@ -43,26 +43,23 @@ function get_queen_moves(piece: BoardPiece, state: BoardState): Moves {
 }
 
 function get_fixed_distance_moves(piece: BoardPiece, state: BoardState, offsets: [number, number][]): Moves {
-    const moves: Moves = []
-    for (const offset of offsets) {
-        const destination = make_coordinates(piece.square.x + offset[0], piece.square.y + offset[1])
-        if (
-            ! out_of_bounds(state, destination)
-            && ! square_has_piece(destination, state, piece.color)
-        ) {
-            moves.push(
-                {
-                    from: piece.square,
-                    to: destination,
-                    piece_type: piece.piece,
-                    is_capture: square_has_piece(destination, state, other_color(piece.color)),
-                    is_castling: false,
-                    is_en_passant: false
-                }
-            )
-        }
-    }
-    return moves
+    return offsets.map(
+        (offset) => make_coordinates(piece.square.x + offset[0], piece.square.y + offset[1])
+    ).filter(
+        (destination) => ! (
+            out_of_bounds(state, destination)
+            || square_has_piece(destination, state, piece.color)
+        )
+    ).map(
+        (destination) => ({
+            from: piece.square,
+            to: destination,
+            piece_type: piece.piece,
+            is_capture: square_has_piece(destination, state, other_color(piece.color)),
+            is_castling: false,
+            is_en_passant: false
+        })
+    )
 }
 
 function get_knight_moves(piece: BoardPiece, state: BoardState): Moves {
