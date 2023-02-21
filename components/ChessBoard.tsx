@@ -1,3 +1,5 @@
+import { IS_BROWSER } from "$fresh/runtime.ts";
+
 interface Piece {
     unicode: string,
 }
@@ -52,13 +54,69 @@ function parse_fen(fen: string, width: number, height: number): Array<Piece> {
         } else if ("12345678".includes(c)) {
             x = x + parseInt(c)
         } else {
-            throw new Error('garbage in the FEN string')
+            throw new Error("garbage in the FEN string")
         }
     }
-    throw new Error('invalid FEN')
+    throw new Error("invalid FEN")
 }
 
-export function ChessBoard({board_fen}: {board_fen: string}) {
+function file_to_character(file: number): string {
+    // Adapted from src/coordinates.ts
+    return String.fromCharCode(97 + file)
+}
+function coordinates_to_notation(file: number, rank: number): string {
+    return `${file_to_character(file)}${8-rank}`
+}
+
+function dropHandler(i: number, j: number, move_cb: (from: string, to: string) => void) {
+    return (event: DragEvent) => {
+        event.preventDefault()
+        const from = event.dataTransfer!.getData("text")
+        move_cb(from, coordinates_to_notation(j, i))
+    }
+}
+
+function dragHandler(event: DragEvent) {
+    if (event.target instanceof HTMLDivElement) {
+        // We do this in a separate handler or else the browser thinks that
+        // the dragged element should be displayed as hidden.
+        event.target.classList.add('hidden')
+    }
+}
+
+function dragEndHandler(timers: number[]) {
+    return (event: DragEvent) => {
+        if (event.target instanceof HTMLDivElement) {
+            const div = event.target
+            timers.push(setTimeout(() => {
+                div.classList.remove('hidden')
+            }, 1))
+        }
+    }
+}
+
+function dragStartHandler(i: number, j: number) {
+    return (event: DragEvent) => {
+        // Where did the piece come from:
+        event.dataTransfer!.setData("text", coordinates_to_notation(j, i))
+    }
+}
+
+function allowDrop(event: DragEvent) {
+    event.preventDefault();
+}
+
+interface ChessBoardProps {
+    board_fen: string,
+    timers: number[],
+    move_cb: (from: string, to: string) => void,
+}
+
+export default function ChessBoard({board_fen, move_cb, timers}: ChessBoardProps) {
+    for (const timer of timers) {
+        clearTimeout(timer)
+    }
+    timers.length = 0
     const width = 8
     const height = 8
     const board = parse_fen(board_fen, width, height)
@@ -66,8 +124,16 @@ export function ChessBoard({board_fen}: {board_fen: string}) {
 
     return <div class="chess-board">
         {[...Array(height)].map((_, i) => <div class="row">
-            {[...Array(width)].map((_, j) => <div class={((i+j) & 1) === 1 ? 'tile black' : 'tile'}>
-                <div class="piece">{board[i * width + j].unicode}</div>
+            {[...Array(width)].map((_, j) => <div onDrop={dropHandler(i, j, move_cb)}
+                                                  onDragOver={allowDrop}
+                                                  class={((i+j) & 1) === 1 ? "tile black" : "tile"}>
+                <div class="piece"
+                     draggable={IS_BROWSER}
+                     onDrag={dragHandler}
+                     onDragEnd={dragEndHandler(timers)}
+                     onDragStart={dragStartHandler(i, j)}>
+                    {board[i * width + j].unicode}
+                </div>
             </div>)}
         </div>)}
     </div>

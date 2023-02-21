@@ -1,5 +1,5 @@
 import { BoardPiece, BoardState, Color, Coordinates, Move, Moves, Piece } from "./game_types.ts";
-import { make_coordinates } from "./coordinates.ts";
+import { make_coordinates, coordinates_eq } from "./coordinates.ts";
 import { get_king_position, get_piece_by_square, get_player_pieces, is_bishop, is_king, is_knight, is_pawn, is_queen, is_rook, other_color, out_of_bounds, square_has_piece } from "./board.ts";
 
 type Direction = [number, number]
@@ -123,8 +123,7 @@ function get_pawn_moves(piece: BoardPiece, state: BoardState): Moves {
         (square) => (
             square_has_piece(square, state, other_color(piece.color))
             || state.en_passant_square !== null
-            && state.en_passant_square.x === square.x
-            && state.en_passant_square.y === square.y
+            && coordinates_eq(state.en_passant_square, square)
         )
         ? piece.square.y === seventh_rank
             ? get_promotion_moves(first_capture_square)
@@ -135,8 +134,7 @@ function get_pawn_moves(piece: BoardPiece, state: BoardState): Moves {
                 is_capture: true,
                 is_castling: false,
                 is_en_passant: state.en_passant_square !== null
-                    && state.en_passant_square.x === square.x
-                    && state.en_passant_square.y === square.y
+                    && coordinates_eq(state.en_passant_square, square)
             }
         : []
     ).concat(
@@ -194,7 +192,7 @@ export function is_check(state: BoardState, color: Color): boolean {
     return get_prospective_moves(
         other_color_state
     ).some(
-        (move) => (move.to.x === king_position.x && move.to.y === king_position.y)
+        (move) => coordinates_eq(move.to, king_position)
     )
 }
 
@@ -218,8 +216,8 @@ export function apply_move(state: BoardState, move: Move): BoardState {
         // TODO: handle castling rights
         pieces: state.pieces.filter(
             (p: BoardPiece) => (
-                !(p.square.x === move.from.x && p.square.y === move.from.y)
-                && !(p.square.x === capture_square.x && p.square.y === capture_square.y)
+                !coordinates_eq(p.square, move.from)
+                && !coordinates_eq(p.square, capture_square)
             )
         ).concat([new_piece]),
         en_passant_square: en_passant_square,
@@ -275,6 +273,6 @@ export function can_piece_move_to(state: BoardState, piece: BoardPiece, to: Coor
     return get_legal_moves_by_piece(state, piece).map(
         (m: Move) => m.to
     ).some(
-        (c: Coordinates) => c.x === to.x && c.y === to.y
+        (c: Coordinates) => coordinates_eq(c, to)
     )
 }

@@ -1,5 +1,5 @@
 import { assertEquals } from "https://deno.land/std@0.177.0/testing/asserts.ts";
-import { get_default_board } from "./chess.ts";
+import { get_default_board } from "./game.ts";
 import { make_coordinates } from "./coordinates.ts";
 import { Piece } from "./game_types.ts";
 import { move_to_algebraic_notation } from "./notation.ts";

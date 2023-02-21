@@ -1,8 +1,9 @@
+import { coordinates_eq } from "./coordinates.ts";
 import { BoardPiece,Coordinates,BoardState,Color, Piece } from "./game_types.ts";
 
 export function get_piece_by_square(coordinates: Coordinates, state: BoardState): BoardPiece | null {
     return state.pieces.find(
-        (piece) => piece.square.x == coordinates.x && piece.square.y == coordinates.y
+        (piece) => coordinates_eq(piece.square, coordinates)
     ) || null
 }
 
