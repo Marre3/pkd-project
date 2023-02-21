@@ -126,7 +126,7 @@ function get_pawn_moves(piece: BoardPiece, state: BoardState): Moves {
             && coordinates_eq(state.en_passant_square, square)
         )
         ? piece.square.y === seventh_rank
-            ? get_promotion_moves(first_capture_square)
+            ? get_promotion_moves(square)
             : {
                 from: piece.square,
                 to: square,
