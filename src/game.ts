@@ -1,6 +1,13 @@
 import { BoardState, Color, Move, Result } from "./game_types.ts";
 import { apply_move, get_legal_moves, is_check } from "./moves.ts";
 import { move_to_algebraic_notation } from "./notation.ts";
+import { position_from_fen } from "./fen.ts";
+
+export const DEFAULT_BOARD_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+
+export function get_default_board(): BoardState  {
+    return position_from_fen(DEFAULT_BOARD_FEN)
+}
 
 export function get_move_by_notation(state: BoardState, move_notation: string): Move | null {
     return get_legal_moves(state).find(

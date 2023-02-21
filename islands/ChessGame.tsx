@@ -1,8 +1,8 @@
 import { useState } from "preact/hooks";
 import ChessBoard from "../components/ChessBoard.tsx";
-import { next_fen_by_move } from '../src/lib.ts'
+import { DEFAULT_BOARD_FEN, next_fen_by_move } from '../src/lib.ts'
 export default function ChessGame() {
-    const [board_fen, setBoardFEN] = useState("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
+    const [board_fen, setBoardFEN] = useState(DEFAULT_BOARD_FEN)
     const [timers] = useState([])
     function move_cb(a: string, b: string) {
         console.log(a, "moves to", b)

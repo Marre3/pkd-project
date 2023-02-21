@@ -8,6 +8,7 @@ import { export_to_fen, position_from_fen } from "./fen.ts";
 import { get_legal_moves } from "./moves.ts";
 import { apply_move } from "./moves.ts";
 import { coordinates_eq, coordinates_from_notation } from "./coordinates.ts";
+export { DEFAULT_BOARD_FEN } from "./game.ts"
 
 export function next_fen_by_move(fen: string, from: string, to: string) {
     const coord_from = coordinates_from_notation(from)

@@ -1,7 +1,6 @@
 import { assert, assertEquals, assertExists } from "https://deno.land/std@0.177.0/testing/asserts.ts";
-import { get_default_board } from "./chess.ts";
 import { export_to_fen, position_from_fen } from "./fen.ts";
-import { apply_move_by_notation, game_result, get_move_by_notation, is_checkmate, is_game_over, is_stalemate } from "./game.ts";
+import { apply_move_by_notation, game_result, get_move_by_notation, is_checkmate, is_game_over, is_stalemate, get_default_board } from "./game.ts";
 import { Result } from "./game_types.ts";
 
 Deno.test("checkmate_scholars", () => {

@@ -21,7 +21,7 @@ export default function Home() {
                     alt="logo of Uppsala"
                 />
                 <div>
-                    This project was made as part of an assignment for the PKD course in <br />
+                    This project was made as part of an assignment for the PKD course at <br />
                     Uppsala University. The source can be found here: <br />
                     <a href="https://github.com/Marre3/pkd-project">https://github.com/Marre3/pkd-project</a>
                 </div>

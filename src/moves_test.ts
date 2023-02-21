@@ -4,8 +4,7 @@ import { Color, Move } from "./game_types.ts"
 import { get_legal_moves, is_check, is_self_check } from "./moves.ts";
 import { position_from_fen } from "./fen.ts";
 import { get_piece_by_square, other_color } from "./board.ts";
-import { get_default_board } from "./chess.ts";
-import { apply_move_by_notation } from "./game.ts";
+import { apply_move_by_notation, get_default_board } from "./game.ts";
 import { make_coordinates } from "./coordinates.ts";
 
 
