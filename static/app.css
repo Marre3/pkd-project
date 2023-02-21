@@ -48,7 +48,7 @@ body {
 }
 
 .chess-board .tile {
-    background: gray;
+    background: rgb(233, 218, 192);
     width: 100%;
     display: flex;
     flex-flow: nowrap column;
@@ -56,7 +56,7 @@ body {
 }
 
 .chess-board .tile.black {
-    background: brown;
+    background: rgb(168, 139, 112);
 }
 
 .chess-board .piece {
