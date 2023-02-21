@@ -14,6 +14,11 @@ Deno.test("starting_position_number_of_moves", () => {
     assertEquals(get_legal_moves(board).length, 20)
 })
 
+Deno.test("rook_and_kings_number_of_moves", () => {
+    const board = position_from_fen("8/2k5/8/8/2K5/6R1/8/8 w - - 0 1")
+    assertEquals(get_legal_moves(board).length, 22)
+})
+
 Deno.test("apply_move_set_en_passant_square", () => {
     let board = get_default_board()
     for (const move of ["e4", "e6", "e5", "d5"]) {
