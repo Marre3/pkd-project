@@ -1,5 +1,10 @@
 import { IS_BROWSER } from "$fresh/runtime.ts";
 
+interface Timer {
+    id: number,
+    fn: () => void
+}
+
 interface Piece {
     unicode: string,
 }
@@ -84,13 +89,12 @@ function dragHandler(event: DragEvent) {
     }
 }
 
-function dragEndHandler(timers: number[]) {
+function dragEndHandler(timers: Timer[]) {
     return (event: DragEvent) => {
         if (event.target instanceof HTMLDivElement) {
             const div = event.target
-            timers.push(setTimeout(() => {
-                div.classList.remove('hidden')
-            }, 1))
+            const hide = () => div.classList.remove('hidden')
+            timers.push({id: setTimeout(hide, 1), fn: hide})
         }
     }
 }
@@ -108,19 +112,21 @@ function allowDrop(event: DragEvent) {
 
 interface ChessBoardProps {
     board_fen: string,
-    timers: number[],
+    timers: Timer[],
     move_cb: (from: string, to: string) => void,
 }
 
 export default function ChessBoard({board_fen, move_cb, timers}: ChessBoardProps) {
+    // Early call to restore piece visibility
     for (const timer of timers) {
-        clearTimeout(timer)
+        timer.fn()
+        clearTimeout(timer.id)
     }
     timers.length = 0
+
     const width = 8
     const height = 8
     const board = parse_fen(board_fen, width, height)
-    console.log(board)
 
     return <div class="chess-board">
         {[...Array(height)].map((_, i) => <div class="row">
