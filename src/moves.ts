@@ -2,40 +2,44 @@ import { BoardPiece, BoardState, Color, Coordinates, Move, Moves, Piece } from "
 import { make_coordinates, coordinates_eq } from "./coordinates.ts";
 import { get_king_position, get_piece_by_square, get_player_pieces, is_bishop, is_king, is_knight, is_pawn, is_queen, is_rook, other_color, out_of_bounds, square_has_piece } from "./board.ts";
 
-function get_regular_moves(piece: BoardPiece, state: BoardState, directions: [number, number][]): Moves {
-    const moves: Moves = []
-    for (const direction of directions) {
-        const pos: Coordinates = { x: piece.square.x + direction[0], y: piece.square.y + direction[1] }
+type Direction = [number, number]
 
-        while (!out_of_bounds(state, pos) && (!square_has_piece(pos, state, piece.color))) {
-            moves.push(
-                {
-                    from: piece.square,
-                    to: { x: pos.x, y: pos.y },
-                    piece_type: piece.piece,
-                    is_capture: square_has_piece(pos, state, other_color(piece.color)),
-                    is_castling: false,
-                    is_en_passant: false
-                }
-            )
+function get_moves_in_direction(piece: BoardPiece, state: BoardState, pos: Coordinates, direction: Direction): Moves {
+    const next_square = make_coordinates(pos.x + direction[0], pos.y + direction[1])
+    return out_of_bounds(state, pos) || square_has_piece(pos, state, piece.color)
+        ? []
+        : Array.prototype.concat(
+            {
+                from: piece.square,
+                to: { x: pos.x, y: pos.y },
+                piece_type: piece.piece,
+                is_capture: square_has_piece(pos, state, other_color(piece.color)),
+                is_castling: false,
+                is_en_passant: false
+            },
+            square_has_piece(pos, state, other_color(piece.color))
+                ? []
+                : get_moves_in_direction(piece, state, next_square, direction)
+        )
+}
 
-            if (square_has_piece(pos, state, other_color(piece.color))) {
-                break
-            }
-
-            pos.x = pos.x + direction[0]
-            pos.y = pos.y + direction[1]
-        }
-    }
-    return moves
+function get_linear_moves(piece: BoardPiece, state: BoardState, directions: Direction[]): Moves {
+    return directions.flatMap(
+        (dir) => get_moves_in_direction(
+            piece,
+            state,
+            make_coordinates(piece.square.x + dir[0], piece.square.y + dir[1]),
+            dir
+        )
+    )
 }
 
 function get_rook_moves(piece: BoardPiece, state: BoardState): Moves {
-    return get_regular_moves(piece, state, [[1, 0], [-1, 0], [0, 1], [0, -1]])
+    return get_linear_moves(piece, state, [[1, 0], [-1, 0], [0, 1], [0, -1]])
 }
 
 function get_bishop_moves(piece: BoardPiece, state: BoardState): Moves {
-    return get_regular_moves(piece, state, [[1, 1], [1, -1], [-1, 1], [-1, -1]])
+    return get_linear_moves(piece, state, [[1, 1], [1, -1], [-1, 1], [-1, -1]])
 }
 
 function get_queen_moves(piece: BoardPiece, state: BoardState): Moves {
@@ -43,26 +47,23 @@ function get_queen_moves(piece: BoardPiece, state: BoardState): Moves {
 }
 
 function get_fixed_distance_moves(piece: BoardPiece, state: BoardState, offsets: [number, number][]): Moves {
-    const moves: Moves = []
-    for (const offset of offsets) {
-        const destination = make_coordinates(piece.square.x + offset[0], piece.square.y + offset[1])
-        if (
-            ! out_of_bounds(state, destination)
-            && ! square_has_piece(destination, state, piece.color)
-        ) {
-            moves.push(
-                {
-                    from: piece.square,
-                    to: destination,
-                    piece_type: piece.piece,
-                    is_capture: square_has_piece(destination, state, other_color(piece.color)),
-                    is_castling: false,
-                    is_en_passant: false
-                }
-            )
-        }
-    }
-    return moves
+    return offsets.map(
+        (offset) => make_coordinates(piece.square.x + offset[0], piece.square.y + offset[1])
+    ).filter(
+        (destination) => ! (
+            out_of_bounds(state, destination)
+            || square_has_piece(destination, state, piece.color)
+        )
+    ).map(
+        (destination) => ({
+            from: piece.square,
+            to: destination,
+            piece_type: piece.piece,
+            is_capture: square_has_piece(destination, state, other_color(piece.color)),
+            is_castling: false,
+            is_en_passant: false
+        })
+    )
 }
 
 function get_knight_moves(piece: BoardPiece, state: BoardState): Moves {
@@ -98,10 +99,6 @@ function get_pawn_moves(piece: BoardPiece, state: BoardState): Moves {
             })
         )
     }
-
-    // TODO: google en passant
-    // TODO: piece promotion
-    let moves: Moves = []
     const one_square_ahead = make_coordinates(
         piece.square.x,
         piece.color === Color.White ? piece.square.y + 1 : piece.square.y - 1
@@ -118,88 +115,52 @@ function get_pawn_moves(piece: BoardPiece, state: BoardState): Moves {
         piece.square.x + 1,
         piece.color === Color.White ? piece.square.y + 1 : piece.square.y - 1
     )
-    if (! square_has_piece(one_square_ahead, state)) {
-        if (
-            piece.color === Color.White && piece.square.y === 7
-            || piece.color === Color.Black && piece.square.y === 2
-            ) {
-            moves = moves.concat(get_promotion_moves(one_square_ahead))
-        } else {
-            moves.push(
-                {
-                    from: piece.square,
-                    to: one_square_ahead,
-                    piece_type: piece.piece,
-                    is_capture: false,
-                    is_castling: false,
-                    is_en_passant: false
-                }
-            )
+    const seventh_rank = piece.color === Color.White ? 7 : 2
+    const second_rank = piece.color === Color.White ? 2 : 7
+    return [
+        first_capture_square, second_capture_square
+    ].flatMap(
+        (square) => (
+            square_has_piece(square, state, other_color(piece.color))
+            || state.en_passant_square !== null
+            && coordinates_eq(state.en_passant_square, square)
+        )
+        ? piece.square.y === seventh_rank
+            ? get_promotion_moves(first_capture_square)
+            : {
+                from: piece.square,
+                to: square,
+                piece_type: piece.piece,
+                is_capture: true,
+                is_castling: false,
+                is_en_passant: state.en_passant_square !== null
+                    && coordinates_eq(state.en_passant_square, square)
+            }
+        : []
+    ).concat(
+        square_has_piece(one_square_ahead, state)
+        ? []
+        : piece.square.y === seventh_rank
+        ? get_promotion_moves(one_square_ahead)
+        : {
+            from: piece.square,
+            to: one_square_ahead,
+            piece_type: piece.piece,
+            is_capture: false,
+            is_castling: false,
+            is_en_passant: false
+        },
+        (piece.square.y !== second_rank) || square_has_piece(two_squares_ahead, state)
+        ? []
+        : {
+            from: piece.square,
+            to: two_squares_ahead,
+            piece_type: piece.piece,
+            is_capture: false,
+            is_castling: false,
+            is_en_passant: false
         }
-
-        if (
-            (
-                piece.color === Color.White && piece.square.y === 2
-                || piece.color === Color.Black && piece.square.y === 7
-            )
-            && ! square_has_piece(two_squares_ahead, state)
-        ) {
-            moves.push(
-                {
-                    from: piece.square,
-                    to: two_squares_ahead,
-                    piece_type: piece.piece,
-                    is_capture: false,
-                    is_castling: false,
-                    is_en_passant: false
-                }
-            )
-        }
-    }
-    const en_passant_first_square: boolean = state.en_passant_square !== null
-        && coordinates_eq(state.en_passant_square, first_capture_square)
-    const en_passant_second_square: boolean = state.en_passant_square !== null
-        && coordinates_eq(state.en_passant_square, second_capture_square)
-    if (square_has_piece(first_capture_square, state, other_color(piece.color)) || en_passant_first_square) {
-        if (
-            piece.color === Color.White && piece.square.y === 7
-            || piece.color === Color.Black && piece.square.y === 2
-            ) {
-            moves = moves.concat(get_promotion_moves(first_capture_square))
-        } else {
-            moves.push(
-                {
-                    from: piece.square,
-                    to: first_capture_square,
-                    piece_type: piece.piece,
-                    is_capture: true,
-                    is_castling: false,
-                    is_en_passant: en_passant_first_square
-                }
-            )
-        }
-    }
-    if (square_has_piece(second_capture_square, state, other_color(piece.color)) || en_passant_second_square) {
-        if (
-            piece.color === Color.White && piece.square.y === 7
-            || piece.color === Color.Black && piece.square.y === 2
-            ) {
-            moves = moves.concat(get_promotion_moves(second_capture_square))
-        } else {
-            moves.push(
-                {
-                    from: piece.square,
-                    to: second_capture_square,
-                    piece_type: piece.piece,
-                    is_capture: true,
-                    is_castling: false,
-                    is_en_passant: en_passant_second_square
-                }
-            )
-        }
-    }
-
-    return moves
+    )
 }
 
 function get_piece_moves(piece: BoardPiece, state: BoardState): Moves {
