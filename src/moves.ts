@@ -99,10 +99,6 @@ function get_pawn_moves(piece: BoardPiece, state: BoardState): Moves {
             })
         )
     }
-
-    // TODO: google en passant
-    // TODO: piece promotion
-    let moves: Moves = []
     const one_square_ahead = make_coordinates(
         piece.square.x,
         piece.color === Color.White ? piece.square.y + 1 : piece.square.y - 1
@@ -119,90 +115,54 @@ function get_pawn_moves(piece: BoardPiece, state: BoardState): Moves {
         piece.square.x + 1,
         piece.color === Color.White ? piece.square.y + 1 : piece.square.y - 1
     )
-    if (! square_has_piece(one_square_ahead, state)) {
-        if (
-            piece.color === Color.White && piece.square.y === 7
-            || piece.color === Color.Black && piece.square.y === 2
-            ) {
-            moves = moves.concat(get_promotion_moves(one_square_ahead))
-        } else {
-            moves.push(
-                {
-                    from: piece.square,
-                    to: one_square_ahead,
-                    piece_type: piece.piece,
-                    is_capture: false,
-                    is_castling: false,
-                    is_en_passant: false
-                }
-            )
+    const seventh_rank = piece.color === Color.White ? 7 : 2
+    const second_rank = piece.color === Color.White ? 2 : 7
+    return [
+        first_capture_square, second_capture_square
+    ].flatMap(
+        (square) => (
+            square_has_piece(square, state, other_color(piece.color))
+            || state.en_passant_square !== null
+            && state.en_passant_square.x === square.x
+            && state.en_passant_square.y === square.y
+        )
+        ? piece.square.y === seventh_rank
+            ? get_promotion_moves(first_capture_square)
+            : {
+                from: piece.square,
+                to: square,
+                piece_type: piece.piece,
+                is_capture: true,
+                is_castling: false,
+                is_en_passant: state.en_passant_square !== null
+                    && state.en_passant_square.x === square.x
+                    && state.en_passant_square.y === square.y
+            }
+        : []
+    ).concat(
+        square_has_piece(one_square_ahead, state)
+        ? []
+        : piece.square.y === seventh_rank
+        ? get_promotion_moves(one_square_ahead)
+        : {
+            from: piece.square,
+            to: one_square_ahead,
+            piece_type: piece.piece,
+            is_capture: false,
+            is_castling: false,
+            is_en_passant: false
+        },
+        (piece.square.y !== second_rank) || square_has_piece(two_squares_ahead, state)
+        ? []
+        : {
+            from: piece.square,
+            to: two_squares_ahead,
+            piece_type: piece.piece,
+            is_capture: false,
+            is_castling: false,
+            is_en_passant: false
         }
-
-        if (
-            (
-                piece.color === Color.White && piece.square.y === 2
-                || piece.color === Color.Black && piece.square.y === 7
-            )
-            && ! square_has_piece(two_squares_ahead, state)
-        ) {
-            moves.push(
-                {
-                    from: piece.square,
-                    to: two_squares_ahead,
-                    piece_type: piece.piece,
-                    is_capture: false,
-                    is_castling: false,
-                    is_en_passant: false
-                }
-            )
-        }
-    }
-    const en_passant_first_square: boolean = state.en_passant_square !== null
-        && state.en_passant_square.x === first_capture_square.x
-        && state.en_passant_square.y === first_capture_square.y
-    const en_passant_second_square: boolean = state.en_passant_square !== null
-        && state.en_passant_square.x === second_capture_square.x
-        && state.en_passant_square.y === second_capture_square.y
-    if (square_has_piece(first_capture_square, state, other_color(piece.color)) || en_passant_first_square) {
-        if (
-            piece.color === Color.White && piece.square.y === 7
-            || piece.color === Color.Black && piece.square.y === 2
-            ) {
-            moves = moves.concat(get_promotion_moves(first_capture_square))
-        } else {
-            moves.push(
-                {
-                    from: piece.square,
-                    to: first_capture_square,
-                    piece_type: piece.piece,
-                    is_capture: true,
-                    is_castling: false,
-                    is_en_passant: en_passant_first_square
-                }
-            )
-        }
-    }
-    if (square_has_piece(second_capture_square, state, other_color(piece.color)) || en_passant_second_square) {
-        if (
-            piece.color === Color.White && piece.square.y === 7
-            || piece.color === Color.Black && piece.square.y === 2
-            ) {
-            moves = moves.concat(get_promotion_moves(second_capture_square))
-        } else {
-            moves.push(
-                {
-                    from: piece.square,
-                    to: second_capture_square,
-                    piece_type: piece.piece,
-                    is_capture: true,
-                    is_castling: false,
-                    is_en_passant: en_passant_second_square
-                }
-            )
-        }
-    }
-
-    return moves
+    )
 }
 
 function get_piece_moves(piece: BoardPiece, state: BoardState): Moves {
