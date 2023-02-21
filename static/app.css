@@ -48,12 +48,11 @@ body {
 }
 
 .chess-board .tile {
-    background: gray;    
+    background: gray;
     width: 100%;
     display: flex;
     flex-flow: nowrap column;
     justify-content: center;
-
 }
 
 .chess-board .tile.black {
@@ -64,6 +63,7 @@ body {
     font-size: 60px;
     text-align: center;
     color: black;
+    cursor: grab;
 }
 
 header {

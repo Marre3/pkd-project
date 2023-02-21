@@ -72,13 +72,6 @@ function dropHandler(i: number, j: number, move_cb: (from: string, to: string) =
     return (event: DragEvent) => {
         event.preventDefault()
         const from = event.dataTransfer!.getData("text")
-
-        // Put back the character for now.
-        const pieces = document.getElementsByClassName('piece')
-        for (let i = 0; i < pieces.length; ++i) {
-            pieces.item(i)!.classList.remove('hidden')
-        }
-
         move_cb(from, coordinates_to_notation(j, i))
     }
 }
@@ -91,6 +84,17 @@ function dragHandler(event: DragEvent) {
     }
 }
 
+function dragEndHandler(timers: number[]) {
+    return (event: DragEvent) => {
+        if (event.target instanceof HTMLDivElement) {
+            const div = event.target
+            timers.push(setTimeout(() => {
+                div.classList.remove('hidden')
+            }, 1))
+        }
+    }
+}
+
 function dragStartHandler(i: number, j: number) {
     return (event: DragEvent) => {
         // Where did the piece come from:
@@ -98,21 +102,25 @@ function dragStartHandler(i: number, j: number) {
     }
 }
 
-function allowDrop(event: Event) {
-  event.preventDefault();
+function allowDrop(event: DragEvent) {
+    event.preventDefault();
 }
 
 interface ChessBoardProps {
     board_fen: string,
+    timers: number[],
     move_cb: (from: string, to: string) => void,
 }
 
-export default function ChessBoard({board_fen, move_cb}: ChessBoardProps) {
+export default function ChessBoard({board_fen, move_cb, timers}: ChessBoardProps) {
+    for (const timer of timers) {
+        clearTimeout(timer)
+    }
+    timers.length = 0
     const width = 8
     const height = 8
     const board = parse_fen(board_fen, width, height)
     console.log(board)
-
 
     return <div class="chess-board">
         {[...Array(height)].map((_, i) => <div class="row">
@@ -122,6 +130,7 @@ export default function ChessBoard({board_fen, move_cb}: ChessBoardProps) {
                 <div class="piece"
                      draggable={IS_BROWSER}
                      onDrag={dragHandler}
+                     onDragEnd={dragEndHandler(timers)}
                      onDragStart={dragStartHandler(i, j)}>
                     {board[i * width + j].unicode}
                 </div>
