@@ -140,26 +140,29 @@ function get_pawn_moves(piece: BoardPiece, state: BoardState): Moves {
     ).concat(
         square_has_piece(one_square_ahead, state)
         ? []
-        : piece.square.y === seventh_rank
-        ? get_promotion_moves(one_square_ahead)
-        : {
-            from: piece.square,
-            to: one_square_ahead,
-            piece_type: piece.piece,
-            is_capture: false,
-            is_castling: false,
-            is_en_passant: false
-        },
-        (piece.square.y !== second_rank) || square_has_piece(two_squares_ahead, state)
-        ? []
-        : {
-            from: piece.square,
-            to: two_squares_ahead,
-            piece_type: piece.piece,
-            is_capture: false,
-            is_castling: false,
-            is_en_passant: false
-        }
+        : Array.prototype.concat(
+            piece.square.y === seventh_rank
+            ? get_promotion_moves(one_square_ahead)
+            : {
+                from: piece.square,
+                to: one_square_ahead,
+                piece_type: piece.piece,
+                is_capture: false,
+                is_castling: false,
+                is_en_passant: false
+            },
+            (piece.square.y !== second_rank)
+                || square_has_piece(two_squares_ahead, state)
+            ? []
+            : {
+                from: piece.square,
+                to: two_squares_ahead,
+                piece_type: piece.piece,
+                is_capture: false,
+                is_castling: false,
+                is_en_passant: false
+            }
+        )
     )
 }
 
