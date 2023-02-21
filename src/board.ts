@@ -1,6 +1,8 @@
 import { BoardPiece,Coordinates,BoardState,Color, Piece } from "./game_types.ts";
 
 export function get_piece_by_square(coordinates: Coordinates, state: BoardState): BoardPiece | null {
+    // TODO: use coordinates_eq here, but right now it would 
+    // require a new import, are we okay with that?
     return state.pieces.find(
         (piece) => piece.square.x == coordinates.x && piece.square.y == coordinates.y
     ) || null

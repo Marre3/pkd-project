@@ -4,6 +4,10 @@ export function make_coordinates(x: number, y: number): Coordinates {
     return { x, y }
 }
 
+export function coordinates_eq(a: Coordinates, b: Coordinates) {
+    return a.x === b.x && a.y === b.y
+}
+
 export function file_to_character(file: number): string {
     return String.fromCharCode(96 + file)
 }

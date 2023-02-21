@@ -11,6 +11,10 @@ body {
     font-family: 'RobotoSlab';
 }
 
+.hidden {
+    display: none;
+}
+
 .about {
     display: flex;
     background-color: #DDDDDD;
