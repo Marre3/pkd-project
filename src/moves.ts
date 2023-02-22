@@ -328,6 +328,56 @@ export function is_self_check(state: BoardState, move: Move) {
     return is_check(apply_move(state, move), state.turn)
 }
 
+function is_castle_legal(state: BoardState, move: Move) {
+    if (!coordinates_eq(move.from, state.turn === Color.White ? make_coordinates(5, 1) : make_coordinates(5, 8))) {
+        return false
+    }
+
+    const rook_square: Coordinates = move.is_castling_kingside
+        ? (state.turn === Color.White
+            ? make_coordinates(8, 1)
+            : make_coordinates(8, 8))
+        : (state.turn === Color.White
+            ? make_coordinates(1, 1)
+            : make_coordinates(1, 8))
+    
+    const rook: BoardPiece | null = get_piece_by_square(rook_square, state)
+
+    if (!is_piece(rook)) {
+        return false
+    }
+
+    if (move.from.y !== move.to.y) {
+        return false
+    }
+
+    function free_between_on_rank(from: number, to: number, rank: number): boolean {
+        const direction = from < to ? 1 : -1
+        
+        while (direction === 1 ? from + direction < to : from + direction > to) {
+            const pos = make_coordinates(from + direction, rank)
+    
+            if (square_has_piece(pos, state) || is_square_controlled_by(state, pos, other_color(state.turn))) {
+                return false
+            }
+    
+            from += direction
+        }
+    
+        return true
+    }
+    
+    if (!free_between_on_rank(move.from.x, move.is_castling_kingside ? rook_square.x : rook.square.x + 1, move.from.y)) {
+        return false
+    }
+
+    if (is_check(state, state.turn)) {
+        return false
+    }
+
+    return true
+}
+
 /** Exclude moves which would put the player's own king in check */
 export function get_legal_moves(state: BoardState): Moves {
     return get_prospective_moves(state).filter(
