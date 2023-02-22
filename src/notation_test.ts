@@ -1,8 +1,10 @@
-import { assertEquals } from "https://deno.land/std@0.177.0/testing/asserts.ts";
+import { assertArrayIncludes, assertEquals } from "https://deno.land/std@0.177.0/testing/asserts.ts";
 import { get_default_board } from "./game.ts";
 import { make_coordinates } from "./coordinates.ts";
 import { Piece } from "./game_types.ts";
 import { move_to_algebraic_notation } from "./notation.ts";
+import { position_from_fen } from "./fen.ts";
+import { get_legal_moves } from "./moves.ts";
 
 
 Deno.test("starting_position_move_notation", () => {
@@ -35,4 +37,29 @@ Deno.test("starting_position_move_notation", () => {
 
     assertEquals(nf3, "Nf3")
     assertEquals(d4, "d4")
+})
+
+Deno.test("najdorf_moves", () => {
+    const board = position_from_fen("rnbqkb1r/1p2pppp/p2p1n2/8/3NP3/2N5/PPP2PPP/R1BQKB1R w KQkq - 0 6")
+    const moves = get_legal_moves(board).map((move) => move_to_algebraic_notation(board, move))
+    assertArrayIncludes(moves, [
+        "Nf5", "Ne6", "Nc6", "Ndb5", "Nb3", "Nde2", "Nf3", "e5", "Nd5",
+        "Ncb5", "Na4", "Nb1", "Nce2", "a3", "a4", "b3", "b4", "f3",
+        "f4", "g3", "g4", "h3", "h4", "Rb1", "Bd2", "Be3", "Bf4",
+        "Bg5", "Bh6", "Qd2", "Qd3", "Qe2", "Qf3", "Qg4", "Qh5", "Ke2",
+        "Kd2", "Be2", "Bd3", "Bc4", "Bb5+", "Bxa6", "Rg1",
+      ]
+    )
+})
+
+Deno.test("tarrasch_defense_moves", () => {
+    const board = position_from_fen("rnbqkbnr/pp3ppp/4p3/2pp4/2PP4/2N5/PP2PPPP/R1BQKBNR w KQkq - 0 4")
+    const moves = get_legal_moves(board).map((move) => move_to_algebraic_notation(board, move))
+    assertArrayIncludes(moves, [
+        "cxd5", "dxc5", "Ne4", "Nxd5", "Nb5", "Na4", "Nb1", "a3",
+        "a4", "b3", "b4", "e3", "e4", "f3", "f4", "g3", "g4", "h3",
+        "h4", "Rb1", "Bd2", "Be3", "Bf4", "Bg5", "Bh6", "Qd2",
+        "Qd3", "Qc2", "Qb3", "Qa4+", "Kd2", "Nh3", "Nf3",
+      ]
+    )
 })
