@@ -70,7 +70,8 @@ Deno.test("is_self_check_h5_scholars", () => {
         to: { x: 8, y: 5 },
         piece_type: 0,
         is_capture: false,
-        is_castling: false,
+        is_castling_kingside: false,
+        is_castling_queenside: false,
         is_en_passant: false
     } // h5
     assert(is_self_check(board, move))

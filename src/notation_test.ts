@@ -14,7 +14,8 @@ Deno.test("starting_position_move_notation", () => {
             to: make_coordinates(6, 3),
             piece_type: Piece.Knight,
             is_capture: false,
-            is_castling: false,
+            is_castling_kingside: false,
+            is_castling_queenside: false,
             is_en_passant: false
         }
     )
@@ -26,7 +27,8 @@ Deno.test("starting_position_move_notation", () => {
             to: make_coordinates(4, 4),
             piece_type: Piece.Pawn,
             is_capture: false,
-            is_castling: false,
+            is_castling_kingside: false,
+            is_castling_queenside: false,
             is_en_passant: false
         }
     )
