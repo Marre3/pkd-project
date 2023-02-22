@@ -14,7 +14,8 @@ function get_moves_in_direction(piece: BoardPiece, state: BoardState, pos: Coord
                 to: { x: pos.x, y: pos.y },
                 piece_type: piece.piece,
                 is_capture: square_has_piece(pos, state, other_color(piece.color)),
-                is_castling: false,
+                is_castling_kingside: false,
+                is_castling_queenside: false,
                 is_en_passant: false
             },
             square_has_piece(pos, state, other_color(piece.color))
@@ -60,7 +61,8 @@ function get_fixed_distance_moves(piece: BoardPiece, state: BoardState, offsets:
             to: destination,
             piece_type: piece.piece,
             is_capture: square_has_piece(destination, state, other_color(piece.color)),
-            is_castling: false,
+            is_castling_kingside: false,
+            is_castling_queenside: false,
             is_en_passant: false
         })
     )
@@ -93,7 +95,8 @@ function get_pawn_moves(piece: BoardPiece, state: BoardState): Moves {
                 to: to,
                 piece_type: piece.piece,
                 is_capture: square_has_piece(to, state),
-                is_castling: false,
+                is_castling_kingside: false,
+                is_castling_queenside: false,
                 is_en_passant: false,
                 promotion_piece: piece_type
             })
@@ -132,7 +135,8 @@ function get_pawn_moves(piece: BoardPiece, state: BoardState): Moves {
                 to: square,
                 piece_type: piece.piece,
                 is_capture: true,
-                is_castling: false,
+                is_castling_kingside: false,
+                is_castling_queenside: false,
                 is_en_passant: state.en_passant_square !== null
                     && coordinates_eq(state.en_passant_square, square)
             }
@@ -148,7 +152,8 @@ function get_pawn_moves(piece: BoardPiece, state: BoardState): Moves {
                 to: one_square_ahead,
                 piece_type: piece.piece,
                 is_capture: false,
-                is_castling: false,
+                is_castling_kingside: false,
+                is_castling_queenside: false,
                 is_en_passant: false
             },
             (piece.square.y !== second_rank)
@@ -159,7 +164,8 @@ function get_pawn_moves(piece: BoardPiece, state: BoardState): Moves {
                 to: two_squares_ahead,
                 piece_type: piece.piece,
                 is_capture: false,
-                is_castling: false,
+                is_castling_kingside: false,
+                is_castling_queenside: false,
                 is_en_passant: false
             }
         )
