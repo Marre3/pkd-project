@@ -371,6 +371,10 @@ function is_castle_legal(state: BoardState, move: Move) {
         return false
     }
 
+    if (move.is_castling_queenside && square_has_piece(make_coordinates(rook_square.x + 1, rook_square.y), state)) {
+        return false
+    }
+
     function free_between_on_rank(from: number, to: number, rank: number): boolean {
         const direction = from < to ? 1 : -1
         
@@ -388,10 +392,6 @@ function is_castle_legal(state: BoardState, move: Move) {
     }
     
     if (!free_between_on_rank(move.from.x, move.is_castling_kingside ? rook_square.x : rook.square.x + 1, move.from.y)) {
-        return false
-    }
-
-    if (move.is_castling_queenside && square_has_piece(make_coordinates(rook_square.x + 1, rook_square.y), state)) {
         return false
     }
 
