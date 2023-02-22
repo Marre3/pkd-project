@@ -378,16 +378,16 @@ function is_castle_legal(state: BoardState, move: Move) {
     return true
 }
 
-/** Exclude moves which would put the player's own king in check */
+/** Exclude moves which would put the player's own king in check and illegal castle moves */
 export function get_legal_moves(state: BoardState): Moves {
     return get_prospective_moves(state).filter(
-        (move: Move) => ! is_self_check(state, move),
+        (move: Move) => ! (move.is_castling_kingside || move.is_castling_queenside) ? ! is_self_check(state, move) : is_castle_legal(state, move)
     )
 }
 
 export function get_legal_moves_by_piece(state: BoardState, piece: BoardPiece): Moves {
     return get_piece_moves(piece, state).filter(
-        (move: Move) => ! is_check(apply_move(state, move), state.turn),
+        (move: Move) => ! (move.is_castling_kingside || move.is_castling_queenside) ? ! is_self_check(state, move) : is_castle_legal(state, move)
     )
 }
 
