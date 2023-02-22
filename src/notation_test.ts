@@ -63,3 +63,18 @@ Deno.test("tarrasch_defense_moves", () => {
       ]
     )
 })
+
+
+
+
+Deno.test("berlin_defense_moves", () => {
+    const board = position_from_fen("r1bqkb1r/pppp1ppp/2n2n2/1B2p3/4P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 4")
+    const moves = get_legal_moves(board).map((move) => move_to_algebraic_notation(board, move))
+    assertArrayIncludes(moves, [
+        "Bxc6", "Bc4", "Bd3", "Be2", "Bf1", "Ba6", "Ba4",
+        "Nh4", "Ng5", "Nxe5", "Nd4", "Ng1", "a3", "a4", "b3",
+        "b4", "c3", "c4", "d3","d4", "g3", "g4", "h3", "h4",
+        "Nc3", "Na3", "Qe2", "Ke2", "Kf1", "O-O", "Rg1", "Rf1",
+      ]
+    )
+})
