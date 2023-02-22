@@ -289,6 +289,26 @@ export function apply_move(state: BoardState, move: Move): BoardState {
         new_position.en_passant_square = null
     }
 
+    if (move.is_castling_kingside) {
+        const rook = new_position.pieces.find((p: BoardPiece) => coordinates_eq(p.square, state.turn === Color.White
+            ? make_coordinates(8, 1)
+            : make_coordinates(8, 8))) ?? null
+        
+        if (rook !== null) {
+            rook.square.x = 6
+        }
+    }
+
+    if (move.is_castling_queenside) {
+        const rook = new_position.pieces.find((p: BoardPiece) => coordinates_eq(p.square, state.turn === Color.White
+            ? make_coordinates(1, 1)
+            : make_coordinates(1, 8))) ?? null
+        
+        if (rook !== null) {
+            rook.square.x = 4
+        }
+    }
+
     function update_castling_rights(castling: CastlingRights) {
         if (stateClone.turn === Color.White) {
             if (move.piece_type === Piece.King) {
