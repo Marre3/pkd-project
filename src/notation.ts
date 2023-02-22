@@ -1,5 +1,6 @@
 import { get_piece_by_square, is_piece, other_color } from "./board.ts";
 import { coordinates_to_notation, file_to_character } from "./coordinates.ts";
+import { is_checkmate } from "./game.ts";
 import { BoardPiece, BoardState, Color, Move, Piece } from "./game_types.ts";
 import { apply_move, can_piece_move_to, get_legal_moves, is_check } from "./moves.ts";
 
@@ -61,91 +62,55 @@ function get_letter_by_color(letter: string, color: Color): string {
 }
 
 export function move_to_algebraic_notation(state: BoardState, move: Move): string {
-    function get_pieces_of_type(type: Piece, file?: number, rank?: number): BoardPiece[] {
-        let pieces: BoardPiece[] = []
-        for (const piece of state.pieces) {
-            if (piece.color === state.turn && piece.piece === type) {
-                if (typeof file !== "undefined" && piece.square.x !== file) continue
-                if (typeof rank !== "undefined" && piece.square.y !== rank) continue
-                pieces = pieces.concat(piece)
-            }
-        }
-        return pieces
+    function get_pieces_of_type(type: Piece): BoardPiece[] {
+        return state.pieces.filter(
+            (piece) => (piece.color === state.turn && piece.piece === type)
+        )
     }
 
     function construct_notation_for_from_coordinates(capture: boolean): string {
-        if (move.piece_type === Piece.Pawn) {
-            return capture ? file_to_character(move.from.x) : ""
-        } else if (move.piece_type === Piece.King) {
-            return "K"
-        }
+        const allowed_pieces = get_pieces_of_type(
+            move.piece_type
+        ).filter(
+            (p: BoardPiece) => can_piece_move_to(state, p, move.to)
+        )
+        const multiple_pieces_on_same_rank = allowed_pieces.filter(
+            (piece) => piece.square.y === move.from.y
+        ).length > 1
+        const multiple_pieces_on_same_file = allowed_pieces.filter(
+            (piece) => piece.square.x === move.from.x
+        ).length > 1
 
-        let notation = get_letter_by_piece_type((piece as BoardPiece).piece)
-        const allowed_pieces_on_same_rank: BoardPiece[] = get_pieces_of_type(move.piece_type, undefined, move.from.y).filter(
-            (p: BoardPiece) => can_piece_move_to(state, p, move.to))
+        const needs_rank = allowed_pieces.length > 1 && multiple_pieces_on_same_file
+        const needs_file = allowed_pieces.length > 1
+            && (multiple_pieces_on_same_rank || ! needs_rank)
+            || move.piece_type === Piece.Pawn && capture
 
-        if (allowed_pieces_on_same_rank.length > 1) {
-            notation += file_to_character(move.from.x)
-        }
-
-        const allowed_pieces_on_same_file: BoardPiece[] = get_pieces_of_type(move.piece_type, move.from.x).filter(
-            (p: BoardPiece) => can_piece_move_to(state, p, move.to))
-
-        if (allowed_pieces_on_same_file.length > 1) {
-            notation += move.from.y.toString()
-        }
-
-        return notation
+        return (
+            (move.piece_type === Piece.Pawn ? "" : get_letter_by_piece_type(piece!.piece))
+            + (needs_file ? file_to_character(move.from.x) : "")
+            + (needs_rank ? move.from.y.toString() : "")
+        )
     }
 
     const piece = get_piece_by_square(move.from, state)
 
-    if (!is_piece(piece)) {
-        throw new Error(`No piece found at: ${coordinates_to_notation(move.from)}`)
-    }
+    const to_square = coordinates_to_notation(move.to)
 
-    if (state.turn !== piece.color) {
-        throw new Error(`The piece at: ${coordinates_to_notation(move.from)} is of the wrong color`)
-    }
-
-    if (piece.piece !== move.piece_type) {
-        throw new Error(`The piece at: ${coordinates_to_notation(move.from)} is of the wrong piece type`)
-    }
-
-    // TODO: handle castling
-
-    if (!can_piece_move_to(state, piece, move.to)) {
-        throw new Error(`The piece at: ${coordinates_to_notation(move.from)} cannot move to ${coordinates_to_notation(move.to)}`)
-    }
-
-    const to_square: string = coordinates_to_notation(move.to)
-    let symbol = ""
     const board_after_move = apply_move(state, move)
+    const symbol = is_checkmate(board_after_move)
+        ? "#"
+        : is_check(board_after_move, other_color(state.turn))
+        ? "+"
+        : ""
 
-    if (is_check(board_after_move, other_color(state.turn))) {
-        if (get_legal_moves(board_after_move).length > 0) {
-            symbol = "+"
-        } else {
-            symbol = "#"
-        }
-    }
+    const promotion = move.promotion_piece === undefined
+        ? ""
+        : "=" + get_letter_by_piece_type(move.promotion_piece)
 
-    let promotion = ""
-    if (typeof move.promotion_piece !== "undefined") {
-        const promotion_piece = move.promotion_piece
+    const capture_notation = move.is_capture ? "x" : ""
+    const from_notation = construct_notation_for_from_coordinates(move.is_capture)
 
-        if (promotion_piece === Piece.Pawn || promotion_piece === Piece.King) {
-            throw new Error(`The promotion piece: ${promotion_piece} is of an incorrect type`)
-        }
+    return from_notation + capture_notation + to_square + promotion + symbol
 
-        promotion = "=" + get_letter_by_piece_type(move.promotion_piece)
-    }
-
-    if (move.is_capture) {
-        const from_notation = construct_notation_for_from_coordinates(true)
-        return from_notation + "x" + to_square + promotion + symbol
-    } else {
-        const from_notation = construct_notation_for_from_coordinates(false)
-        return from_notation + to_square + promotion + symbol
-    }
 }
