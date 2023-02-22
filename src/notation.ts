@@ -2,7 +2,7 @@ import { get_piece_by_square, is_piece, other_color } from "./board.ts";
 import { coordinates_to_notation, file_to_character } from "./coordinates.ts";
 import { is_checkmate } from "./game.ts";
 import { BoardPiece, BoardState, Color, Move, Piece } from "./game_types.ts";
-import { apply_move, can_piece_move_to, get_legal_moves, is_check } from "./moves.ts";
+import { apply_move, can_piece_move_to, is_check } from "./moves.ts";
 
 export function get_piece_by_letter(letter: string): Piece {
     letter = letter.toLowerCase()
