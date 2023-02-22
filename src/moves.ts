@@ -391,6 +391,10 @@ function is_castle_legal(state: BoardState, move: Move) {
         return false
     }
 
+    if (move.is_castling_queenside && square_has_piece(make_coordinates(rook_square.x + 1, rook_square.y), state)) {
+        return false
+    }
+
     if (is_check(state, state.turn)) {
         return false
     }
