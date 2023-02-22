@@ -112,12 +112,6 @@ export function move_to_algebraic_notation(state: BoardState, move: Move): strin
         throw new Error(`The piece at: ${coordinates_to_notation(move.from)} is of the wrong piece type`)
     }
 
-    // TODO: handle castling
-
-    if (!can_piece_move_to(state, piece, move.to)) {
-        throw new Error(`The piece at: ${coordinates_to_notation(move.from)} cannot move to ${coordinates_to_notation(move.to)}`)
-    }
-
     const to_square: string = coordinates_to_notation(move.to)
     let symbol = ""
     const board_after_move = apply_move(state, move)
@@ -128,6 +122,14 @@ export function move_to_algebraic_notation(state: BoardState, move: Move): strin
         } else {
             symbol = "#"
         }
+    }
+
+    if (move.is_castling_kingside) {
+        return "O-O" + symbol
+    }
+    
+    if (move.is_castling_queenside) {
+        return "O-O-O" + symbol
     }
 
     let promotion = ""
