@@ -1,4 +1,4 @@
-import { BoardPiece, BoardState, Color, Coordinates, Move, Moves, Piece } from "./game_types.ts";
+import { BoardPiece, BoardState, Color, CastlingRights, Coordinates, Move, Moves, Piece } from "./game_types.ts";
 import { make_coordinates, coordinates_eq } from "./coordinates.ts";
 import { get_king_position, get_piece_by_square, get_player_pieces, is_bishop, is_king, is_knight, is_pawn, is_queen, is_rook, other_color, out_of_bounds, square_has_piece } from "./board.ts";
 
@@ -253,6 +253,39 @@ export function apply_move(state: BoardState, move: Move): BoardState {
     if (! allows_en_passant) {
         new_position.en_passant_square = null
     }
+
+    function update_castling_rights(castling: CastlingRights) {
+        if (stateClone.turn === Color.White) {
+            if (move.piece_type === Piece.King) {
+                castling.white_kingside = false
+                castling.white_queenside = false
+            }
+
+            if (move.piece_type === Piece.Rook) {
+                if (move.from.x === 8 && move.from.y === 1) {
+                    castling.white_kingside = false
+                } else if (move.from.x === 1 && move.from.y === 1) {
+                    castling.white_queenside = false
+                }
+            }
+        } else {
+            if (move.piece_type === Piece.King) {
+                castling.black_kingside = false
+                castling.black_queenside = false
+            }
+
+            if (move.piece_type === Piece.Rook) {
+                if (move.from.x === 8 && move.from.y === 8) {
+                    castling.black_kingside = false
+                } else if (move.from.x === 1 && move.from.y === 8) {
+                    castling.black_queenside = false
+                }
+            }
+        }
+    }
+
+    update_castling_rights(new_position.castling)
+
     return new_position
 }
 

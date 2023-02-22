@@ -4,17 +4,17 @@ export enum Color { White, Black }
 export enum Result { "1-0", "1/2-1/2", "0-1" }
 
 export type BoardPiece = { piece: Piece, color: Color, square: Coordinates }
-
+export type CastlingRights = {
+    white_kingside: boolean,
+    white_queenside: boolean,
+    black_kingside: boolean,
+    black_queenside: boolean
+}
 export type BoardState = {
     pieces: BoardPiece[],
     en_passant_square: Coordinates | null,
     turn: Color
-    castling: {
-        white_kingside: boolean,
-        white_queenside: boolean,
-        black_kingside: boolean,
-        black_queenside: boolean
-    }
+    castling: CastlingRights,
     halfmove_clock: number,
     fullmove_number: number,
     // Hardcoded right now to literal. But the flexibility is a bonus.
