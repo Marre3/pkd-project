@@ -84,17 +84,23 @@ export function is_square_controlled_by(state: BoardState, square: Coordinates, 
         }
 
         if (piece.piece === Piece.King) {
-            return get_piece_moves(piece, board_state).filter((m: Move) => !(m.is_castling_kingside || m.is_castling_queenside)).map((m: Move) => m.to)
+            return get_piece_moves(piece, board_state)
+                .filter((m: Move) => !(m.is_castling_kingside || m.is_castling_queenside))
+                .map((m: Move) => m.to)
         }
 
         return get_piece_moves(piece, board_state).map((m: Move) => m.to)
     }
 
     if (color === state.turn) {
-        return get_player_pieces(state, state.turn).flatMap(piece => squares_controlled_by_piece(state, piece)).some(controlled_square => coordinates_eq(controlled_square, square))
+        return get_player_pieces(state, state.turn)
+            .flatMap(piece => squares_controlled_by_piece(state, piece))
+            .some(controlled_square => coordinates_eq(controlled_square, square))
     } else {
         const other_color_state = structuredClone(state)
         other_color_state.turn = other_color(state.turn)
-        return get_player_pieces(other_color_state, other_color_state.turn).flatMap(piece => squares_controlled_by_piece(state, piece)).some(controlled_square => coordinates_eq(controlled_square, square))
+        return get_player_pieces(other_color_state, other_color_state.turn)
+            .flatMap(piece => squares_controlled_by_piece(state, piece))
+            .some(controlled_square => coordinates_eq(controlled_square, square))
     }
 }
