@@ -77,12 +77,41 @@ function get_knight_moves(piece: BoardPiece, state: BoardState): Moves {
 }
 
 function get_king_moves(piece: BoardPiece, state: BoardState): Moves {
-    // TODO: Castling
-    return get_fixed_distance_moves(
+    let moves = get_fixed_distance_moves(
         piece,
         state,
         [[1, 1], [0, 1], [0, -1], [-1, 1], [-1, 0], [-1, -1], [1, 0], [1, -1]]
     )
+
+    function add_castle_move(king_position: Coordinates, to: Coordinates, kingside: boolean): void {
+        moves = moves.concat({
+            from: king_position,
+            to: to,
+            piece_type: Piece.King,
+            is_capture: false,
+            is_castling_kingside: kingside,
+            is_castling_queenside: !kingside,
+            is_en_passant: false
+        })
+    }
+    
+    if (state.turn === Color.White) {
+        if (state.castling.white_kingside) {
+            add_castle_move(piece.square, make_coordinates(7, 1), true)
+        }
+        if (state.castling.white_queenside) {
+            add_castle_move(piece.square, make_coordinates(3, 1), false)
+        }
+    } else {
+        if (state.castling.black_kingside) {
+            add_castle_move(piece.square, make_coordinates(7, 8), true)
+        }
+        if (state.castling.black_queenside) {
+            add_castle_move(piece.square, make_coordinates(3, 8), false)
+        }
+    }
+
+    return moves
 }
 
 function get_pawn_moves(piece: BoardPiece, state: BoardState): Moves {
