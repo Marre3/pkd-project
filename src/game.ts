@@ -1,9 +1,9 @@
-import { Color, Result } from "./game_types.ts";
 import { apply_move, get_legal_moves, is_check, Move } from "./moves.ts";
 import { move_to_algebraic_notation } from "./notation.ts";
 import { position_from_fen } from "./fen.ts";
-import { BoardState } from "./board.ts";
+import { BoardState, Color } from "./board.ts";
 
+export enum Result { "1-0", "1/2-1/2", "0-1" }
 export const DEFAULT_BOARD_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 
 export function get_default_board(): BoardState  {

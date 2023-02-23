@@ -1,10 +1,10 @@
 import { assertArrayIncludes, assertEquals } from "https://deno.land/std@0.177.0/testing/asserts.ts";
 import { get_default_board } from "./game.ts";
 import { make_coordinates } from "./coordinates.ts";
-import { Piece } from "./game_types.ts";
 import { move_to_algebraic_notation } from "./notation.ts";
 import { position_from_fen } from "./fen.ts";
 import { get_legal_moves } from "./moves.ts";
+import { Piece } from "./board.ts";
 
 
 Deno.test("starting_position_move_notation", () => {

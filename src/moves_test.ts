@@ -1,9 +1,8 @@
 import { assert, assertEquals, assertExists } from "https://deno.land/std@0.177.0/testing/asserts.ts";
 
-import { Color } from "./game_types.ts"
 import { get_legal_moves, is_check, is_self_check, is_square_controlled_by, Move } from "./moves.ts";
 import { position_from_fen } from "./fen.ts";
-import { get_piece_by_square, other_color } from "./board.ts";
+import { Color, get_piece_by_square, other_color } from "./board.ts";
 import { apply_move_by_notation, get_default_board } from "./game.ts";
 import { make_coordinates } from "./coordinates.ts";
 
