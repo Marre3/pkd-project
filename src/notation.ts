@@ -18,10 +18,10 @@ export function get_piece_by_letter(letter: string): Piece {
         : Piece.King
 }
 
-export function get_letter_by_piece(boardPiece: BoardPiece | null): string {
-    if (!is_piece(boardPiece)) return "."
+export function get_letter_by_piece(board_piece: BoardPiece | null): string {
+    if (!is_piece(board_piece)) return "."
 
-    const piece = boardPiece.piece
+    const piece = board_piece.piece
     return get_letter_by_color(
         piece === Piece.Pawn
         ? "P"
@@ -34,7 +34,7 @@ export function get_letter_by_piece(boardPiece: BoardPiece | null): string {
         : piece === Piece.Queen
         ? "Q"
         : "K",
-        boardPiece.color
+        board_piece.color
     )
 }
 
