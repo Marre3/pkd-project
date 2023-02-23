@@ -76,7 +76,6 @@ Deno.test("is_self_check_h5_scholars", () => {
     assert(is_self_check(board, move))
 })
 
-
 Deno.test("is_square_controlled_by_test", () => {
     const board = position_from_fen("8/8/2k1p3/8/8/5P2/2K5/8 w - - 0 1")
     assert(is_square_controlled_by(board, make_coordinates(4, 3), Color.White))
@@ -86,4 +85,9 @@ Deno.test("is_square_controlled_by_test", () => {
     assert(is_square_controlled_by(board, make_coordinates(6, 5), Color.Black))
     assert(!is_square_controlled_by(board, make_coordinates(5, 5), Color.Black))
     assert(is_square_controlled_by(board, make_coordinates(4, 5), Color.Black))
+})
+
+Deno.test("is_square_controlled_by_despite_pin_test", () => {
+    const board = position_from_fen("8/k7/b7/8/8/8/8/R3K2R w K - 0 1")
+    assert(is_square_controlled_by(board, make_coordinates(6, 1), Color.Black))
 })
