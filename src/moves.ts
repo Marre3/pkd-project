@@ -360,8 +360,16 @@ export function is_self_check(state: BoardState, move: Move) {
 }
 
 function is_castle_legal(state: BoardState, move: Move) {
-    if (!coordinates_eq(move.from, state.turn === Color.White ? make_coordinates(5, 1) : make_coordinates(5, 8))) {
-        return false
+    function free_between_on_rank(from: number, to: number, rank: number): boolean {
+        const direction = from < to ? 1 : -1
+        while (direction === 1 ? from + direction < to : from + direction > to) {
+            const pos = make_coordinates(from + direction, rank)
+            if (square_has_piece(pos, state) || is_square_attacked_by(state, pos, other_color(state.turn))) {
+                return false
+            }
+            from += direction
+        }
+        return true
     }
 
     const rook_square: Coordinates = move.is_castling_kingside
@@ -371,46 +379,21 @@ function is_castle_legal(state: BoardState, move: Move) {
         : (state.turn === Color.White
             ? make_coordinates(1, 1)
             : make_coordinates(1, 8))
-
     const rook: BoardPiece | null = get_piece_by_square(rook_square, state)
 
-    if (!is_piece(rook)) {
-        return false
-    }
-
-    if (move.from.y !== move.to.y) {
-        return false
-    }
-
-    if (move.is_castling_queenside && square_has_piece(make_coordinates(rook_square.x + 1, rook_square.y), state)) {
-        return false
-    }
-
-    function free_between_on_rank(from: number, to: number, rank: number): boolean {
-        const direction = from < to ? 1 : -1
-
-        while (direction === 1 ? from + direction < to : from + direction > to) {
-            const pos = make_coordinates(from + direction, rank)
-
-            if (square_has_piece(pos, state) || is_square_attacked_by(state, pos, other_color(state.turn))) {
-                return false
-            }
-
-            from += direction
-        }
-
-        return true
-    }
-
-    if (!free_between_on_rank(move.from.x, move.is_castling_kingside ? rook_square.x : rook.square.x + 1, move.from.y)) {
-        return false
-    }
-
-    if (is_check(state, state.turn)) {
-        return false
-    }
-
-    return true
+    return ! (
+        ! coordinates_eq(move.from, state.turn === Color.White
+            ? make_coordinates(5, 1)
+            : make_coordinates(5, 8))
+        || ! is_piece(rook)
+        || rook.piece !== Piece.Rook
+        || move.from.y !== move.to.y
+        || move.is_castling_queenside
+            && square_has_piece(make_coordinates(rook_square.x + 1, rook_square.y), state)
+        || ! free_between_on_rank(move.from.x, move.is_castling_kingside
+            ? rook_square.x
+            : rook.square.x + 1, move.from.y)
+        || is_check(state, state.turn))
 }
 
 export function is_square_attacked_by(state: BoardState, square: Coordinates, color: Color) {
