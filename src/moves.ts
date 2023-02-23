@@ -386,10 +386,10 @@ function is_castle_legal(state: BoardState, move: Move) {
             ? make_coordinates(5, 1)
             : make_coordinates(5, 8))
         || ! is_piece(rook)
-        || rook.piece !== Piece.Rook
+        || ! is_rook(rook)
         || move.from.y !== move.to.y
-        || move.is_castling_queenside
-            && square_has_piece(make_coordinates(rook_square.x + 1, rook_square.y), state)
+        || (move.is_castling_queenside
+            && square_has_piece(make_coordinates(rook_square.x + 1, rook_square.y), state))
         || ! free_between_on_rank(move.from.x, move.is_castling_kingside
             ? rook_square.x
             : rook.square.x + 1, move.from.y)
