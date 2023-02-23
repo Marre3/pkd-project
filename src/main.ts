@@ -1,6 +1,5 @@
 import { draw } from "./draw.ts";
-import { apply_move_by_notation, game_result, is_game_over, get_default_board } from "./game.ts";
-import { Result } from "./game_types.ts";
+import { apply_move_by_notation, game_result, is_game_over, get_default_board, Result } from "./game.ts";
 import { get_legal_moves } from "./moves.ts";
 import { move_to_algebraic_notation } from "./notation.ts";
 

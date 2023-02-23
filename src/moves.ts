@@ -1,6 +1,5 @@
-import { Color, Piece } from "./game_types.ts";
 import { make_coordinates, coordinates_eq, Coordinates } from "./coordinates.ts";
-import { get_king_position, get_piece_by_square, get_player_pieces, is_piece, is_bishop, is_king, is_knight, is_pawn, is_queen, is_rook, other_color, out_of_bounds, square_has_piece, BoardPiece, BoardState, CastlingRights } from "./board.ts";
+import { get_king_position, get_piece_by_square, get_player_pieces, is_piece, is_bishop, is_king, is_knight, is_pawn, is_queen, is_rook, other_color, out_of_bounds, square_has_piece, BoardPiece, BoardState, CastlingRights, Piece, Color } from "./board.ts";
 
 
 export type Move = {

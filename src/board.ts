@@ -1,6 +1,8 @@
 import { Coordinates, coordinates_eq} from "./coordinates.ts";
-import { Color, Piece } from "./game_types.ts";
 
+export enum Color { White, Black }
+
+export enum Piece { Pawn, Knight, Bishop, Rook, Queen, King }
 export type BoardPiece = { piece: Piece, color: Color, square: Coordinates }
 export type CastlingRights = {
     white_kingside: boolean,
