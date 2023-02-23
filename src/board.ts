@@ -1,6 +1,25 @@
-import { coordinates_eq, make_coordinates } from "./coordinates.ts";
-import { BoardPiece, Coordinates, BoardState, Color, Piece, Move } from "./game_types.ts";
-import { is_check, get_piece_moves } from "./moves.ts";
+import { Coordinates, coordinates_eq} from "./coordinates.ts";
+import { Color, Piece } from "./game_types.ts";
+
+export type BoardPiece = { piece: Piece, color: Color, square: Coordinates }
+export type CastlingRights = {
+    white_kingside: boolean,
+    white_queenside: boolean,
+    black_kingside: boolean,
+    black_queenside: boolean
+}
+export type BoardState = {
+    pieces: BoardPiece[],
+    en_passant_square: Coordinates | null,
+    turn: Color
+    castling: CastlingRights,
+    halfmove_clock: number,
+    fullmove_number: number,
+    // Hardcoded right now to literal. But the flexibility is a bonus.
+    width: 8;
+    height: 8;
+}
+
 
 export function get_piece_by_square(coordinates: Coordinates, state: BoardState): BoardPiece | null {
     return state.pieces.find(
@@ -60,47 +79,4 @@ export function is_pawn(piece: BoardPiece): boolean {
 
 export function out_of_bounds(state: BoardState, coordinates: Coordinates) {
     return coordinates.x < 1 || coordinates.x > state.width || coordinates.y < 1 || coordinates.y > state.height
-}
-
-export function is_square_controlled_by(state: BoardState, square: Coordinates, color: Color) {
-    function squares_controlled_by_piece(board_state: BoardState, piece: BoardPiece): Coordinates[] {
-        const new_state = structuredClone(board_state)
-        new_state.pieces = new_state.pieces.filter((p: BoardPiece) => !coordinates_eq(p.square, piece.square))
-
-        if (piece.piece !== Piece.King && is_check(new_state, board_state.turn)) {
-            return []
-        }
-
-        if (piece.piece === Piece.Pawn) {
-            const first_pawn_square = make_coordinates(
-                piece.square.x - 1,
-                color === Color.White ? piece.square.y + 1 : piece.square.y - 1
-            )
-            const second_pawn_square = make_coordinates(
-                piece.square.x + 1,
-                color === Color.White ? piece.square.y + 1 : piece.square.y - 1
-            )
-            return [first_pawn_square, second_pawn_square]
-        }
-
-        if (piece.piece === Piece.King) {
-            return get_piece_moves(piece, board_state)
-                .filter((m: Move) => !(m.is_castling_kingside || m.is_castling_queenside))
-                .map((m: Move) => m.to)
-        }
-
-        return get_piece_moves(piece, board_state).map((m: Move) => m.to)
-    }
-
-    if (color === state.turn) {
-        return get_player_pieces(state, state.turn)
-            .flatMap(piece => squares_controlled_by_piece(state, piece))
-            .some(controlled_square => coordinates_eq(controlled_square, square))
-    } else {
-        const other_color_state = structuredClone(state)
-        other_color_state.turn = other_color(state.turn)
-        return get_player_pieces(other_color_state, other_color_state.turn)
-            .flatMap(piece => squares_controlled_by_piece(state, piece))
-            .some(controlled_square => coordinates_eq(controlled_square, square))
-    }
 }

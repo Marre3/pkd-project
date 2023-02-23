@@ -1,7 +1,19 @@
-import { BoardPiece, BoardState, Color, CastlingRights, Coordinates, Move, Moves, Piece } from "./game_types.ts";
-import { make_coordinates, coordinates_eq } from "./coordinates.ts";
-import { get_king_position, get_piece_by_square, get_player_pieces, is_piece, is_bishop, is_king, is_knight, is_pawn, is_queen, is_rook, other_color, out_of_bounds, square_has_piece, is_square_controlled_by } from "./board.ts";
+import { Color, Piece } from "./game_types.ts";
+import { make_coordinates, coordinates_eq, Coordinates } from "./coordinates.ts";
+import { get_king_position, get_piece_by_square, get_player_pieces, is_piece, is_bishop, is_king, is_knight, is_pawn, is_queen, is_rook, other_color, out_of_bounds, square_has_piece, BoardPiece, BoardState, CastlingRights } from "./board.ts";
 
+
+export type Move = {
+    from: Coordinates,
+    to: Coordinates,
+    piece_type: Piece,
+    is_capture: boolean,
+    is_castling_kingside: boolean,
+    is_castling_queenside: boolean,
+    is_en_passant: boolean,
+    promotion_piece?: Piece
+}
+export type Moves = Move[]
 type Direction = [number, number]
 
 function get_moves_in_direction(piece: BoardPiece, state: BoardState, pos: Coordinates, direction: Direction): Moves {
@@ -94,7 +106,7 @@ function get_king_moves(piece: BoardPiece, state: BoardState): Moves {
             is_en_passant: false
         })
     }
-    
+
     if (state.turn === Color.White) {
         if (state.castling.white_kingside) {
             add_castle_move(piece.square, make_coordinates(7, 1), true)
@@ -293,7 +305,7 @@ export function apply_move(state: BoardState, move: Move): BoardState {
         const rook = new_position.pieces.find((p: BoardPiece) => coordinates_eq(p.square, state.turn === Color.White
             ? make_coordinates(8, 1)
             : make_coordinates(8, 8))) ?? null
-        
+
         if (rook !== null) {
             rook.square.x = 6
         }
@@ -303,7 +315,7 @@ export function apply_move(state: BoardState, move: Move): BoardState {
         const rook = new_position.pieces.find((p: BoardPiece) => coordinates_eq(p.square, state.turn === Color.White
             ? make_coordinates(1, 1)
             : make_coordinates(1, 8))) ?? null
-        
+
         if (rook !== null) {
             rook.square.x = 4
         }
@@ -360,7 +372,7 @@ function is_castle_legal(state: BoardState, move: Move) {
         : (state.turn === Color.White
             ? make_coordinates(1, 1)
             : make_coordinates(1, 8))
-    
+
     const rook: BoardPiece | null = get_piece_by_square(rook_square, state)
 
     if (!is_piece(rook)) {
@@ -377,20 +389,20 @@ function is_castle_legal(state: BoardState, move: Move) {
 
     function free_between_on_rank(from: number, to: number, rank: number): boolean {
         const direction = from < to ? 1 : -1
-        
+
         while (direction === 1 ? from + direction < to : from + direction > to) {
             const pos = make_coordinates(from + direction, rank)
-    
+
             if (square_has_piece(pos, state) || is_square_controlled_by(state, pos, other_color(state.turn))) {
                 return false
             }
-    
+
             from += direction
         }
-    
+
         return true
     }
-    
+
     if (!free_between_on_rank(move.from.x, move.is_castling_kingside ? rook_square.x : rook.square.x + 1, move.from.y)) {
         return false
     }
@@ -400,6 +412,49 @@ function is_castle_legal(state: BoardState, move: Move) {
     }
 
     return true
+}
+
+export function is_square_controlled_by(state: BoardState, square: Coordinates, color: Color) {
+    function squares_controlled_by_piece(board_state: BoardState, piece: BoardPiece): Coordinates[] {
+        const new_state = structuredClone(board_state)
+        new_state.pieces = new_state.pieces.filter((p: BoardPiece) => !coordinates_eq(p.square, piece.square))
+
+        if (piece.piece !== Piece.King && is_check(new_state, board_state.turn)) {
+            return []
+        }
+
+        if (piece.piece === Piece.Pawn) {
+            const first_pawn_square = make_coordinates(
+                piece.square.x - 1,
+                color === Color.White ? piece.square.y + 1 : piece.square.y - 1
+            )
+            const second_pawn_square = make_coordinates(
+                piece.square.x + 1,
+                color === Color.White ? piece.square.y + 1 : piece.square.y - 1
+            )
+            return [first_pawn_square, second_pawn_square]
+        }
+
+        if (piece.piece === Piece.King) {
+            return get_piece_moves(piece, board_state)
+                .filter((m: Move) => !(m.is_castling_kingside || m.is_castling_queenside))
+                .map((m: Move) => m.to)
+        }
+
+        return get_piece_moves(piece, board_state).map((m: Move) => m.to)
+    }
+
+    if (color === state.turn) {
+        return get_player_pieces(state, state.turn)
+            .flatMap(piece => squares_controlled_by_piece(state, piece))
+            .some(controlled_square => coordinates_eq(controlled_square, square))
+    } else {
+        const other_color_state = structuredClone(state)
+        other_color_state.turn = other_color(state.turn)
+        return get_player_pieces(other_color_state, other_color_state.turn)
+            .flatMap(piece => squares_controlled_by_piece(state, piece))
+            .some(controlled_square => coordinates_eq(controlled_square, square))
+    }
 }
 
 /** Exclude moves which would put the player's own king in check and illegal castle moves */

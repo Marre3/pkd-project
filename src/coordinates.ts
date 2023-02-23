@@ -1,4 +1,4 @@
-import { Coordinates } from "./game_types.ts";
+export type Coordinates = { x: number, y: number }
 
 export function make_coordinates(x: number, y: number): Coordinates {
     return { x, y }

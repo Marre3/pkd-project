@@ -1,7 +1,7 @@
 import { assert, assertEquals, assertExists } from "https://deno.land/std@0.177.0/testing/asserts.ts";
 
-import { Color, Move } from "./game_types.ts"
-import { get_legal_moves, is_check, is_self_check } from "./moves.ts";
+import { Color } from "./game_types.ts"
+import { get_legal_moves, is_check, is_self_check, is_square_controlled_by, Move } from "./moves.ts";
 import { position_from_fen } from "./fen.ts";
 import { get_piece_by_square, other_color } from "./board.ts";
 import { apply_move_by_notation, get_default_board } from "./game.ts";
@@ -75,4 +75,16 @@ Deno.test("is_self_check_h5_scholars", () => {
         is_en_passant: false
     } // h5
     assert(is_self_check(board, move))
+})
+
+
+Deno.test("is_square_controlled_by_test", () => {
+    const board = position_from_fen("8/8/2k1p3/8/8/5P2/2K5/8 w - - 0 1")
+    assert(is_square_controlled_by(board, make_coordinates(4, 3), Color.White))
+    assert(is_square_controlled_by(board, make_coordinates(7, 4), Color.White))
+    assert(!is_square_controlled_by(board, make_coordinates(6, 4), Color.White))
+    assert(is_square_controlled_by(board, make_coordinates(5, 4), Color.White))
+    assert(is_square_controlled_by(board, make_coordinates(6, 5), Color.Black))
+    assert(!is_square_controlled_by(board, make_coordinates(5, 5), Color.Black))
+    assert(is_square_controlled_by(board, make_coordinates(4, 5), Color.Black))
 })
