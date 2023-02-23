@@ -392,7 +392,7 @@ function is_castle_legal(state: BoardState, move: Move) {
         while (direction === 1 ? from + direction < to : from + direction > to) {
             const pos = make_coordinates(from + direction, rank)
 
-            if (square_has_piece(pos, state) || is_square_controlled_by(state, pos, other_color(state.turn))) {
+            if (square_has_piece(pos, state) || is_square_attacked_by(state, pos, other_color(state.turn))) {
                 return false
             }
 
@@ -413,8 +413,8 @@ function is_castle_legal(state: BoardState, move: Move) {
     return true
 }
 
-export function is_square_controlled_by(state: BoardState, square: Coordinates, color: Color) {
-    function squares_controlled_by_piece(board_state: BoardState, piece: BoardPiece): Coordinates[] {
+export function is_square_attacked_by(state: BoardState, square: Coordinates, color: Color) {
+    function squares_attacked_by_piece(board_state: BoardState, piece: BoardPiece): Coordinates[] {
         return piece.piece === Piece.Pawn
             ? [make_coordinates(
                 piece.square.x - 1,
@@ -439,7 +439,7 @@ export function is_square_controlled_by(state: BoardState, square: Coordinates, 
     const state_to_use = color === state.turn ? state : other_color_state(state)
 
     return get_player_pieces(state_to_use, color)
-            .flatMap(piece => squares_controlled_by_piece(state_to_use, piece))
+            .flatMap(piece => squares_attacked_by_piece(state_to_use, piece))
             .some(controlled_square => coordinates_eq(controlled_square, square))
 }
 
