@@ -246,8 +246,7 @@ export function is_check(state: BoardState, color: Color): boolean {
 }
 
 export function apply_move(state: BoardState, move: Move): BoardState {
-    const stateClone = structuredClone(state)
-    const old_piece = get_piece_by_square(move.from, stateClone)
+    const old_piece = get_piece_by_square(move.from, state)
     if (old_piece == null) {
         throw new Error(`Invalid move ${move}, origin piece does not exist`)
     }
@@ -259,29 +258,28 @@ export function apply_move(state: BoardState, move: Move): BoardState {
 
     const en_passant_square = make_coordinates(
         move.to.x,
-        move.to.y + (stateClone.turn === Color.White ? -1 : 1)
+        move.to.y + (state.turn === Color.White ? -1 : 1)
     )
     const capture_square = move.is_en_passant ? en_passant_square : move.to
     const new_position: BoardState = {
-        // TODO: handle castling rights
-        pieces: stateClone.pieces.filter(
+        pieces: structuredClone(state.pieces).filter(
             (p: BoardPiece) => (
                 !coordinates_eq(p.square, move.from)
                 && !coordinates_eq(p.square, capture_square)
             )
         ).concat([new_piece]),
         en_passant_square: en_passant_square,
-        turn: other_color(stateClone.turn),
-        castling: stateClone.castling,
-        halfmove_clock: move.is_capture || move.piece_type === Piece.Pawn ? 0 : stateClone.halfmove_clock + 1,
-        fullmove_number: stateClone.fullmove_number + (stateClone.turn === Color.Black ? 1 : 0),
+        turn: other_color(state.turn),
+        castling: structuredClone(state.castling),
+        halfmove_clock: move.is_capture || move.piece_type === Piece.Pawn ? 0 : state.halfmove_clock + 1,
+        fullmove_number: state.fullmove_number + (state.turn === Color.Black ? 1 : 0),
         width: 8,
-        height: 8,
+        height: 8
     }
     const allows_en_passant = (
         move.piece_type === Piece.Pawn
         && (
-            stateClone.turn === Color.White
+            state.turn === Color.White
             ? move.from.y === 2 && move.to.y == 4
             : move.from.y === 7 && move.to.y == 5
         )
@@ -321,7 +319,7 @@ export function apply_move(state: BoardState, move: Move): BoardState {
     }
 
     function update_castling_rights(castling: CastlingRights) {
-        if (stateClone.turn === Color.White) {
+        if (state.turn === Color.White) {
             if (move.piece_type === Piece.King) {
                 castling.white_kingside = false
                 castling.white_queenside = false
