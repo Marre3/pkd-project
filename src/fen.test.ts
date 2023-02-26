@@ -17,3 +17,8 @@ test("export_en_passant", () => {
     const fen = "rnbqkbnr/ppp2ppp/4p3/3pP3/8/8/PPPP1PPP/RNBQKBNR w KQkq d6 0 3"
     expect(export_to_fen(position_from_fen(fen))).toBe(fen)
 })
+
+test("import_export_endgame", () => {
+    const fen = "8/2k5/6K1/8/4P3/8/8/8 w - - 0 1"
+    expect(export_to_fen(position_from_fen(fen))).toBe(fen)
+})
