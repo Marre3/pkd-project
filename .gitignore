@@ -1,3 +1,4 @@
 *.js
 node_modules
 dependency-graph.*
+yarn-error.log
