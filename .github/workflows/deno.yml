@@ -30,6 +30,9 @@ jobs:
         with:
           deno-version: v1.x
 
+      - name: Fetch tester.ts Deps
+        run: deno cache tester.ts
+
       - name: Setup Jest
         run: npm install
         working-directory: tests
