@@ -1,7 +1,18 @@
-import { BoardPiece, BoardState, Color, Coordinates, Move, Moves, Piece } from "./game_types.ts";
-import { make_coordinates, coordinates_eq } from "./coordinates.ts";
-import { get_king_position, get_piece_by_square, get_player_pieces, is_bishop, is_king, is_knight, is_pawn, is_queen, is_rook, other_color, out_of_bounds, square_has_piece } from "./board.ts";
+import { make_coordinates, coordinates_eq, Coordinates } from "./coordinates.ts";
+import { get_king_position, get_piece_by_square, get_player_pieces, is_piece, is_bishop, is_king, is_knight, is_pawn, is_queen, is_rook, other_color, out_of_bounds, square_has_piece, BoardPiece, BoardState, CastlingRights, Piece, Color } from "./board.ts";
 
+
+export type Move = {
+    from: Coordinates,
+    to: Coordinates,
+    piece_type: Piece,
+    is_capture: boolean,
+    is_castling_kingside: boolean,
+    is_castling_queenside: boolean,
+    is_en_passant: boolean,
+    promotion_piece?: Piece
+}
+export type Moves = Move[]
 type Direction = [number, number]
 
 function get_moves_in_direction(piece: BoardPiece, state: BoardState, pos: Coordinates, direction: Direction): Moves {
@@ -14,7 +25,8 @@ function get_moves_in_direction(piece: BoardPiece, state: BoardState, pos: Coord
                 to: { x: pos.x, y: pos.y },
                 piece_type: piece.piece,
                 is_capture: square_has_piece(pos, state, other_color(piece.color)),
-                is_castling: false,
+                is_castling_kingside: false,
+                is_castling_queenside: false,
                 is_en_passant: false
             },
             square_has_piece(pos, state, other_color(piece.color))
@@ -60,7 +72,8 @@ function get_fixed_distance_moves(piece: BoardPiece, state: BoardState, offsets:
             to: destination,
             piece_type: piece.piece,
             is_capture: square_has_piece(destination, state, other_color(piece.color)),
-            is_castling: false,
+            is_castling_kingside: false,
+            is_castling_queenside: false,
             is_en_passant: false
         })
     )
@@ -75,12 +88,41 @@ function get_knight_moves(piece: BoardPiece, state: BoardState): Moves {
 }
 
 function get_king_moves(piece: BoardPiece, state: BoardState): Moves {
-    // TODO: Castling
-    return get_fixed_distance_moves(
+    let moves = get_fixed_distance_moves(
         piece,
         state,
         [[1, 1], [0, 1], [0, -1], [-1, 1], [-1, 0], [-1, -1], [1, 0], [1, -1]]
     )
+
+    function add_castle_move(king_position: Coordinates, to: Coordinates, kingside: boolean): void {
+        moves = moves.concat({
+            from: king_position,
+            to: to,
+            piece_type: Piece.King,
+            is_capture: false,
+            is_castling_kingside: kingside,
+            is_castling_queenside: !kingside,
+            is_en_passant: false
+        })
+    }
+
+    if (state.turn === Color.White) {
+        if (state.castling.white_kingside) {
+            add_castle_move(piece.square, make_coordinates(7, 1), true)
+        }
+        if (state.castling.white_queenside) {
+            add_castle_move(piece.square, make_coordinates(3, 1), false)
+        }
+    } else {
+        if (state.castling.black_kingside) {
+            add_castle_move(piece.square, make_coordinates(7, 8), true)
+        }
+        if (state.castling.black_queenside) {
+            add_castle_move(piece.square, make_coordinates(3, 8), false)
+        }
+    }
+
+    return moves
 }
 
 function get_pawn_moves(piece: BoardPiece, state: BoardState): Moves {
@@ -93,7 +135,8 @@ function get_pawn_moves(piece: BoardPiece, state: BoardState): Moves {
                 to: to,
                 piece_type: piece.piece,
                 is_capture: square_has_piece(to, state),
-                is_castling: false,
+                is_castling_kingside: false,
+                is_castling_queenside: false,
                 is_en_passant: false,
                 promotion_piece: piece_type
             })
@@ -132,7 +175,8 @@ function get_pawn_moves(piece: BoardPiece, state: BoardState): Moves {
                 to: square,
                 piece_type: piece.piece,
                 is_capture: true,
-                is_castling: false,
+                is_castling_kingside: false,
+                is_castling_queenside: false,
                 is_en_passant: state.en_passant_square !== null
                     && coordinates_eq(state.en_passant_square, square)
             }
@@ -148,7 +192,8 @@ function get_pawn_moves(piece: BoardPiece, state: BoardState): Moves {
                 to: one_square_ahead,
                 piece_type: piece.piece,
                 is_capture: false,
-                is_castling: false,
+                is_castling_kingside: false,
+                is_castling_queenside: false,
                 is_en_passant: false
             },
             (piece.square.y !== second_rank)
@@ -159,14 +204,15 @@ function get_pawn_moves(piece: BoardPiece, state: BoardState): Moves {
                 to: two_squares_ahead,
                 piece_type: piece.piece,
                 is_capture: false,
-                is_castling: false,
+                is_castling_kingside: false,
+                is_castling_queenside: false,
                 is_en_passant: false
             }
         )
     )
 }
 
-function get_piece_moves(piece: BoardPiece, state: BoardState): Moves {
+export function get_piece_moves(piece: BoardPiece, state: BoardState): Moves {
     return is_rook(piece)
         ? get_rook_moves(piece, state)
         : is_bishop(piece)
@@ -216,8 +262,7 @@ export function apply_move(state: BoardState, move: Move): BoardState {
     )
     const capture_square = move.is_en_passant ? en_passant_square : move.to
     const new_position: BoardState = {
-        // TODO: handle castling rights
-        pieces: state.pieces.filter(
+        pieces: structuredClone(state.pieces).filter(
             (p: BoardPiece) => (
                 !coordinates_eq(p.square, move.from)
                 && !coordinates_eq(p.square, capture_square)
@@ -229,7 +274,7 @@ export function apply_move(state: BoardState, move: Move): BoardState {
         halfmove_clock: move.is_capture || move.piece_type === Piece.Pawn ? 0 : state.halfmove_clock + 1,
         fullmove_number: state.fullmove_number + (state.turn === Color.Black ? 1 : 0),
         width: 8,
-        height: 8,
+        height: 8
     }
     const allows_en_passant = (
         move.piece_type === Piece.Pawn
@@ -252,6 +297,59 @@ export function apply_move(state: BoardState, move: Move): BoardState {
     if (! allows_en_passant) {
         new_position.en_passant_square = null
     }
+
+    if (move.is_castling_kingside) {
+        const rook = new_position.pieces.find((p: BoardPiece) => coordinates_eq(p.square, state.turn === Color.White
+            ? make_coordinates(8, 1)
+            : make_coordinates(8, 8))) ?? null
+
+        if (rook !== null) {
+            rook.square.x = 6
+        }
+    }
+
+    if (move.is_castling_queenside) {
+        const rook = new_position.pieces.find((p: BoardPiece) => coordinates_eq(p.square, state.turn === Color.White
+            ? make_coordinates(1, 1)
+            : make_coordinates(1, 8))) ?? null
+
+        if (rook !== null) {
+            rook.square.x = 4
+        }
+    }
+
+    function update_castling_rights(castling: CastlingRights) {
+        if (state.turn === Color.White) {
+            if (move.piece_type === Piece.King) {
+                castling.white_kingside = false
+                castling.white_queenside = false
+            }
+
+            if (move.piece_type === Piece.Rook) {
+                if (move.from.x === 8 && move.from.y === 1) {
+                    castling.white_kingside = false
+                } else if (move.from.x === 1 && move.from.y === 1) {
+                    castling.white_queenside = false
+                }
+            }
+        } else {
+            if (move.piece_type === Piece.King) {
+                castling.black_kingside = false
+                castling.black_queenside = false
+            }
+
+            if (move.piece_type === Piece.Rook) {
+                if (move.from.x === 8 && move.from.y === 8) {
+                    castling.black_kingside = false
+                } else if (move.from.x === 1 && move.from.y === 8) {
+                    castling.black_queenside = false
+                }
+            }
+        }
+    }
+
+    update_castling_rights(new_position.castling)
+
     return new_position
 }
 
@@ -259,16 +357,83 @@ export function is_self_check(state: BoardState, move: Move) {
     return is_check(apply_move(state, move), state.turn)
 }
 
-/** Exclude moves which would put the player's own king in check */
+function is_castle_legal(state: BoardState, move: Move) {
+    function free_between_on_rank(from: number, to: number, rank: number): boolean {
+        const direction = from < to ? 1 : -1
+        while (direction === 1 ? from + direction < to : from + direction > to) {
+            const pos = make_coordinates(from + direction, rank)
+            if (square_has_piece(pos, state) || is_square_attacked_by(state, pos, other_color(state.turn))) {
+                return false
+            }
+            from += direction
+        }
+        return true
+    }
+
+    const rook_square: Coordinates = move.is_castling_kingside
+        ? (state.turn === Color.White
+            ? make_coordinates(8, 1)
+            : make_coordinates(8, 8))
+        : (state.turn === Color.White
+            ? make_coordinates(1, 1)
+            : make_coordinates(1, 8))
+    const rook: BoardPiece | null = get_piece_by_square(rook_square, state)
+
+    return ! (
+        ! coordinates_eq(move.from, state.turn === Color.White
+            ? make_coordinates(5, 1)
+            : make_coordinates(5, 8))
+        || ! is_piece(rook)
+        || ! is_rook(rook)
+        || move.from.y !== move.to.y
+        || (move.is_castling_queenside
+            && square_has_piece(make_coordinates(rook_square.x + 1, rook_square.y), state))
+        || ! free_between_on_rank(move.from.x, move.is_castling_kingside
+            ? rook_square.x
+            : rook.square.x + 1, move.from.y)
+        || is_check(state, state.turn))
+}
+
+export function is_square_attacked_by(state: BoardState, square: Coordinates, color: Color) {
+    function squares_attacked_by_piece(board_state: BoardState, piece: BoardPiece): Coordinates[] {
+        return piece.piece === Piece.Pawn
+            ? [make_coordinates(
+                piece.square.x - 1,
+                color === Color.White ? piece.square.y + 1 : piece.square.y - 1
+            ), make_coordinates(
+                piece.square.x + 1,
+                color === Color.White ? piece.square.y + 1 : piece.square.y - 1
+            )]
+            : piece.piece === Piece.King
+            ? get_piece_moves(piece, board_state)
+                .filter((m: Move) => !(m.is_castling_kingside || m.is_castling_queenside))
+                .map((m: Move) => m.to)
+            : get_piece_moves(piece, board_state).map((m: Move) => m.to)
+    }
+
+    function other_color_state(board_state: BoardState): BoardState {
+        const other_color_state = structuredClone(board_state)
+        other_color_state.turn = other_color(board_state.turn)
+        return other_color_state
+    }
+
+    const state_to_use = color === state.turn ? state : other_color_state(state)
+
+    return get_player_pieces(state_to_use, color)
+            .flatMap(piece => squares_attacked_by_piece(state_to_use, piece))
+            .some(controlled_square => coordinates_eq(controlled_square, square))
+}
+
+/** Exclude moves which would put the player's own king in check and illegal castle moves */
 export function get_legal_moves(state: BoardState): Moves {
     return get_prospective_moves(state).filter(
-        (move: Move) => ! is_self_check(state, move),
+        (move: Move) => ! (move.is_castling_kingside || move.is_castling_queenside) ? ! is_self_check(state, move) : is_castle_legal(state, move)
     )
 }
 
 export function get_legal_moves_by_piece(state: BoardState, piece: BoardPiece): Moves {
     return get_piece_moves(piece, state).filter(
-        (move: Move) => ! is_check(apply_move(state, move), state.turn),
+        (move: Move) => ! (move.is_castling_kingside || move.is_castling_queenside) ? ! is_self_check(state, move) : is_castle_legal(state, move)
     )
 }
 

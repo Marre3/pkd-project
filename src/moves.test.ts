@@ -6,7 +6,7 @@ import {
     position_from_fen,
     get_piece_by_square, other_color,
     apply_move_by_notation, get_default_board,
-    make_coordinates,
+    make_coordinates, is_square_attacked_by
 } from "everything";
 
 
@@ -72,8 +72,25 @@ test("is_self_check_h5_scholars", () => {
         to: { x: 8, y: 5 },
         piece_type: 0,
         is_capture: false,
-        is_castling: false,
+        is_castling_kingside: false,
+        is_castling_queenside: false,
         is_en_passant: false
     } // h5
     expect(is_self_check(board, move)).toBe(true)
+})
+
+test("is_square_attacked_by_test", () => {
+    const board = position_from_fen("8/8/2k1p3/8/8/5P2/2K5/8 w - - 0 1")
+    expect(is_square_attacked_by(board, make_coordinates(4, 3), Color.White)).toBe(true)
+    expect(is_square_attacked_by(board, make_coordinates(7, 4), Color.White)).toBe(true)
+    expect(!is_square_attacked_by(board, make_coordinates(6, 4), Color.White)).toBe(true)
+    expect(is_square_attacked_by(board, make_coordinates(5, 4), Color.White)).toBe(true)
+    expect(is_square_attacked_by(board, make_coordinates(6, 5), Color.Black)).toBe(true)
+    expect(!is_square_attacked_by(board, make_coordinates(5, 5), Color.Black)).toBe(true)
+    expect(is_square_attacked_by(board, make_coordinates(4, 5), Color.Black)).toBe(true)
+})
+
+test("is_square_attacked_by_despite_pin_test", () => {
+    const board = position_from_fen("8/k7/b7/8/8/8/8/R3K2R w K - 0 1")
+    expect(is_square_attacked_by(board, make_coordinates(6, 1), Color.Black)).toBe(true)
 })

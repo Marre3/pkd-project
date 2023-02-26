@@ -4,7 +4,6 @@
 
 export * from "./coordinates.ts"
 export * from "./draw.ts"
-export * from "./game_types.ts"
 export * from "./game.ts"
 export * from "./fen.ts"
 export * from "./moves.ts"

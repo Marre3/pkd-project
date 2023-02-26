@@ -1,31 +1,21 @@
 import { draw } from "./draw.ts";
-import { apply_move_by_notation, game_result, is_game_over, get_default_board } from "./game.ts";
-import { Result } from "./game_types.ts";
-import { get_legal_moves } from "./moves.ts";
-import { move_to_algebraic_notation } from "./notation.ts";
+import { Result, new_game, is_game_in_progress, play_move, display_moves } from "./game.ts";
 
-let board = get_default_board()
-while (! is_game_over(board)) {
-    draw(board)
+let game = new_game()
+while (is_game_in_progress(game)) {
+    draw(game.state)
     const input = prompt("move?") ?? ""
     try {
-        board = apply_move_by_notation(board, input)
+        game = play_move(game, input)
     } catch {
         console.log(`Invalid move ${input}, available moves:`)
-        console.log(get_legal_moves(board).map((move) => move_to_algebraic_notation(board, move)).join(", "))
+        console.log(display_moves(game))
     }
 }
-switch (game_result(board)) {
-    case (Result["1-0"]): {
-        console.log("Game over, White wins")
-        break;
-    }
-    case (Result["0-1"]): {
-        console.log("Game over, Black wins")
-        break;
-    }
-    case (Result["1/2-1/2"]): {
-        console.log("Game over, the game is drawn")
-        break;
-    }
-}
+console.log(
+    game.result === Result["1-0"]
+    ? "Game over, White wins"
+    : game.result === Result["0-1"]
+    ? "Game over, Black wins"
+    : "Game over, the game is drawn"
+)

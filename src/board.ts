@@ -1,5 +1,27 @@
-import { coordinates_eq } from "./coordinates.ts";
-import { BoardPiece,Coordinates,BoardState,Color, Piece } from "./game_types.ts";
+import { Coordinates, coordinates_eq} from "./coordinates.ts";
+
+export enum Color { White, Black }
+
+export enum Piece { Pawn, Knight, Bishop, Rook, Queen, King }
+export type BoardPiece = { piece: Piece, color: Color, square: Coordinates }
+export type CastlingRights = {
+    white_kingside: boolean,
+    white_queenside: boolean,
+    black_kingside: boolean,
+    black_queenside: boolean
+}
+export type BoardState = {
+    pieces: BoardPiece[],
+    en_passant_square: Coordinates | null,
+    turn: Color
+    castling: CastlingRights,
+    halfmove_clock: number,
+    fullmove_number: number,
+    // Hardcoded right now to literal. But the flexibility is a bonus.
+    width: 8;
+    height: 8;
+}
+
 
 export function get_piece_by_square(coordinates: Coordinates, state: BoardState): BoardPiece | null {
     return state.pieces.find(
