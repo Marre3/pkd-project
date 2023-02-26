@@ -32,7 +32,7 @@ jobs:
 
       - name: Setup Jest
         run: npm install
-        working_directory: tests
+        working-directory: tests
 
       # Uncomment this step to verify the use of 'deno fmt' on each commit.
       # - name: Verify formatting
