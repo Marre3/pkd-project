@@ -38,7 +38,7 @@ export function get_letter_by_piece(board_piece: BoardPiece | null): string {
     )
 }
 
-function get_letter_by_piece_type(piece: Piece): string {
+export function get_letter_by_piece_type(piece: Piece): string {
     return piece === Piece.Knight
         ? "N"
         : piece === Piece.Bishop
@@ -83,7 +83,6 @@ export function move_to_algebraic_notation(state: BoardState, move: Move): strin
         const needs_file = allowed_pieces.length > 1
             && (multiple_pieces_on_same_rank || ! needs_rank)
             || move.piece_type === Piece.Pawn && capture
-
         return (
             (move.piece_type === Piece.Pawn ? "" : get_letter_by_piece_type(piece!.piece))
             + (needs_file ? file_to_character(move.from.x) : "")
