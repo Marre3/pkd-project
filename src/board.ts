@@ -137,15 +137,6 @@ export function is_king(piece: BoardPiece): boolean {
 }
 
 /**
- * Check if the given piece is a pawn
- * @param piece - the piece to check
- * @returns true if the piece is a pawn, false otherwise
- */
-export function is_pawn(piece: BoardPiece): boolean {
-    return piece.piece == Piece.Pawn
-}
-
-/**
  * Check if the given coordinates are outside the chessboard
  * @param state - The state of the chessboard
  * @param coordinates - The Coordinates to consider

@@ -1,5 +1,5 @@
 import { make_coordinates, coordinates_eq, Coordinates } from "./coordinates.ts";
-import { get_king_position, get_piece_by_square, get_player_pieces, is_piece, is_bishop, is_king, is_knight, is_pawn, is_queen, is_rook, other_color, out_of_bounds, square_has_piece, BoardPiece, BoardState, CastlingRights, Piece, Color } from "./board.ts";
+import { get_king_position, get_piece_by_square, get_player_pieces, is_piece, is_bishop, is_king, is_knight, is_queen, is_rook, other_color, out_of_bounds, square_has_piece, BoardPiece, BoardState, CastlingRights, Piece, Color } from "./board.ts";
 
 
 export type Move = {
@@ -223,9 +223,7 @@ export function get_piece_moves(piece: BoardPiece, state: BoardState): Moves {
         ? get_knight_moves(piece, state)
         : is_king(piece)
         ? get_king_moves(piece, state)
-        : is_pawn(piece)
-        ? get_pawn_moves(piece, state)
-        : [] // Should be unreachable
+        : get_pawn_moves(piece, state)
 }
 
 export function get_prospective_moves(state: BoardState): Moves {
@@ -299,19 +297,20 @@ export function apply_move(state: BoardState, move: Move): BoardState {
     }
 
     if (move.is_castling_kingside) {
-        const rook = new_position.pieces.find((p: BoardPiece) => coordinates_eq(p.square, state.turn === Color.White
-            ? make_coordinates(8, 1)
-            : make_coordinates(8, 8))) ?? null
-
+        const rook = get_piece_by_square(
+            make_coordinates(8, state.turn === Color.White ? 1 : 8),
+            new_position
+        )
         if (rook !== null) {
             rook.square.x = 6
         }
     }
 
     if (move.is_castling_queenside) {
-        const rook = new_position.pieces.find((p: BoardPiece) => coordinates_eq(p.square, state.turn === Color.White
-            ? make_coordinates(1, 1)
-            : make_coordinates(1, 8))) ?? null
+        const rook = get_piece_by_square(
+            make_coordinates(1, state.turn === Color.White ? 1 : 8),
+            new_position
+        )
 
         if (rook !== null) {
             rook.square.x = 4
