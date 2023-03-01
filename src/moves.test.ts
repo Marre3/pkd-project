@@ -6,7 +6,7 @@ import {
     position_from_fen,
     get_piece_by_square, other_color,
     apply_move_by_notation, get_default_board,
-    make_coordinates, is_square_attacked_by
+    make_coordinates, is_square_attacked_by, Piece, apply_move, get_move_by_notation
 } from "everything";
 
 
@@ -93,4 +93,102 @@ test("is_square_attacked_by_test", () => {
 test("is_square_attacked_by_despite_pin_test", () => {
     const board = position_from_fen("8/k7/b7/8/8/8/8/R3K2R w K - 0 1")
     expect(is_square_attacked_by(board, make_coordinates(6, 1), Color.Black)).toBe(true)
+})
+
+test("apply_move_invalid_origin_square", () => {
+    const board = get_default_board()
+    const move: Move = {
+        from: { x: 1, y: 4 },
+        to: { x: 1, y: 5 },
+        piece_type: Piece.Pawn,
+        is_capture: false,
+        is_castling_kingside: false,
+        is_castling_queenside: false,
+        is_en_passant: false
+    } // h4-h5
+    expect(() => apply_move(board, move)).toThrow()
+})
+
+test("apply_castling_kingside_white", () => {
+    const board = position_from_fen("r1bqkb1r/pppp1ppp/2n2n2/1B2p3/4P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 4")
+    const move = get_move_by_notation(board, "O-O")
+    expect(move).not.toBeNull()
+    const result_position = apply_move(board, move!)
+
+    const king_destination = make_coordinates(7, 1)  // g1
+    expect(get_piece_by_square(king_destination, result_position)).not.toBeNull()
+    expect(get_piece_by_square(king_destination, result_position)?.piece).toBe(Piece.King)
+
+    const rook_destination = make_coordinates(6, 1)  // f1
+    expect(get_piece_by_square(rook_destination, result_position)).not.toBeNull()
+    expect(get_piece_by_square(rook_destination, result_position)?.piece).toBe(Piece.Rook)
+
+    const king_origin = make_coordinates(5, 1)  // e1
+    expect(get_piece_by_square(king_origin, result_position)).toBeNull()
+
+    const rook_origin = make_coordinates(8, 1)  // h1
+    expect(get_piece_by_square(rook_origin, result_position)).toBeNull()
+})
+
+test("apply_castling_kingside_black", () => {
+    const board = position_from_fen("r1bqk2r/pppp1ppp/2n2n2/1Bb1p3/4P3/2P2N2/PP1P1PPP/RNBQ1RK1 b kq - 0 5")
+    const move = get_move_by_notation(board, "O-O")
+    expect(move).not.toBeNull()
+    const result_position = apply_move(board, move!)
+
+    const king_destination = make_coordinates(7, 8)  // g8
+    expect(get_piece_by_square(king_destination, result_position)).not.toBeNull()
+    expect(get_piece_by_square(king_destination, result_position)?.piece).toBe(Piece.King)
+
+    const rook_destination = make_coordinates(6, 8)  // f8
+    expect(get_piece_by_square(rook_destination, result_position)).not.toBeNull()
+    expect(get_piece_by_square(rook_destination, result_position)?.piece).toBe(Piece.Rook)
+
+    const king_origin = make_coordinates(5, 8)  // e8
+    expect(get_piece_by_square(king_origin, result_position)).toBeNull()
+
+    const rook_origin = make_coordinates(8, 8)  // h8
+    expect(get_piece_by_square(rook_origin, result_position)).toBeNull()
+})
+
+test("apply_castling_queenside_white", () => {
+    const board = position_from_fen("rn1q1rk1/1p2bppp/p2pbn2/4p3/4P3/1NN1BP2/PPPQ2PP/R3KB1R w KQ - 3 10")
+    const move = get_move_by_notation(board, "O-O-O")
+    expect(move).not.toBeNull()
+    const result_position = apply_move(board, move!)
+
+    const king_destination = make_coordinates(3, 1)  // c1
+    expect(get_piece_by_square(king_destination, result_position)).not.toBeNull()
+    expect(get_piece_by_square(king_destination, result_position)?.piece).toBe(Piece.King)
+
+    const rook_destination = make_coordinates(4, 1)  // d1
+    expect(get_piece_by_square(rook_destination, result_position)).not.toBeNull()
+    expect(get_piece_by_square(rook_destination, result_position)?.piece).toBe(Piece.Rook)
+
+    const king_origin = make_coordinates(5, 1)  // e1
+    expect(get_piece_by_square(king_origin, result_position)).toBeNull()
+
+    const rook_origin = make_coordinates(1, 1)  // a1
+    expect(get_piece_by_square(rook_origin, result_position)).toBeNull()
+})
+
+test("apply_castling_queenside_black", () => {
+    const board = position_from_fen("r3k2r/ppp2ppp/2p5/2b5/4P1bq/3P4/PPP2PPP/RNB1QRK1 b kq - 1 9")
+    const move = get_move_by_notation(board, "O-O-O")
+    expect(move).not.toBeNull()
+    const result_position = apply_move(board, move!)
+
+    const king_destination = make_coordinates(3, 8)  // c8
+    expect(get_piece_by_square(king_destination, result_position)).not.toBeNull()
+    expect(get_piece_by_square(king_destination, result_position)?.piece).toBe(Piece.King)
+
+    const rook_destination = make_coordinates(4, 8)  // d8
+    expect(get_piece_by_square(rook_destination, result_position)).not.toBeNull()
+    expect(get_piece_by_square(rook_destination, result_position)?.piece).toBe(Piece.Rook)
+
+    const king_origin = make_coordinates(5, 8)  // e8
+    expect(get_piece_by_square(king_origin, result_position)).toBeNull()
+
+    const rook_origin = make_coordinates(1, 8)  // a8
+    expect(get_piece_by_square(rook_origin, result_position)).toBeNull()
 })
