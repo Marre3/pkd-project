@@ -18,16 +18,33 @@ export type Game = {
     result: Result
 }
 
+/**
+ * Get a BoardState of the default starting chess position 
+ * @returns a BoardState of the default starting chess position 
+ */
 export function get_default_board(): BoardState  {
     return position_from_fen(DEFAULT_BOARD_FEN)
 }
 
+/**
+ * Convert algebraic notation of a move on a BoardState to its Move record
+ * @param state - the BoardState where the move is considered
+ * @param move_notation - algebraic notation of the move
+ * @returns the Move record if it's a legal move, or null otherwise
+ */
 export function get_move_by_notation(state: BoardState, move_notation: string): Move | null {
     return get_legal_moves(state).find(
         (move) => move_to_algebraic_notation(state, move) === move_notation
     ) ?? null
 }
 
+/**
+ * Get the resulting BoardState after applying a move by notation to a BoardState
+ * @param state - the BoardState where the move is applied
+ * @param move_notation - algebraic notation of the move
+ * @returns the resulting BoardState
+ * @throws an error if move_notation does not represent a legal move in the position
+ */
 export function apply_move_by_notation(state: BoardState, move_notation: string): BoardState {
     const move = get_move_by_notation(state, move_notation)
     if (move !== null) {
@@ -37,24 +54,51 @@ export function apply_move_by_notation(state: BoardState, move_notation: string)
     }
 }
 
+/**
+ * Check if a checkmate has occured on a given BoardState
+ * @param state - the given BoardState
+ * @returns true if a checkmate has occured, false otherwise
+ */
 export function is_checkmate(state: BoardState): boolean {
     return is_check(state, state.turn) && get_legal_moves(state).length === 0
 }
 
+/**
+ * Check if a stalemate has occured on a given BoardState
+ * @param state - the given BoardState
+ * @returns true if a stalemate has occured, false otherwise
+ */
 export function is_stalemate(state: BoardState): boolean {
     return ! is_check(state, state.turn) && get_legal_moves(state).length === 0
 }
 
+/**
+ * Check if a checkmate or a stalemate has occured on a given BoardState
+ * @param state - the given BoardState
+ * @returns true if a checkmate or a stalemate has occured, false otherwise
+ */
 export function is_game_over(state: BoardState): boolean {
     return is_checkmate(state) || is_stalemate(state)
 }
 
+/**
+ * Get the moves played in a given Game as a string of the moves in algebraic notation separated by commas
+ * @param game - the given Game
+ * @returns a string of the moves in algebraic notation separated by commas
+ */
 export function display_moves(game: Game): string {
     return get_legal_moves(game.state).map(
         (move) => move_to_algebraic_notation(game.state, move)
     ).join(", ")
 }
 
+/**
+ * Get the resulting Game after playing a move in a given Game
+ * @param game - the Game the move should be played in
+ * @param move_notation - algebraic notation of the move
+ * @returns the resulting Game
+ * @throws an error if the game is already finished
+ */
 export function play_move(game: Game, move_notation: string): Game {
     if (game.result !== Result["*"]) {
         throw new Error("Game is finished, no more moves can be played")
@@ -68,6 +112,10 @@ export function play_move(game: Game, move_notation: string): Game {
     }
 }
 
+/**
+ * Create a new Game with the default starting chess position
+ * @returns the new Game
+ */
 export function new_game(): Game {
     return {
         state: get_default_board(),
@@ -77,10 +125,21 @@ export function new_game(): Game {
     }
 }
 
+/**
+ * Check if a given Game is still in progress
+ * @param game - the given Game
+ * @returns true if game is still in progress, false otherwise
+ */
 export function is_game_in_progress(game: Game): boolean {
     return game.result === Result["*"]
 }
 
+/**
+ * Get the result of a given BoardState
+ * @param state - the given BoardState
+ * @returns a Result enumerator representing the result
+ * @throws an error if no checkmate or stalemate has occured on state
+ */
 export function game_result(state: BoardState): Result {
     if (is_game_over(state)) {
         return is_checkmate(state)
