@@ -357,40 +357,39 @@ export function is_self_check(state: BoardState, move: Move) {
 }
 
 function is_castle_legal(state: BoardState, move: Move) {
-    function free_between_on_rank(from: number, to: number, rank: number): boolean {
-        const direction = from < to ? 1 : -1
-        while (direction === 1 ? from + direction < to : from + direction > to) {
-            const pos = make_coordinates(from + direction, rank)
-            if (square_has_piece(pos, state) || is_square_attacked_by(state, pos, other_color(state.turn))) {
-                return false
-            }
-            from += direction
-        }
-        return true
+    function free_between_on_rank(from: Coordinates, to_file: number): boolean {
+        const direction = from.x < to_file ? 1 : -1
+        const pos = make_coordinates(from.x + direction, from.y)
+        return pos.x === to_file
+            || (
+                ! square_has_piece(pos, state)
+                && ! is_square_attacked_by(state, pos, other_color(state.turn))
+                && free_between_on_rank(pos, to_file)
+            )
     }
+    const back_rank_number = state.turn === Color.White ? 1 : 8
+    const rook_square = make_coordinates(
+        move.is_castling_kingside ? 8 : 1,
+        back_rank_number
+    )
 
-    const rook_square: Coordinates = move.is_castling_kingside
-        ? (state.turn === Color.White
-            ? make_coordinates(8, 1)
-            : make_coordinates(8, 8))
-        : (state.turn === Color.White
-            ? make_coordinates(1, 1)
-            : make_coordinates(1, 8))
-    const rook: BoardPiece | null = get_piece_by_square(rook_square, state)
+    const rook = get_piece_by_square(rook_square, state)
 
-    return ! (
-        ! coordinates_eq(move.from, state.turn === Color.White
-            ? make_coordinates(5, 1)
-            : make_coordinates(5, 8))
-        || ! is_piece(rook)
-        || ! is_rook(rook)
-        || move.from.y !== move.to.y
-        || (move.is_castling_queenside
-            && square_has_piece(make_coordinates(rook_square.x + 1, rook_square.y), state))
-        || ! free_between_on_rank(move.from.x, move.is_castling_kingside
-            ? rook_square.x
-            : rook.square.x + 1, move.from.y)
-        || is_check(state, state.turn))
+    return coordinates_eq(move.from, make_coordinates(5, back_rank_number))
+        && is_piece(rook)
+        && is_rook(rook)
+        && move.from.y === move.to.y
+        && ! (
+            move.is_castling_queenside
+            && square_has_piece(
+                make_coordinates(rook_square.x + 1, back_rank_number), state
+            )
+        )
+        && free_between_on_rank(
+            move.from,
+            move.is_castling_kingside ? rook_square.x : rook_square.x + 1
+        )
+        && ! is_check(state, state.turn)
 }
 
 export function is_square_attacked_by(state: BoardState, square: Coordinates, color: Color) {
@@ -426,13 +425,13 @@ export function is_square_attacked_by(state: BoardState, square: Coordinates, co
 /** Exclude moves which would put the player's own king in check and illegal castle moves */
 export function get_legal_moves(state: BoardState): Moves {
     return get_prospective_moves(state).filter(
-        (move: Move) => ! (move.is_castling_kingside || move.is_castling_queenside) ? ! is_self_check(state, move) : is_castle_legal(state, move)
+        (move: Move) => (move.is_castling_kingside || move.is_castling_queenside) ? is_castle_legal(state, move) : ! is_self_check(state, move)
     )
 }
 
 export function get_legal_moves_by_piece(state: BoardState, piece: BoardPiece): Moves {
     return get_piece_moves(piece, state).filter(
-        (move: Move) => ! (move.is_castling_kingside || move.is_castling_queenside) ? ! is_self_check(state, move) : is_castle_legal(state, move)
+        (move: Move) => (move.is_castling_kingside || move.is_castling_queenside) ? is_castle_legal(state, move) : ! is_self_check(state, move)
     )
 }
 

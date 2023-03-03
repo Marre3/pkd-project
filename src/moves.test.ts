@@ -192,3 +192,51 @@ test("apply_castling_queenside_black", () => {
     const rook_origin = make_coordinates(1, 8)  // a8
     expect(get_piece_by_square(rook_origin, result_position)).toBeNull()
 })
+
+test("queenside_castle_legal_normal", () => {
+    const board = position_from_fen("3k4/8/8/8/8/8/8/R3K3 w Q - 0 1")
+    const move = get_move_by_notation(board, "O-O-O+")
+    expect(move).not.toBeNull()
+})
+
+test("queenside_castle_legal_b1_attacked", () => {
+    const board = position_from_fen("3k4/8/6b1/8/8/8/8/R3K3 w Q - 0 1")
+    const move = get_move_by_notation(board, "O-O-O+")
+    expect(move).not.toBeNull()
+})
+
+test("queenside_castle_legal_a1_attacked", () => {
+    const board = position_from_fen("3k4/6b1/8/8/8/8/8/R3K3 w Q - 0 1")
+    const move = get_move_by_notation(board, "O-O-O+")
+    expect(move).not.toBeNull()
+})
+
+test("queenside_castle_illegal_check", () => {
+    const board = position_from_fen("3k4/8/8/8/8/6b1/8/R3K3 w Q - 0 1")
+    const move1 = get_move_by_notation(board, "O-O-O")
+    const move2 = get_move_by_notation(board, "O-O-O+")
+    const move3 = get_move_by_notation(board, "O-O-O#")
+    expect(move1).toBeNull()
+    expect(move2).toBeNull()
+    expect(move3).toBeNull()
+})
+
+test("queenside_castle_illegal_d1_covered", () => {
+    const board = position_from_fen("3k4/3r4/8/8/8/8/8/R3K3 w Q - 0 1")
+    const move1 = get_move_by_notation(board, "O-O-O")
+    const move2 = get_move_by_notation(board, "O-O-O+")
+    const move3 = get_move_by_notation(board, "O-O-O#")
+    expect(move1).toBeNull()
+    expect(move2).toBeNull()
+    expect(move3).toBeNull()
+})
+
+test("queenside_castle_illegal_c1_covered", () => {
+    const board = position_from_fen("3k4/2r5/8/8/8/8/8/R3K3 w Q - 0 1")
+    const move1 = get_move_by_notation(board, "O-O-O")
+    const move2 = get_move_by_notation(board, "O-O-O+")
+    const move3 = get_move_by_notation(board, "O-O-O#")
+    expect(move1).toBeNull()
+    expect(move2).toBeNull()
+    expect(move3).toBeNull()
+})
