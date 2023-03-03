@@ -15,6 +15,13 @@ export type Move = {
 export type Moves = Array<Move>
 type Direction = [number, number]
 
+/**
+ * Get all prospective (could be illegal) moves in a given direction for a piece
+ * @param piece - the piece to get the prospective moves for
+ * @param state - the BoardState to get the prospective moves in
+ * @param pos - starting position for the move search
+ * @returns an array with all the prospective moves in the direction
+ */
 function get_moves_in_direction(piece: BoardPiece, state: BoardState, pos: Coordinates, direction: Direction): Moves {
     const next_square = make_coordinates(pos.x + direction[0], pos.y + direction[1])
     return out_of_bounds(state, pos) || square_has_piece(pos, state, piece.color)
@@ -35,6 +42,13 @@ function get_moves_in_direction(piece: BoardPiece, state: BoardState, pos: Coord
         )
 }
 
+/**
+ * Get all prospective (could be illegal) moves in given directions for a piece
+ * @param piece - the piece to get the prospective moves for
+ * @param state - the BoardState to get the prospective moves in
+ * @param direction - array of the directions to get prospective moves in
+ * @returns an array with all the prospective moves in the directions
+ */
 function get_linear_moves(piece: BoardPiece, state: BoardState, directions: Array<Direction>): Moves {
     return directions.flatMap(
         (dir) => get_moves_in_direction(
@@ -46,18 +60,43 @@ function get_linear_moves(piece: BoardPiece, state: BoardState, directions: Arra
     )
 }
 
+/**
+ * Get all prospective (could be illegal) moves for a given rook
+ * @param piece - the rook to get the prospective moves for
+ * @param state - the BoardState to get the prospective moves in
+ * @returns an array with all the prospective moves for the rook
+ */
 function get_rook_moves(piece: BoardPiece, state: BoardState): Moves {
     return get_linear_moves(piece, state, [[1, 0], [-1, 0], [0, 1], [0, -1]])
 }
 
+/**
+ * Get all prospective (could be illegal) moves for a given bishop
+ * @param piece - the bishop to get the prospective moves for
+ * @param state - the BoardState to get the prospective moves in
+ * @returns an array with all the prospective moves for the bishop
+ */
 function get_bishop_moves(piece: BoardPiece, state: BoardState): Moves {
     return get_linear_moves(piece, state, [[1, 1], [1, -1], [-1, 1], [-1, -1]])
 }
 
+/**
+ * Get all prospective (could be illegal) moves for a given queen
+ * @param piece - the queen to get the prospective moves for
+ * @param state - the BoardState to get the prospective moves in
+ * @returns an array with all the prospective moves for the queen
+ */
 function get_queen_moves(piece: BoardPiece, state: BoardState): Moves {
     return get_rook_moves(piece, state).concat(get_bishop_moves(piece, state))
 }
 
+/**
+ * Get all prospective (could be illegal) moves in given fixed distances from a piece
+ * @param piece - the piece to get the prospective moves for
+ * @param state - the BoardState to get the prospective moves in
+ * @param offsets - the fixed distances from the piece
+ * @returns an array with all the prospective moves in the fixed distances from the piece
+ */
 function get_fixed_distance_moves(piece: BoardPiece, state: BoardState, offsets: Array<[number, number]>): Moves {
     return offsets.map(
         (offset) => make_coordinates(piece.square.x + offset[0], piece.square.y + offset[1])
@@ -79,6 +118,12 @@ function get_fixed_distance_moves(piece: BoardPiece, state: BoardState, offsets:
     )
 }
 
+/**
+ * Get all prospective (could be illegal) moves for a given knight
+ * @param piece - the knight to get the prospective moves for
+ * @param state - the BoardState to get the prospective moves in
+ * @returns an array with all the prospective moves for the knight
+ */
 function get_knight_moves(piece: BoardPiece, state: BoardState): Moves {
     return get_fixed_distance_moves(
         piece,
@@ -87,6 +132,12 @@ function get_knight_moves(piece: BoardPiece, state: BoardState): Moves {
     )
 }
 
+/**
+ * Get all prospective (could be illegal) moves for a given king
+ * @param piece - the king to get the prospective moves for
+ * @param state - the BoardState to get the prospective moves in
+ * @returns an array with all the prospective moves for the king
+ */
 function get_king_moves(piece: BoardPiece, state: BoardState): Moves {
     let moves = get_fixed_distance_moves(
         piece,
@@ -125,6 +176,12 @@ function get_king_moves(piece: BoardPiece, state: BoardState): Moves {
     return moves
 }
 
+/**
+ * Get all prospective (could be illegal) moves for a given pawn
+ * @param piece - the pawn to get the prospective moves for
+ * @param state - the BoardState to get the prospective moves in
+ * @returns an array with all the prospective moves for the pawn
+ */
 function get_pawn_moves(piece: BoardPiece, state: BoardState): Moves {
     function get_promotion_moves(to: Coordinates): Moves {
         return [
@@ -212,6 +269,12 @@ function get_pawn_moves(piece: BoardPiece, state: BoardState): Moves {
     )
 }
 
+/**
+ * Get all prospective (could be illegal) moves for any given piece
+ * @param piece - the piece to get the prospective moves for
+ * @param state - the BoardState to get the prospective moves in
+ * @returns an array with all the prospective moves for the piece
+ */
 export function get_piece_moves(piece: BoardPiece, state: BoardState): Moves {
     return is_rook(piece)
         ? get_rook_moves(piece, state)
@@ -226,12 +289,23 @@ export function get_piece_moves(piece: BoardPiece, state: BoardState): Moves {
         : get_pawn_moves(piece, state)
 }
 
+/**
+ * Get all prospective (could be illegal) moves in a given BoardState
+ * @param state - the BoardState to get the prospective moves in
+ * @returns an array with all the prospective moves in state
+ */
 export function get_prospective_moves(state: BoardState): Moves {
     return get_player_pieces(state, state.turn).flatMap(
         (piece) => get_piece_moves(piece, state)
     )
 }
 
+/**
+ * Determine if the king of a given color is in check
+ * @param state - the BoardState to consider
+ * @param color - the given color for the king
+ * @returns true if the king is in check, false otherwise
+ */
 export function is_check(state: BoardState, color: Color): boolean {
     const king_position = get_king_position(state, color)
     const other_color_state = structuredClone(state)
@@ -243,6 +317,13 @@ export function is_check(state: BoardState, color: Color): boolean {
     )
 }
 
+/**
+ * Get the new position after applying a given move to a BoardState
+ * @param state - the BoardState to apply the move to
+ * @param move - the move to apply to state
+ * @returns a BoardState of the new position after the move was applied
+ * @throws an error if there is no piece in state at the origin square of move
+ */
 export function apply_move(state: BoardState, move: Move): BoardState {
     const old_piece = get_piece_by_square(move.from, state)
     if (old_piece == null) {
@@ -352,10 +433,22 @@ export function apply_move(state: BoardState, move: Move): BoardState {
     return new_position
 }
 
+/**
+ * Determine if a given move would lead to self-check
+ * @param state - the BoardState to consider the move in
+ * @param move - the given move
+ * @returns true if move would lead to self-check, false otherwise
+ */
 export function is_self_check(state: BoardState, move: Move) {
     return is_check(apply_move(state, move), state.turn)
 }
 
+/**
+ * Determine if a given castle move is legal in a given BoardState
+ * @param state - the BoardState to consider the castle move in
+ * @param move - the given castle move
+ * @returns true if move is a legal move in state, false otherwise
+ */
 function is_castle_legal(state: BoardState, move: Move) {
     function free_between_on_rank(from: number, to: number, rank: number): boolean {
         const direction = from < to ? 1 : -1
@@ -423,19 +516,38 @@ export function is_square_attacked_by(state: BoardState, square: Coordinates, co
             .some(controlled_square => coordinates_eq(controlled_square, square))
 }
 
-/** Exclude moves which would put the player's own king in check and illegal castle moves */
+/**
+ * Get all legal moves in a given BoardState by
+ * excluding moves which would put the player's own
+ * king in check and illegal castle moves
+ * @param state - the BoardState to get the legal moves in
+ * @returns an array with all the legal moves in state
+ */
 export function get_legal_moves(state: BoardState): Moves {
     return get_prospective_moves(state).filter(
         (move: Move) => ! (move.is_castling_kingside || move.is_castling_queenside) ? ! is_self_check(state, move) : is_castle_legal(state, move)
     )
 }
 
+/**
+ * Get all legal moves by a specific piece in a given BoardState
+ * @param state - the BoardState to get the legal moves in
+ * @param piece - the piece to get the legal moves for
+ * @returns an array with all the legal moves for piece in state
+ */
 export function get_legal_moves_by_piece(state: BoardState, piece: BoardPiece): Moves {
     return get_piece_moves(piece, state).filter(
         (move: Move) => ! (move.is_castling_kingside || move.is_castling_queenside) ? ! is_self_check(state, move) : is_castle_legal(state, move)
     )
 }
 
+/**
+ * Determine if a given piece can move to a specific square 
+ * @param state - the BoardState to consider the move in
+ * @param piece - the given piece
+ * @param to - the coordinates for the square
+ * @returns true if piece can move to the square, false otherwise
+ */
 export function can_piece_move_to(state: BoardState, piece: BoardPiece, to: Coordinates): boolean {
     return get_legal_moves_by_piece(state, piece).map(
         (m: Move) => m.to
