@@ -524,6 +524,13 @@ function is_castle_legal(state: BoardState, move: Move) {
         && ! is_check(state, state.turn)
 }
 
+/**
+ * Check if a certain square is attacked by any piece of a given color
+ * @param state - the BoardState to consider
+ * @param square - coordinates to the square
+ * @param color - the given color
+ * @returns true if the square is attacked by any piece of the given color, false otherwise
+ */
 export function is_square_attacked_by(
     state: BoardState,
     square: Coordinates,
