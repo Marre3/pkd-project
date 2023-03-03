@@ -1,5 +1,5 @@
 import {
-    BoardPiece, BoardState, Color, get_piece_by_square,
+    BoardPiece, BoardState, Color, get_player_pieces,
     is_piece, other_color, Piece
 } from "./board.ts";
 import { coordinates_to_notation, file_to_character } from "./coordinates.ts";
@@ -51,21 +51,17 @@ export function get_color_by_letter(letter: string): Color {
 function get_letter_by_color(letter: string, color: Color): string {
     return color === Color.White ? letter.toUpperCase() : letter.toLowerCase()
 }
+
 export function move_to_algebraic_notation(
     state: BoardState,
     move: Move
 ): string {
-    function get_pieces_of_type(type: Piece): BoardPiece[] {
-        return state.pieces.filter(
-            (piece) => (piece.color === state.turn && piece.piece === type)
-        )
-    }
-
-    function construct_notation_for_from_coordinates(capture: boolean): string {
-        const allowed_pieces = get_pieces_of_type(
-            move.piece_type
+    function get_origin_square_notation(capture: boolean): string {
+        const allowed_pieces = get_player_pieces(
+            state, state.turn
         ).filter(
-            (p: BoardPiece) => can_piece_move_to(state, p, move.to)
+            (piece: BoardPiece) => (piece.piece === move.piece_type)
+                && can_piece_move_to(state, piece, move.to)
         )
         const multiple_pieces_on_same_rank = allowed_pieces.filter(
             (piece) => piece.square.y === move.from.y
@@ -83,19 +79,16 @@ export function move_to_algebraic_notation(
             (
                 move.piece_type === Piece.Pawn
                 ? ""
-                : get_letter_by_piece_type(piece!.piece)
+                : get_letter_by_piece_type(move.piece_type)
             )
             + (needs_file ? file_to_character(move.from.x) : "")
             + (needs_rank ? move.from.y.toString() : "")
         )
     }
 
-    const piece = get_piece_by_square(move.from, state)
-
     const to_square = coordinates_to_notation(move.to)
-
     const board_after_move = apply_move(state, move)
-    const symbol = is_checkmate(board_after_move)
+    const check_symbol = is_checkmate(board_after_move)
         ? "#"
         : is_check(board_after_move, other_color(state.turn))
         ? "+"
@@ -106,13 +99,15 @@ export function move_to_algebraic_notation(
         : "=" + get_letter_by_piece_type(move.promotion_piece)
 
     const capture_notation = move.is_capture ? "x" : ""
-    const from_notation = construct_notation_for_from_coordinates(
+    const from_notation = get_origin_square_notation(
         move.is_capture
     )
 
-    return move.is_castling_kingside
-        ? ("O-O" + symbol)
+    return (
+        move.is_castling_kingside
+        ? "O-O"
         : move.is_castling_queenside
-        ? ("O-O-O" + symbol)
-        : from_notation + capture_notation + to_square + promotion + symbol
+        ? "O-O-O"
+        : from_notation + capture_notation + to_square + promotion
+    ) + check_symbol
 }
