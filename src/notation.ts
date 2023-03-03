@@ -19,23 +19,12 @@ export function get_piece_by_letter(letter: string): Piece {
 }
 
 export function get_letter_by_piece(board_piece: BoardPiece | null): string {
-    if (!is_piece(board_piece)) return "."
-
-    const piece = board_piece.piece
-    return get_letter_by_color(
-        piece === Piece.Pawn
-        ? "P"
-        : piece === Piece.Knight
-        ? "N"
-        : piece === Piece.Bishop
-        ? "B"
-        : piece === Piece.Rook
-        ? "R"
-        : piece === Piece.Queen
-        ? "Q"
-        : "K",
+    return is_piece(board_piece)
+    ? get_letter_by_color(
+        get_letter_by_piece_type(board_piece.piece),
         board_piece.color
     )
+    : "."
 }
 
 export function get_letter_by_piece_type(piece: Piece): string {
