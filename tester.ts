@@ -77,8 +77,3 @@ const status = await Deno.run({
 }).status()
 
 Deno.exit(status.code)
-
-// webassembly edition:
-//import * as esbuild from 'https://deno.land/x/esbuild@v0.17.5/wasm.js'
-// wasm currently can't read dir, impl using plugin: https://esbuild.github.io/plugins/#resolve
-//import { denoPlugin } from "https://deno.land/x/esbuild_deno_loader@0.6.0/mod.ts";
