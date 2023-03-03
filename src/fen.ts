@@ -6,6 +6,12 @@ import {
     get_color_by_letter, get_letter_by_piece, get_piece_by_letter
 } from "./notation.ts";
 
+/**
+ * Convert a FEN string to a BoardState
+ * @param FEN - the FEN string
+ * @precondition FEN is of valid FEN format
+ * @returns a BoardState representing the FEN string
+ */
 export function position_from_fen(FEN: string): BoardState {
     function get_pieces(piece_data: string): BoardPiece[] {
         let y = 8
@@ -50,7 +56,11 @@ export function position_from_fen(FEN: string): BoardState {
     }
 }
 
-
+/**
+ * Convert a BoardState to a FEN string
+ * @param state - the BoardState to convert
+ * @returns a FEN string representing the BoardState
+ */
 export function export_to_fen(state: BoardState): string {
     function row_to_fen(y: number): string {
         return [1, 2, 3, 4, 5, 6, 7, 8].map(
