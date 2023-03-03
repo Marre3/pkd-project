@@ -1,5 +1,8 @@
 import { test, expect } from '@jest/globals'
-import { file_to_character, make_coordinates, coordinates_to_notation, coordinates_from_notation } from 'everything'
+import {
+    file_to_character, make_coordinates,
+    coordinates_to_notation, coordinates_from_notation
+} from 'everything'
 
 test('make_coordinates', () => {
     for (let x = 1; x <= 8; ++x) {

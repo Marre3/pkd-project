@@ -28,7 +28,10 @@ export type BoardState = {
  * @param state - The BoardState to search for the piece
  * @returns the piece on the given square, or null
  */
-export function get_piece_by_square(coordinates: Coordinates, state: BoardState): BoardPiece | null {
+export function get_piece_by_square(
+    coordinates: Coordinates,
+    state: BoardState
+): BoardPiece | null {
     return state.pieces.find(
         (piece) => coordinates_eq(piece.square, coordinates)
     ) || null
@@ -51,9 +54,14 @@ export function is_piece(piece: BoardPiece | null): piece is BoardPiece {
  * @param color - Optional Color of pieces to restrict the search to
  * @returns - true if the square has a piece, false otherwise
  */
-export function square_has_piece(coordinates: Coordinates, state: BoardState, color?: Color): boolean {
+export function square_has_piece(
+    coordinates: Coordinates,
+    state: BoardState,
+    color?: Color
+): boolean {
     const square_piece = get_piece_by_square(coordinates, state)
-    return is_piece(square_piece) && (typeof color === "undefined" || square_piece.color == color)
+    return is_piece(square_piece)
+        && (typeof color === "undefined" || square_piece.color == color)
 }
 
 /**
@@ -71,7 +79,10 @@ export function other_color(color: Color): Color {
  * @param color - The color of the player whose pieces should be returned
  * @returns - All pieces that belong to the given player
  */
-export function get_player_pieces(state: BoardState, color: Color): BoardPiece[] {
+export function get_player_pieces(
+    state: BoardState,
+    color: Color
+): BoardPiece[] {
     return state.pieces.filter((piece) => piece.color === color)
 }
 
@@ -82,13 +93,18 @@ export function get_player_pieces(state: BoardState, color: Color): BoardPiece[]
  * @returns - The coordinates of the given player's king
  * @throws If the player's king can not be found on the board, throws an error.
  */
-export function get_king_position(state: BoardState, color: Color): Coordinates {
+export function get_king_position(
+    state: BoardState,
+    color: Color
+): Coordinates {
     for (const piece of state.pieces) {
         if (piece.piece == Piece.King && piece.color == color) {
             return piece.square
         }
     }
-    throw new Error(`Invalid board position, no king found! State: ${state}, color: ${color}`)
+    throw new Error(
+        `Invalid board state, no king found! State: ${state}, color: ${color}`
+    )
 }
 
 /**
@@ -140,8 +156,12 @@ export function is_king(piece: BoardPiece): boolean {
  * Check if the given coordinates are outside the chessboard
  * @param state - The state of the chessboard
  * @param coordinates - The Coordinates to consider
- * @returns - true if the coordinates are outside the chessboard, false otherwise
+ * @returns - true if the coordinates are
+ *            outside the chessboard, false otherwise
  */
 export function out_of_bounds(state: BoardState, coordinates: Coordinates) {
-    return coordinates.x < 1 || coordinates.x > state.width || coordinates.y < 1 || coordinates.y > state.height
+    return coordinates.x < 1
+        || coordinates.x > state.width
+        || coordinates.y < 1
+        || coordinates.y > state.height
 }

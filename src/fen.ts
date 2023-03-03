@@ -1,6 +1,10 @@
 import { BoardPiece, BoardState, Color, get_piece_by_square } from "./board.ts";
-import { coordinates_from_notation, coordinates_to_notation, make_coordinates } from "./coordinates.ts";
-import { get_color_by_letter, get_letter_by_piece, get_piece_by_letter } from "./notation.ts";
+import {
+    coordinates_from_notation, coordinates_to_notation, make_coordinates
+} from "./coordinates.ts";
+import {
+    get_color_by_letter, get_letter_by_piece, get_piece_by_letter
+} from "./notation.ts";
 
 export function position_from_fen(FEN: string): BoardState {
     function get_pieces(piece_data: string): BoardPiece[] {
@@ -39,7 +43,9 @@ export function position_from_fen(FEN: string): BoardState {
         },
         halfmove_clock: parseInt(parts[4]),
         fullmove_number: parseInt(parts[5]),
-        en_passant_square: parts[3] === "-" ? null : coordinates_from_notation(parts[3]),
+        en_passant_square: parts[3] === "-"
+            ? null
+            : coordinates_from_notation(parts[3]),
         turn: parts[1] === "w" ? Color.White : Color.Black
     }
 }

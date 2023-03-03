@@ -1,8 +1,15 @@
 import { test, expect } from '@jest/globals'
-import { Result, export_to_fen, position_from_fen, apply_move_by_notation, game_result, get_move_by_notation, is_checkmate, is_game_over, is_stalemate, get_default_board, new_game, is_game_in_progress, display_moves, play_move } from "everything";
+import {
+    Result, export_to_fen, position_from_fen,
+    apply_move_by_notation, game_result, get_move_by_notation,
+    is_checkmate, is_game_over, is_stalemate, get_default_board,
+    new_game, is_game_in_progress, display_moves, play_move
+} from "everything";
 
 test("checkmate_scholars", () => {
-    const board = position_from_fen("r1bqkb1r/pppp1Qpp/2n2n2/4p3/2B1P3/8/PPPP1PPP/RNB1K1NR b KQkq - 0 4")
+    const board = position_from_fen(
+        "r1bqkb1r/pppp1Qpp/2n2n2/4p3/2B1P3/8/PPPP1PPP/RNB1K1NR b KQkq - 0 4"
+        )
     expect(is_checkmate(board)).toBe(true)
     expect(is_game_over(board)).toBe(true)
 })
@@ -14,7 +21,9 @@ test("stalemate_queen", () => {
 })
 
 test("en_passant_possible_fen", () => {
-    const board = position_from_fen("rnbqkbnr/ppp2ppp/4p3/3pP3/8/8/PPPP1PPP/RNBQKBNR w KQkq d6 0 3")
+    const board = position_from_fen(
+        "rnbqkbnr/ppp2ppp/4p3/3pP3/8/8/PPPP1PPP/RNBQKBNR w KQkq d6 0 3"
+    )
     expect(get_move_by_notation(board, "exd6")).toBeDefined()
 })
 
@@ -35,7 +44,9 @@ test("scholars_mate", () => {
     expect(is_checkmate(board)).toBe(true)
     expect(! is_stalemate(board)).toBe(true)
     expect(game_result(board) === Result["1-0"]).toBe(true)
-    expect(export_to_fen(board)).toBe("r1bqkb1r/pppp1Qpp/2n2n2/4p3/2B1P3/8/PPPP1PPP/RNB1K1NR b KQkq - 0 4")
+    expect(
+        export_to_fen(board)
+    ).toBe("r1bqkb1r/pppp1Qpp/2n2n2/4p3/2B1P3/8/PPPP1PPP/RNB1K1NR b KQkq - 0 4")
 })
 
 test("illegal_move_notation", () => {
@@ -45,7 +56,9 @@ test("illegal_move_notation", () => {
 })
 
 test("new_game", () => {
-    const expected_fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+    const expected_fen = (
+        "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+    )
     const game = new_game()
     expect(game.starting_position).toBe(expected_fen)
     expect(export_to_fen(game.state)).toBe(expected_fen)
@@ -64,12 +77,16 @@ test("game_result_in_progress_game", () => {
 })
 
 test("game_result_fool's_mate", () => {
-    const board = position_from_fen("rnb1kbnr/pppp1ppp/8/4p3/5PPq/8/PPPPP2P/RNBQKBNR w KQkq - 1 3")
+    const board = position_from_fen(
+        "rnb1kbnr/pppp1ppp/8/4p3/5PPq/8/PPPPP2P/RNBQKBNR w KQkq - 1 3"
+        )
     expect(game_result(board)).toBe(Result["0-1"])
 })
 
 test("game_result_scholar's_mate", () => {
-    const board = position_from_fen("r1bqkb1r/pppp1Qpp/2n2n2/4p3/2B1P3/8/PPPP1PPP/RNB1K1NR b KQkq - 0 4")
+    const board = position_from_fen(
+        "r1bqkb1r/pppp1Qpp/2n2n2/4p3/2B1P3/8/PPPP1PPP/RNB1K1NR b KQkq - 0 4"
+    )
     expect(game_result(board)).toBe(Result["1-0"])
 })
 
@@ -90,7 +107,9 @@ test("play_move", () => {
     let game = new_game()
     game = play_move(game, "Nf3")
     expect(is_game_in_progress(game)).toBe(true)
-    expect(export_to_fen(game.state)).toBe("rnbqkbnr/pppppppp/8/8/8/5N2/PPPPPPPP/RNBQKB1R b KQkq - 1 1")
+    expect(
+        export_to_fen(game.state)
+    ).toBe("rnbqkbnr/pppppppp/8/8/8/5N2/PPPPPPPP/RNBQKB1R b KQkq - 1 1")
 })
 
 test("play_move_checkmate", () => {

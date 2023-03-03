@@ -8,7 +8,9 @@ const tests_to_run = []
 for (const entry of Deno.readDirSync('./src')) {
     if (entry.isFile && entry.name.endsWith(".test.ts")) {
         test_entry_points.push('./src/' + entry.name)
-        tests_to_run.push('./tests/' + entry.name.replace('.test.ts', '.test.js'))
+        tests_to_run.push(
+            './tests/' + entry.name.replace('.test.ts', '.test.js')
+        )
     }
 }
 console.log('tests detected:', test_entry_points)
@@ -59,13 +61,17 @@ try {
         cwd: './tests'
     }).status()
     if (!install_status.success) {
-        console.error(`something went wrong while running ${package_manager} install`)
+        console.error(
+            `something went wrong while running ${package_manager} install`
+        )
         Deno.exit(install_status.code)
     }
 }
 
 const status = await Deno.run({
-    cmd: ['node', 'node_modules/jest/bin/jest.js', ...Deno.args, ...tests_to_run],
+    cmd: [
+        'node', 'node_modules/jest/bin/jest.js', ...Deno.args, ...tests_to_run
+    ],
     shell: true,
     cwd: './tests'
 }).status()
