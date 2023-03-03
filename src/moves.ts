@@ -12,7 +12,7 @@ export type Move = {
     is_en_passant: boolean,
     promotion_piece?: Piece
 }
-export type Moves = Move[]
+export type Moves = Array<Move>
 type Direction = [number, number]
 
 function get_moves_in_direction(piece: BoardPiece, state: BoardState, pos: Coordinates, direction: Direction): Moves {
@@ -35,7 +35,7 @@ function get_moves_in_direction(piece: BoardPiece, state: BoardState, pos: Coord
         )
 }
 
-function get_linear_moves(piece: BoardPiece, state: BoardState, directions: Direction[]): Moves {
+function get_linear_moves(piece: BoardPiece, state: BoardState, directions: Array<Direction>): Moves {
     return directions.flatMap(
         (dir) => get_moves_in_direction(
             piece,
@@ -58,7 +58,7 @@ function get_queen_moves(piece: BoardPiece, state: BoardState): Moves {
     return get_rook_moves(piece, state).concat(get_bishop_moves(piece, state))
 }
 
-function get_fixed_distance_moves(piece: BoardPiece, state: BoardState, offsets: [number, number][]): Moves {
+function get_fixed_distance_moves(piece: BoardPiece, state: BoardState, offsets: Array<[number, number]>): Moves {
     return offsets.map(
         (offset) => make_coordinates(piece.square.x + offset[0], piece.square.y + offset[1])
     ).filter(
@@ -394,7 +394,7 @@ function is_castle_legal(state: BoardState, move: Move) {
 }
 
 export function is_square_attacked_by(state: BoardState, square: Coordinates, color: Color) {
-    function squares_attacked_by_piece(board_state: BoardState, piece: BoardPiece): Coordinates[] {
+    function squares_attacked_by_piece(board_state: BoardState, piece: BoardPiece): Array<Coordinates> {
         return piece.piece === Piece.Pawn
             ? [make_coordinates(
                 piece.square.x - 1,
