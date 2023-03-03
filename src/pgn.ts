@@ -19,7 +19,8 @@ export function export_to_pgn(game: Game): string {
 /**
  * Import a game from PGN
  * @param pgn - PGN of the game
- * @precondition pgn is of valid PGN format but contains no tag pairs or comments
+ * @precondition pgn is of valid PGN format but
+ * contains no tag pairs or comments
  * @returns a game based on the PGN
  */
 export function import_from_pgn(pgn: string): Game {

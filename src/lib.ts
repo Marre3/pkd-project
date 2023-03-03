@@ -15,7 +15,8 @@ export { DEFAULT_BOARD_FEN } from "./game.ts"
  * @param fen - the FEN string of the position to apply the move to
  * @param from - square notation of where the move originates from
  * @param to - square notation of the move's destination
- * @returns the resulting FEN string or fen itself if there is no valid move as described by from and to
+ * @returns the resulting FEN string or fen itself if there
+ * is no valid move as described by from and to
  */
 export function next_fen_by_move(fen: string, from: string, to: string) {
     const coord_from = coordinates_from_notation(from)

@@ -21,7 +21,8 @@ export function coordinates_eq(a: Coordinates, b: Coordinates) {
 }
 
 /**
- * Convert a number representing a file on a chessboard to the character representing that file
+ * Convert a number representing a file on a chessboard to
+ * the character representing that file
  * @example
  *  // returns 'h'
  * file_to_character(8);
@@ -34,12 +35,14 @@ export function file_to_character(file: number): string {
 }
 
 /**
- * Convert coordinates representing a square on a chessboard to its square notation
+ * Convert coordinates representing a square on a chessboard to
+ * its square notation
  * @example
  *  // returns 'd5'
  * coordinates_to_notation({ x: 4, y: 5 });
  * @param coordinates - the coordinates representing a square on a chessboard
- * @precondition the x- and y fields of coordinates are between (inclusive) 1 and 8
+ * @precondition the x- and y fields of coordinates are
+ * between (inclusive) 1 and 8
  * @returns the square notation of the square represented by coordinates
  */
 export function coordinates_to_notation(coordinates: Coordinates): string {
@@ -52,8 +55,9 @@ export function coordinates_to_notation(coordinates: Coordinates): string {
  *  // returns { x: 4, y: 5 }
  * coordinates_from_notation("d5");
  * @param notation - the square notation
- * @precondition notation is two characters long and the first character is between (inclusive) a and h,
- * and the second character is between (inclusive) 1 and 8
+ * @precondition notation is two characters long and the first character is
+ * between (inclusive) a and h, and the second character 
+ * is between (inclusive) 1 and 8
  * @returns the coordinates representing the square
  */
 export function coordinates_from_notation(notation: string): Coordinates {

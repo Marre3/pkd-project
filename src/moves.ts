@@ -113,11 +113,13 @@ function get_queen_moves(piece: BoardPiece, state: BoardState): Moves {
 }
 
 /**
- * Get all prospective (could be illegal) moves in given fixed distances from a piece
+ * Get all prospective (could be illegal) moves in
+ * given fixed distances from a piece
  * @param piece - the piece to get the prospective moves for
  * @param state - the BoardState to get the prospective moves in
  * @param offsets - the fixed distances from the piece
- * @returns an array with all the prospective moves in the fixed distances from the piece
+ * @returns an array with all the prospective moves in
+ * the fixed distances from the piece
  */
 function get_fixed_distance_moves(
     piece: BoardPiece,
@@ -529,7 +531,8 @@ function is_castle_legal(state: BoardState, move: Move) {
  * @param state - the BoardState to consider
  * @param square - coordinates to the square
  * @param color - the given color
- * @returns true if the square is attacked by any piece of the given color, false otherwise
+ * @returns true if the square is attacked by any piece of
+ * the given color, false otherwise
  */
 export function is_square_attacked_by(
     state: BoardState,

@@ -12,7 +12,8 @@ import { apply_move, can_piece_move_to, is_check, Move } from "./moves.ts";
  *  // returns Piece.Queen
  * get_piece_by_letter('Q');
  * @param letter - the letter to convert to a piece type
- * @precondition letter is either 'p', 'n', 'b', 'r', 'q' or 'k' in lowercase or uppercase
+ * @precondition letter is either
+ * 'p', 'n', 'b', 'r', 'q' or 'k' in lowercase or uppercase
  * @returns the corresponding piece type for letter
  */
 export function get_piece_by_letter(letter: string): Piece {
@@ -31,9 +32,11 @@ export function get_piece_by_letter(letter: string): Piece {
 }
 
 /**
- * Convert a piece to its corresponding letter (uppercase if it's a white piece, otherwise lowercase)
+ * Convert a piece to its corresponding
+ * letter (uppercase if it's a white piece, otherwise lowercase)
  * @param board_piece - the piece to convert to a letter
- * @returns the corresponding letter to board_piece if board_piece is a BoardPiece, or '.' otherwise
+ * @returns the corresponding letter to board_piece if board_piece
+ * is a BoardPiece, or '.' otherwise
  */
 export function get_letter_by_piece(board_piece: BoardPiece | null): string {
     return is_piece(board_piece)
@@ -64,7 +67,8 @@ export function get_letter_by_piece_type(piece: Piece): string {
 }
 
 /**
- * Convert a piece letter to its corresponding color (white if uppercase, otherwise black)
+ * Convert a piece letter to its corresponding
+ * color (white if uppercase, otherwise black)
  * @param letter - the letter to convert to a color
  * @returns the corresponding color to letter
  */
@@ -73,7 +77,8 @@ export function get_color_by_letter(letter: string): Color {
 }
 
 /**
- * Update a letter's casing based on a given color (uppercase if white, otherwise lowercase)
+ * Update a letter's casing based on a given
+ * color (uppercase if white, otherwise lowercase)
  * @param letter - the letter to update
  * @param color - the color to update letter based on
  * @returns the updated letter
