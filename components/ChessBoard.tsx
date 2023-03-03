@@ -73,7 +73,11 @@ function coordinates_to_notation(file: number, rank: number): string {
     return `${file_to_character(file)}${8-rank}`
 }
 
-function dropHandler(i: number, j: number, move_cb: (from: string, to: string) => void) {
+function dropHandler(
+    i: number,
+    j: number,
+    move_cb: (from: string, to: string) => void
+) {
     return (event: DragEvent) => {
         event.preventDefault()
         const from = event.dataTransfer!.getData("text")
@@ -116,7 +120,9 @@ interface ChessBoardProps {
     move_cb: (from: string, to: string) => void,
 }
 
-export default function ChessBoard({board_fen, move_cb, timers}: ChessBoardProps) {
+export default function ChessBoard(
+    {board_fen, move_cb, timers}: ChessBoardProps
+) {
     // Early call to restore piece visibility
     for (const timer of timers) {
         timer.fn()
@@ -128,19 +134,26 @@ export default function ChessBoard({board_fen, move_cb, timers}: ChessBoardProps
     const height = 8
     const board = parse_fen(board_fen, width, height)
 
-    return <div class="chess-board">
-        {[...Array(height)].map((_, i) => <div class="row">
-            {[...Array(width)].map((_, j) => <div onDrop={dropHandler(i, j, move_cb)}
-                                                  onDragOver={allowDrop}
-                                                  class={((i+j) & 1) === 1 ? "tile black" : "tile"}>
-                <div class="piece"
-                     draggable={IS_BROWSER}
-                     onDrag={dragHandler}
-                     onDragEnd={dragEndHandler(timers)}
-                     onDragStart={dragStartHandler(i, j)}>
-                    {board[i * width + j].unicode}
-                </div>
-            </div>)}
-        </div>)}
-    </div>
+    return <div class="chess-board">{
+        [...Array(height)].map(
+            (_, i) => <div class="row">{
+                [...Array(width)].map(
+                    (_, j) => <div
+                        onDrop={dropHandler(i, j, move_cb)}
+                        onDragOver={allowDrop}
+                        class={((i + j) & 1) === 1 ? "tile black" : "tile"}
+                    >
+                        <div class="piece"
+                            draggable={IS_BROWSER}
+                            onDrag={dragHandler}
+                            onDragEnd={dragEndHandler(timers)}
+                            onDragStart={dragStartHandler(i, j)}>
+                            {board[i * width + j].unicode}
+                        </div>
+                    </div>
+                )
+            }
+            </div>
+        )
+    }</div>
 }

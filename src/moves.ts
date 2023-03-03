@@ -1,5 +1,12 @@
-import { make_coordinates, coordinates_eq, Coordinates } from "./coordinates.ts";
-import { get_king_position, get_piece_by_square, get_player_pieces, is_piece, is_bishop, is_king, is_knight, is_queen, is_rook, other_color, out_of_bounds, square_has_piece, BoardPiece, BoardState, CastlingRights, Piece, Color } from "./board.ts";
+import {
+    make_coordinates, coordinates_eq, Coordinates
+} from "./coordinates.ts";
+import {
+    get_king_position, get_piece_by_square, get_player_pieces,
+    is_piece, is_bishop, is_king, is_knight, is_queen, is_rook,
+    other_color, out_of_bounds, square_has_piece,
+    BoardPiece, BoardState, CastlingRights, Piece, Color
+} from "./board.ts";
 
 
 export type Move = {
@@ -22,16 +29,27 @@ type Direction = [number, number]
  * @param pos - starting position for the move search
  * @returns an array with all the prospective moves in the direction
  */
-function get_moves_in_direction(piece: BoardPiece, state: BoardState, pos: Coordinates, direction: Direction): Moves {
-    const next_square = make_coordinates(pos.x + direction[0], pos.y + direction[1])
-    return out_of_bounds(state, pos) || square_has_piece(pos, state, piece.color)
+function get_moves_in_direction(
+    piece: BoardPiece,
+    state: BoardState,
+    pos: Coordinates,
+    direction: Direction
+): Moves {
+    const next_square = make_coordinates(
+        pos.x + direction[0],
+        pos.y + direction[1]
+    )
+    return out_of_bounds(state, pos)
+        || square_has_piece(pos, state, piece.color)
         ? []
         : Array.prototype.concat(
             {
                 from: piece.square,
                 to: { x: pos.x, y: pos.y },
                 piece_type: piece.piece,
-                is_capture: square_has_piece(pos, state, other_color(piece.color)),
+                is_capture: square_has_piece(
+                    pos, state, other_color(piece.color)
+                ),
                 is_castling_kingside: false,
                 is_castling_queenside: false,
                 is_en_passant: false
@@ -49,7 +67,11 @@ function get_moves_in_direction(piece: BoardPiece, state: BoardState, pos: Coord
  * @param direction - array of the directions to get prospective moves in
  * @returns an array with all the prospective moves in the directions
  */
-function get_linear_moves(piece: BoardPiece, state: BoardState, directions: Array<Direction>): Moves {
+function get_linear_moves(
+    piece: BoardPiece,
+    state: BoardState,
+    directions: Array<Direction>
+): Moves {
     return directions.flatMap(
         (dir) => get_moves_in_direction(
             piece,
@@ -97,9 +119,16 @@ function get_queen_moves(piece: BoardPiece, state: BoardState): Moves {
  * @param offsets - the fixed distances from the piece
  * @returns an array with all the prospective moves in the fixed distances from the piece
  */
-function get_fixed_distance_moves(piece: BoardPiece, state: BoardState, offsets: Array<[number, number]>): Moves {
+function get_fixed_distance_moves(
+    piece: BoardPiece,
+    state: BoardState,
+    offsets: Array<[number, number]>
+): Moves {
     return offsets.map(
-        (offset) => make_coordinates(piece.square.x + offset[0], piece.square.y + offset[1])
+        (offset) => make_coordinates(
+            piece.square.x + offset[0],
+            piece.square.y + offset[1]
+        )
     ).filter(
         (destination) => ! (
             out_of_bounds(state, destination)
@@ -110,7 +139,9 @@ function get_fixed_distance_moves(piece: BoardPiece, state: BoardState, offsets:
             from: piece.square,
             to: destination,
             piece_type: piece.piece,
-            is_capture: square_has_piece(destination, state, other_color(piece.color)),
+            is_capture: square_has_piece(
+                destination, state, other_color(piece.color)
+            ),
             is_castling_kingside: false,
             is_castling_queenside: false,
             is_en_passant: false
@@ -145,14 +176,18 @@ function get_king_moves(piece: BoardPiece, state: BoardState): Moves {
         [[1, 1], [0, 1], [0, -1], [-1, 1], [-1, 0], [-1, -1], [1, 0], [1, -1]]
     )
 
-    function add_castle_move(king_position: Coordinates, to: Coordinates, kingside: boolean): void {
+    function add_castle_move(
+        king_position: Coordinates,
+        to: Coordinates,
+        kingside: boolean
+    ): void {
         moves = moves.concat({
             from: king_position,
             to: to,
             piece_type: Piece.King,
             is_capture: false,
             is_castling_kingside: kingside,
-            is_castling_queenside: !kingside,
+            is_castling_queenside: ! kingside,
             is_en_passant: false
         })
     }
@@ -350,8 +385,11 @@ export function apply_move(state: BoardState, move: Move): BoardState {
         en_passant_square: en_passant_square,
         turn: other_color(state.turn),
         castling: structuredClone(state.castling),
-        halfmove_clock: move.is_capture || move.piece_type === Piece.Pawn ? 0 : state.halfmove_clock + 1,
-        fullmove_number: state.fullmove_number + (state.turn === Color.Black ? 1 : 0),
+        halfmove_clock: move.is_capture || move.piece_type === Piece.Pawn
+            ? 0
+            : state.halfmove_clock + 1,
+        fullmove_number: state.fullmove_number
+            + (state.turn === Color.Black ? 1 : 0),
         width: 8,
         height: 8
     }
@@ -365,7 +403,8 @@ export function apply_move(state: BoardState, move: Move): BoardState {
         && get_player_pieces(
             new_position, new_position.turn
         ).filter(
-            (piece) => piece.piece === Piece.Pawn && piece.square.y === (piece.color === Color.White ? 5 : 4)
+            (piece) => piece.piece === Piece.Pawn
+                && piece.square.y === (piece.color === Color.White ? 5 : 4)
         ).flatMap(
             (piece) => get_legal_moves_by_piece(new_position, piece)
         ).some(
@@ -450,44 +489,50 @@ export function is_self_check(state: BoardState, move: Move) {
  * @returns true if move is a legal move in state, false otherwise
  */
 function is_castle_legal(state: BoardState, move: Move) {
-    function free_between_on_rank(from: number, to: number, rank: number): boolean {
-        const direction = from < to ? 1 : -1
-        while (direction === 1 ? from + direction < to : from + direction > to) {
-            const pos = make_coordinates(from + direction, rank)
-            if (square_has_piece(pos, state) || is_square_attacked_by(state, pos, other_color(state.turn))) {
-                return false
-            }
-            from += direction
-        }
-        return true
+    function free_between_on_rank(from: Coordinates, to_file: number): boolean {
+        const direction = from.x < to_file ? 1 : -1
+        const pos = make_coordinates(from.x + direction, from.y)
+        return pos.x === to_file
+            || (
+                ! square_has_piece(pos, state)
+                && ! is_square_attacked_by(state, pos, other_color(state.turn))
+                && free_between_on_rank(pos, to_file)
+            )
     }
+    const back_rank_number = state.turn === Color.White ? 1 : 8
+    const rook_square = make_coordinates(
+        move.is_castling_kingside ? 8 : 1,
+        back_rank_number
+    )
 
-    const rook_square: Coordinates = move.is_castling_kingside
-        ? (state.turn === Color.White
-            ? make_coordinates(8, 1)
-            : make_coordinates(8, 8))
-        : (state.turn === Color.White
-            ? make_coordinates(1, 1)
-            : make_coordinates(1, 8))
-    const rook: BoardPiece | null = get_piece_by_square(rook_square, state)
+    const rook = get_piece_by_square(rook_square, state)
 
-    return ! (
-        ! coordinates_eq(move.from, state.turn === Color.White
-            ? make_coordinates(5, 1)
-            : make_coordinates(5, 8))
-        || ! is_piece(rook)
-        || ! is_rook(rook)
-        || move.from.y !== move.to.y
-        || (move.is_castling_queenside
-            && square_has_piece(make_coordinates(rook_square.x + 1, rook_square.y), state))
-        || ! free_between_on_rank(move.from.x, move.is_castling_kingside
-            ? rook_square.x
-            : rook.square.x + 1, move.from.y)
-        || is_check(state, state.turn))
+    return coordinates_eq(move.from, make_coordinates(5, back_rank_number))
+        && is_piece(rook)
+        && is_rook(rook)
+        && move.from.y === move.to.y
+        && ! (
+            move.is_castling_queenside
+            && square_has_piece(
+                make_coordinates(rook_square.x + 1, back_rank_number), state
+            )
+        )
+        && free_between_on_rank(
+            move.from,
+            move.is_castling_kingside ? rook_square.x : rook_square.x + 1
+        )
+        && ! is_check(state, state.turn)
 }
 
-export function is_square_attacked_by(state: BoardState, square: Coordinates, color: Color) {
-    function squares_attacked_by_piece(board_state: BoardState, piece: BoardPiece): Array<Coordinates> {
+export function is_square_attacked_by(
+    state: BoardState,
+    square: Coordinates,
+    color: Color
+): boolean {
+    function squares_attacked_by_piece(
+        board_state: BoardState,
+        piece: BoardPiece
+    ): Array<Coordinates> {
         return piece.piece === Piece.Pawn
             ? [make_coordinates(
                 piece.square.x - 1,
@@ -498,7 +543,9 @@ export function is_square_attacked_by(state: BoardState, square: Coordinates, co
             )]
             : piece.piece === Piece.King
             ? get_piece_moves(piece, board_state)
-                .filter((m: Move) => !(m.is_castling_kingside || m.is_castling_queenside))
+                .filter((m: Move) => ! (
+                    m.is_castling_kingside || m.is_castling_queenside
+                ))
                 .map((m: Move) => m.to)
             : get_piece_moves(piece, board_state).map((m: Move) => m.to)
     }
@@ -513,7 +560,9 @@ export function is_square_attacked_by(state: BoardState, square: Coordinates, co
 
     return get_player_pieces(state_to_use, color)
             .flatMap(piece => squares_attacked_by_piece(state_to_use, piece))
-            .some(controlled_square => coordinates_eq(controlled_square, square))
+            .some(
+                controlled_square => coordinates_eq(controlled_square, square)
+            )
 }
 
 /**
@@ -525,7 +574,9 @@ export function is_square_attacked_by(state: BoardState, square: Coordinates, co
  */
 export function get_legal_moves(state: BoardState): Moves {
     return get_prospective_moves(state).filter(
-        (move: Move) => ! (move.is_castling_kingside || move.is_castling_queenside) ? ! is_self_check(state, move) : is_castle_legal(state, move)
+        (move: Move) => (
+            move.is_castling_kingside || move.is_castling_queenside
+        ) ? is_castle_legal(state, move) : ! is_self_check(state, move)
     )
 }
 
@@ -535,9 +586,14 @@ export function get_legal_moves(state: BoardState): Moves {
  * @param piece - the piece to get the legal moves for
  * @returns an array with all the legal moves for piece in state
  */
-export function get_legal_moves_by_piece(state: BoardState, piece: BoardPiece): Moves {
+export function get_legal_moves_by_piece(
+    state: BoardState,
+    piece: BoardPiece
+): Moves {
     return get_piece_moves(piece, state).filter(
-        (move: Move) => ! (move.is_castling_kingside || move.is_castling_queenside) ? ! is_self_check(state, move) : is_castle_legal(state, move)
+        (move: Move) => (
+            move.is_castling_kingside || move.is_castling_queenside
+        ) ? is_castle_legal(state, move) : ! is_self_check(state, move)
     )
 }
 
@@ -548,7 +604,11 @@ export function get_legal_moves_by_piece(state: BoardState, piece: BoardPiece): 
  * @param to - the coordinates for the square
  * @returns true if piece can move to the square, false otherwise
  */
-export function can_piece_move_to(state: BoardState, piece: BoardPiece, to: Coordinates): boolean {
+export function can_piece_move_to(
+    state: BoardState,
+    piece: BoardPiece,
+    to: Coordinates
+): boolean {
     return get_legal_moves_by_piece(state, piece).map(
         (m: Move) => m.to
     ).some(

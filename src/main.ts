@@ -1,5 +1,7 @@
 import { draw } from "./draw.ts";
-import { Result, new_game, is_game_in_progress, play_move, display_moves } from "./game.ts";
+import {
+    Result, new_game, is_game_in_progress, play_move, display_moves
+} from "./game.ts";
 
 let game = new_game()
 while (is_game_in_progress(game)) {

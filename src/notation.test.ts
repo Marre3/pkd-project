@@ -1,5 +1,8 @@
 import { test, expect } from '@jest/globals'
-import { position_from_fen, get_legal_moves, get_default_board, make_coordinates, Piece, move_to_algebraic_notation, get_letter_by_piece_type } from "everything";
+import {
+    position_from_fen, get_legal_moves, get_default_board, make_coordinates,
+    Piece, move_to_algebraic_notation, get_letter_by_piece_type
+} from "everything";
 
 test("starting_position_move_notation", () => {
     const board = get_default_board()
@@ -34,8 +37,14 @@ test("starting_position_move_notation", () => {
 })
 
 test("najdorf_moves", () => {
-    const board = position_from_fen("rnbqkb1r/1p2pppp/p2p1n2/8/3NP3/2N5/PPP2PPP/R1BQKB1R w KQkq - 0 6")
-    const moves = get_legal_moves(board).map((move) => move_to_algebraic_notation(board, move))
+    const board = position_from_fen(
+        "rnbqkb1r/1p2pppp/p2p1n2/8/3NP3/2N5/PPP2PPP/R1BQKB1R w KQkq - 0 6"
+    )
+    const moves = get_legal_moves(
+        board
+    ).map(
+        (move) => move_to_algebraic_notation(board, move)
+    )
     const expected = [
         "Nf5", "Ne6", "Nc6", "Ndb5", "Nb3", "Nde2", "Nf3", "e5", "Nd5",
         "Ncb5", "Na4", "Nb1", "Nce2", "a3", "a4", "b3", "b4", "f3",
@@ -48,8 +57,14 @@ test("najdorf_moves", () => {
 })
 
 test("tarrasch_defense_moves", () => {
-    const board = position_from_fen("rnbqkbnr/pp3ppp/4p3/2pp4/2PP4/2N5/PP2PPPP/R1BQKBNR w KQkq - 0 4")
-    const moves = get_legal_moves(board).map((move) => move_to_algebraic_notation(board, move))
+    const board = position_from_fen(
+        "rnbqkbnr/pp3ppp/4p3/2pp4/2PP4/2N5/PP2PPPP/R1BQKBNR w KQkq - 0 4"
+    )
+    const moves = get_legal_moves(
+        board
+    ).map(
+        (move) => move_to_algebraic_notation(board, move)
+    )
     const expected = [
         "cxd5", "dxc5", "Ne4", "Nxd5", "Nb5", "Na4", "Nb1", "a3",
         "a4", "b3", "b4", "e3", "e4", "f3", "f4", "g3", "g4", "h3",
@@ -61,8 +76,14 @@ test("tarrasch_defense_moves", () => {
 })
 
 test("berlin_defense_moves", () => {
-    const board = position_from_fen("r1bqkb1r/pppp1ppp/2n2n2/1B2p3/4P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 4")
-    const moves = get_legal_moves(board).map((move) => move_to_algebraic_notation(board, move))
+    const board = position_from_fen(
+        "r1bqkb1r/pppp1ppp/2n2n2/1B2p3/4P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 4"
+    )
+    const moves = get_legal_moves(
+        board
+    ).map(
+        (move) => move_to_algebraic_notation(board, move)
+    )
     const expected = [
         "Bxc6", "Bc4", "Bd3", "Be2", "Bf1", "Ba6", "Ba4",
         "Nh4", "Ng5", "Nxe5", "Nd4", "Ng1", "a3", "a4", "b3",
@@ -75,7 +96,11 @@ test("berlin_defense_moves", () => {
 
 test("multiple_knights", () => {
     const board = position_from_fen("8/8/1k3N2/8/1N3N2/3KN3/8/8 w - - 0 1")
-    const moves = get_legal_moves(board).map((move) => move_to_algebraic_notation(board, move))
+    const moves = get_legal_moves(
+        board
+    ).map(
+        (move) => move_to_algebraic_notation(board, move)
+    )
     const expected = [
         "Kc4", "Kd4", "Ke4", "Kc3", "Kc2", "Kd2", "Ke2", "Na6", "Na2", "Nbc2",
         "Nc6", "Nd7+", "Ne8", "Ng8", "Nh7", "N6h5", "Nfg4", "Ne4", "Ne6",
@@ -97,7 +122,11 @@ test("get_letter_by_piece_type", () => {
 
 test("promotion_moves", () => {
     const board = position_from_fen("4b1nK/3k1P2/8/8/8/8/8/8 w - - 0 1")
-    const moves = get_legal_moves(board).map((move) => move_to_algebraic_notation(board, move))
+    const moves = get_legal_moves(
+        board
+    ).map(
+        (move) => move_to_algebraic_notation(board, move)
+    )
     const expected = [
         "fxe8=B+", "fxe8=N", "fxe8=R", "fxe8=Q+",
         "fxg8=B", "fxg8=N", "fxg8=R", "fxg8=Q",
@@ -108,7 +137,13 @@ test("promotion_moves", () => {
 })
 
 test("queenside_castle", () => {
-    const board = position_from_fen("rn3r2/pbppq1p1/1p2pN2/8/3P2NP/6P1/PPP1BP1R/R3K1k1 w Q - 5 18")
-    const moves = get_legal_moves(board).map((move) => move_to_algebraic_notation(board, move))
+    const board = position_from_fen(
+        "rn3r2/pbppq1p1/1p2pN2/8/3P2NP/6P1/PPP1BP1R/R3K1k1 w Q - 5 18"
+    )
+    const moves = get_legal_moves(
+        board
+    ).map(
+        (move) => move_to_algebraic_notation(board, move)
+    )
     expect(moves).toEqual(expect.arrayContaining(["O-O-O#"]))
 })
