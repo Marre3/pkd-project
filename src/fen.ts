@@ -13,7 +13,7 @@ export function position_from_fen(FEN: string): BoardState {
                     pieces.push(
                         {
                             piece: get_piece_by_letter(c),
-                        color: get_color_by_letter(c),
+                            color: get_color_by_letter(c),
                             square: make_coordinates(x, y)
                         },
                     )
