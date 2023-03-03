@@ -1,4 +1,7 @@
-import { BoardPiece, BoardState, Color, get_piece_by_square, is_piece, other_color, Piece } from "./board.ts";
+import {
+    BoardPiece, BoardState, Color, get_piece_by_square,
+    is_piece, other_color, Piece
+} from "./board.ts";
 import { coordinates_to_notation, file_to_character } from "./coordinates.ts";
 import { is_checkmate } from "./game.ts";
 import { apply_move, can_piece_move_to, is_check, Move } from "./moves.ts";
@@ -48,7 +51,10 @@ export function get_color_by_letter(letter: string): Color {
 function get_letter_by_color(letter: string, color: Color): string {
     return color === Color.White ? letter.toUpperCase() : letter.toLowerCase()
 }
-export function move_to_algebraic_notation(state: BoardState, move: Move): string {
+export function move_to_algebraic_notation(
+    state: BoardState,
+    move: Move
+): string {
     function get_pieces_of_type(type: Piece): BoardPiece[] {
         return state.pieces.filter(
             (piece) => (piece.color === state.turn && piece.piece === type)
@@ -68,12 +74,17 @@ export function move_to_algebraic_notation(state: BoardState, move: Move): strin
             (piece) => piece.square.x === move.from.x
         ).length > 1
 
-        const needs_rank = allowed_pieces.length > 1 && multiple_pieces_on_same_file
+        const needs_rank = allowed_pieces.length > 1
+            && multiple_pieces_on_same_file
         const needs_file = allowed_pieces.length > 1
             && (multiple_pieces_on_same_rank || ! needs_rank)
             || move.piece_type === Piece.Pawn && capture
         return (
-            (move.piece_type === Piece.Pawn ? "" : get_letter_by_piece_type(piece!.piece))
+            (
+                move.piece_type === Piece.Pawn
+                ? ""
+                : get_letter_by_piece_type(piece!.piece)
+            )
             + (needs_file ? file_to_character(move.from.x) : "")
             + (needs_rank ? move.from.y.toString() : "")
         )
@@ -95,7 +106,9 @@ export function move_to_algebraic_notation(state: BoardState, move: Move): strin
         : "=" + get_letter_by_piece_type(move.promotion_piece)
 
     const capture_notation = move.is_capture ? "x" : ""
-    const from_notation = construct_notation_for_from_coordinates(move.is_capture)
+    const from_notation = construct_notation_for_from_coordinates(
+        move.is_capture
+    )
 
     return move.is_castling_kingside
         ? ("O-O" + symbol)

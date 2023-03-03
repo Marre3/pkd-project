@@ -9,7 +9,9 @@ export enum Result {
     "0-1",  // Black wins
     "*"  // Game in progress
 }
-export const DEFAULT_BOARD_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+export const DEFAULT_BOARD_FEN = (
+    "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+)
 
 export type Game = {
     state: BoardState,
@@ -22,13 +24,19 @@ export function get_default_board(): BoardState  {
     return position_from_fen(DEFAULT_BOARD_FEN)
 }
 
-export function get_move_by_notation(state: BoardState, move_notation: string): Move | null {
+export function get_move_by_notation(
+    state: BoardState,
+    move_notation: string
+): Move | null {
     return get_legal_moves(state).find(
         (move) => move_to_algebraic_notation(state, move) === move_notation
     ) ?? null
 }
 
-export function apply_move_by_notation(state: BoardState, move_notation: string): BoardState {
+export function apply_move_by_notation(
+    state: BoardState,
+    move_notation: string
+): BoardState {
     const move = get_move_by_notation(state, move_notation)
     if (move !== null) {
         return apply_move(state, move)
@@ -87,6 +95,8 @@ export function game_result(state: BoardState): Result {
             ? (state.turn === Color.Black ? Result["1-0"] : Result["0-1"])
             : Result["1/2-1/2"]
     } else {
-        throw new Error("game_result(): Invalid state, game is still in progress")
+        throw new Error(
+            "game_result(): Invalid state, game is still in progress"
+        )
     }
 }
