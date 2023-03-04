@@ -35,9 +35,48 @@ body {
     flex-flow: nowrap column;
 }
 
-.chess-board {
+.chess-board-container {
+    position: relative;
     width: 800px;
     height: 800px;
+}
+
+.over-board {
+    position: absolute;
+    margin: auto;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    border-radius: 12px;
+    border: 1px #444444 solid;
+    backdrop-filter: blur(16px);
+    background-color: #22222255;
+    color: black;
+    text-align: center;
+    line-height: 100px;
+}
+
+.game-over {
+    height: 100px;
+    width: 300px;
+    font-size: 30px;
+}
+
+.promotion {
+    height: 100px;
+    width: 300px;
+    display: flex;
+    font-size: 50px;
+    justify-content: space-around;
+}
+
+.chess-board {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
     display: flex;
     flex-flow: nowrap column;
 }
