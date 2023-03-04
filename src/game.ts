@@ -1,6 +1,6 @@
 import { apply_move, get_legal_moves, is_check, Move } from "./moves.ts";
 import { move_to_algebraic_notation } from "./notation.ts";
-import { position_from_fen } from "./fen.ts";
+import { export_to_fen, position_from_fen } from "./fen.ts";
 import { BoardState, Color } from "./board.ts";
 
 export enum Result {
@@ -17,12 +17,13 @@ export type Game = {
     state: BoardState,
     starting_position: string,
     played_moves: string[],
+    occured_positions: Map<string, number>,
     result: Result
 }
 
 /**
- * Get a BoardState of the default starting chess position 
- * @returns a BoardState of the default starting chess position 
+ * Get a BoardState of the default starting chess position
+ * @returns a BoardState of the default starting chess position
  */
 export function get_default_board(): BoardState  {
     return position_from_fen(DEFAULT_BOARD_FEN)
@@ -100,6 +101,15 @@ export function display_moves(game: Game): string {
     ).join(", ")
 }
 
+/** Remove move counters from position string
+ * as they do not count for the 50-move rule
+ * @param fen - The FEN string for the position
+ * @returns - The FEN string minus the halfmove and fullmove counters
+ */
+function strip_move_counters(fen: string): string {
+    return fen.split(" ").slice(0, 4).join(" ")
+}
+
 /**
  * Get the resulting Game after playing a move in a given Game
  * @param game - the Game the move should be played in
@@ -112,11 +122,31 @@ export function play_move(game: Game, move_notation: string): Game {
         throw new Error("Game is finished, no more moves can be played")
     }
     const new_state = apply_move_by_notation(game.state, move_notation)
+
+    const occured_positions: Map<string, number> = structuredClone(
+        game.occured_positions
+    )
+
+    const current_position = strip_move_counters(export_to_fen(new_state))
+
+    // Number of times the current position has been
+    // reached, for threefold repetition draws.
+    const repetition_count = (occured_positions.get(current_position) ?? 0) + 1
+    occured_positions.set(current_position, repetition_count)
+
+    // Check if the game is drawn by threefold repetition or 50-move rule
+    const result = repetition_count === 3 || new_state.halfmove_clock === 100
+        ? Result["1/2-1/2"]
+        : is_game_over(new_state)
+        ? game_result(new_state)
+        : Result["*"]
+
     return {
         state: new_state,
         starting_position: game.starting_position,
         played_moves: game.played_moves.concat(move_notation),
-        result: is_game_over(new_state) ? game_result(new_state) : Result["*"]
+        occured_positions: occured_positions,
+        result: result
     }
 }
 
@@ -129,6 +159,7 @@ export function new_game(): Game {
         state: get_default_board(),
         starting_position: DEFAULT_BOARD_FEN,
         played_moves: [],
+        occured_positions: new Map([[strip_move_counters(DEFAULT_BOARD_FEN), 1]]),
         result: Result["*"]
     }
 }
