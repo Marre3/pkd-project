@@ -34,7 +34,7 @@ jobs:
         run: deno cache tester.ts
         
       - name: Cache game server dependencies
-        run: deno cache dev.ts
+        run: deno cache dev.ts && deno cache static/ && deno cache routes/
 
       - name: Setup Jest
         run: npm install
