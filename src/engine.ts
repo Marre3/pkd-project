@@ -3,7 +3,7 @@ import {
     is_knight, is_queen, is_rook, Piece
 } from "./board.ts";
 import { Game, is_checkmate, is_stalemate } from "./game.ts";
-import { apply_move, get_legal_moves, Move } from "./moves.ts";
+import { apply_move, get_legal_moves, is_check, Move } from "./moves.ts";
 import { move_to_algebraic_notation } from "./notation.ts";
 
 type MoveEval = {
@@ -76,6 +76,11 @@ function get_piece_value(piece: BoardPiece): number {
     }
     if (piece.piece === Piece.Pawn) {
         positional_modifier = 0.8 + 0.1 * relative_y
+        if (piece.square.x > 2 && piece.square.x < 6) {
+            positional_modifier *= 1.2
+        } else if (piece.square.x === 1 || piece.square.x === 8) {
+            positional_modifier *= 1.1
+        }
     }
     if (is_king(piece)) {
         positional_modifier = 1 - 0.2 * relative_y
@@ -153,12 +158,13 @@ function search(state: BoardState, depth: number): MoveEval {
 }
 
 function evaluate_position(state: BoardState): number {
-    return is_checkmate(state)
-        ? state.turn === Color.White
-            ? -100
-            : 100
-        : is_stalemate(state)
-        ? 0
+    const no_moves = get_legal_moves(state).length === 0
+    return no_moves
+        ? is_check(state, state.turn)
+            ? state.turn === Color.White
+                ? -100
+                : 100
+            : 0
         : state.pieces.map(
             (piece) => get_piece_value(piece)
         ).reduce(
