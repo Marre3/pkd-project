@@ -8,8 +8,8 @@ import { export_to_fen, position_from_fen } from "./fen.ts";
 import { get_legal_moves } from "./moves.ts";
 import { apply_move } from "./moves.ts";
 import { coordinates_eq, coordinates_from_notation } from "./coordinates.ts";
-import { is_checkmate, is_stalemate } from "./game.ts";
 import { get_piece_by_letter } from "./notation.ts";
+import { is_checkmate, is_stalemate } from "./mate.ts";
 export { DEFAULT_BOARD_FEN } from "./game.ts"
 
 type FrontendState = {
