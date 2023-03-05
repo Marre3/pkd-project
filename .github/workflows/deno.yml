@@ -32,9 +32,9 @@ jobs:
 
       - name: Cache tester.ts dependencies
         run: deno cache tester.ts
-        
+
       - name: Cache game server dependencies
-        run: deno cache dev.ts && deno cache static/ && deno cache routes/
+        run: deno cache dev.ts
 
       - name: Setup Jest
         run: npm install
@@ -49,6 +49,6 @@ jobs:
 
       - name: Run tests
         run: deno task test
-        
+
       - name: "Game server smoke test"
         run: timeout 1 deno task start || code=$?; if [[ $code -ne 124 && $code -ne 0 ]]; then exit $code; fi
