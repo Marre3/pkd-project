@@ -45,4 +45,7 @@ jobs:
         run: deno lint
 
       - name: Run tests
-        run: deno run -A tester.ts
+        run: deno task test
+        
+      - name: "Game server smoke test"
+        run: timeout 1 deno task start || code=$?; if [[ $code -ne 124 && $code -ne 0 ]]; then exit $code; fi
