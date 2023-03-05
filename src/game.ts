@@ -111,17 +111,21 @@ function strip_move_counters(fen: string): string {
 }
 
 /**
- * Get the resulting Game after playing a move in a given Game
+ * This function does not check to make sure that
+ * the move being forced is a valid move.
  * @param game - the Game the move should be played in
- * @param move_notation - algebraic notation of the move
+ * @param move - the move being forced
+ * @param notation - the notation of the move
  * @returns the resulting Game
  * @throws an error if the game is already finished
  */
-export function play_move(game: Game, move_notation: string): Game {
+export function force_move(game: Game,
+                           move: Move,
+                           move_notation: string): Game {
     if (game.result !== Result["*"]) {
         throw new Error("Game is finished, no more moves can be played")
     }
-    const new_state = apply_move_by_notation(game.state, move_notation)
+    const new_state = apply_move(game.state, move)
 
     const occured_positions: Map<string, number> = structuredClone(
         game.occured_positions
@@ -148,6 +152,23 @@ export function play_move(game: Game, move_notation: string): Game {
         occured_positions: occured_positions,
         result: result
     }
+}
+
+/**
+ * Get the resulting Game after playing a move in a given Game
+ * @param game - the Game the move should be played in
+ * @param move_notation - algebraic notation of the move
+ * @returns the resulting Game
+ * @throws an error if the game is already finished
+ */
+export function play_move(game: Game, move_notation: string): Game {
+    const move = get_move_by_notation(game.state, move_notation)
+    if (move === null) {
+        throw new Error(`Illegal move ${move_notation}`)
+    }
+
+    // Now that the move is known to be valid/safe, we may proceed.
+    return force_move(game, move, move_notation)
 }
 
 /**
