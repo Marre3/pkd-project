@@ -30,8 +30,11 @@ jobs:
         with:
           deno-version: v1.x
 
-      - name: Fetch tester.ts Deps
+      - name: Cache tester.ts dependencies
         run: deno cache tester.ts
+        
+      - name: Cache game server dependencies
+        run: deno cache dev.ts
 
       - name: Setup Jest
         run: npm install
