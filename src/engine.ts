@@ -143,15 +143,15 @@ function search(state: BoardState, depth: number): MoveEval {
     )
 
     // Debugging
-    if (depth === initial_depth) {
-        for (const move of searched_moves) {
-            if (move.move !== undefined) {
-                console.log(move_to_algebraic_notation(state, move.move), move.eval)
-            } else {
-                console.log(move.eval)
-            }
-        }
-    }
+    // if (depth === initial_depth) {
+    //     for (const move of searched_moves) {
+    //         if (move.move !== undefined) {
+    //             console.log(move_to_algebraic_notation(state, move.move), move.eval)
+    //         } else {
+    //             console.log(move.eval)
+    //         }
+    //     }
+    // }
 
     const move = searched_moves.at(0)
     return move ?? {eval: 0}
@@ -173,11 +173,9 @@ function evaluate_position(state: BoardState): number {
 }
 
 export function get_engine_move(game: Game): string {
-    console.log("get engine move")
     const move = search(game.state, initial_depth)
     if (move.move === undefined) {
         throw new Error("Engine error: search didn't return a move")
     }
-    console.log(move.eval)
     return move_to_algebraic_notation(game.state, move.move)
 }
