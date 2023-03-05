@@ -119,9 +119,11 @@ function strip_move_counters(fen: string): string {
  * @returns the resulting Game
  * @throws an error if the game is already finished
  */
-export function force_move(game: Game,
-                           move: Move,
-                           move_notation: string): Game {
+export function force_move(
+    game: Game,
+    move: Move,
+    move_notation: string
+): Game {
     if (game.result !== Result["*"]) {
         throw new Error("Game is finished, no more moves can be played")
     }
