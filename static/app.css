@@ -54,17 +54,38 @@ body {
     background-color: #22222255;
     color: black;
     text-align: center;
-    line-height: 100px;
+}
+
+.game-select {
+    height: 270px;
+    width: 300px;
+    display: flex;
+    font-size: 30px;
+    line-height: 30px;
+    flex-flow: column nowrap;
+    color: white;
+    justify-content: space-around;
+}
+
+.game-mode {
+    color: #1010AA;
+    cursor: pointer;
+}
+
+.game-mode:hover {
+    color: #6010AA;
 }
 
 .game-over {
     height: 100px;
+    line-height: 100px;
     width: 300px;
     font-size: 30px;
 }
 
 .promotion {
     height: 100px;
+    line-height: 100px;
     width: 300px;
     display: flex;
     font-size: 50px;
