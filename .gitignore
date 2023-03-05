@@ -2,3 +2,5 @@
 node_modules
 dependency-graph.*
 yarn-error.log
+build
+.DS_Store
