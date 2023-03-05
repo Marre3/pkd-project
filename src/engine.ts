@@ -2,7 +2,7 @@ import {
     BoardPiece, BoardState, Color, is_bishop, is_king,
     is_knight, is_queen, is_rook, Piece
 } from "./board.ts";
-import { Game, is_checkmate, is_stalemate } from "./game.ts";
+import { Game } from "./game.ts";
 import { apply_move, get_legal_moves, is_check, Move } from "./moves.ts";
 import { move_to_algebraic_notation } from "./notation.ts";
 

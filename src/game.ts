@@ -2,6 +2,7 @@ import { apply_move, get_legal_moves, is_check, Move } from "./moves.ts";
 import { move_to_algebraic_notation } from "./notation.ts";
 import { export_to_fen, position_from_fen } from "./fen.ts";
 import { BoardState, Color } from "./board.ts";
+import { is_checkmate, is_stalemate } from "./mate.ts";
 
 export enum Result {
     "1-0",  // White wins
@@ -61,24 +62,6 @@ export function apply_move_by_notation(
     } else {
         throw new Error(`Illegal move ${move_notation}`)
     }
-}
-
-/**
- * Check if a checkmate has occured on a given BoardState
- * @param state - the given BoardState
- * @returns true if a checkmate has occured, false otherwise
- */
-export function is_checkmate(state: BoardState): boolean {
-    return is_check(state, state.turn) && get_legal_moves(state).length === 0
-}
-
-/**
- * Check if a stalemate has occured on a given BoardState
- * @param state - the given BoardState
- * @returns true if a stalemate has occured, false otherwise
- */
-export function is_stalemate(state: BoardState): boolean {
-    return ! is_check(state, state.turn) && get_legal_moves(state).length === 0
 }
 
 /**
