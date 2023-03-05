@@ -3,7 +3,7 @@ import {
     is_piece, other_color, Piece
 } from "./board.ts";
 import { coordinates_to_notation, file_to_character } from "./coordinates.ts";
-import { is_checkmate } from "./game.ts";
+import { is_checkmate } from "./mate.ts";
 import { apply_move, can_piece_move_to, is_check, Move } from "./moves.ts";
 
 /**

@@ -44,10 +44,10 @@ function parse_fen(fen: string, width: number, height: number): Array<Piece> {
     let x = 0
     let y = 0
     for (const c of fen) {
-        if (c == " ") {
+        if (c === " ") {
             return board
         }
-        if (c == "/") {
+        if (c === "/") {
             ++y
             x = 0
             continue

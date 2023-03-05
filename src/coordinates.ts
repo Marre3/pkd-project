@@ -56,7 +56,7 @@ export function coordinates_to_notation(coordinates: Coordinates): string {
  * coordinates_from_notation("d5");
  * @param notation - the square notation
  * @precondition notation is two characters long and the first character is
- * between (inclusive) a and h, and the second character 
+ * between (inclusive) a and h, and the second character
  * is between (inclusive) 1 and 8
  * @returns the coordinates representing the square
  */

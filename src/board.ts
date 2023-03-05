@@ -43,7 +43,7 @@ export function get_piece_by_square(
  * @returns - True if piece is a BoardPiece, false otherwise
  */
 export function is_piece(piece: BoardPiece | null): piece is BoardPiece {
-    return piece != null
+    return piece !== null
 }
 
 /**
@@ -61,7 +61,7 @@ export function square_has_piece(
 ): boolean {
     const square_piece = get_piece_by_square(coordinates, state)
     return is_piece(square_piece)
-        && (typeof color === "undefined" || square_piece.color == color)
+        && (typeof color === "undefined" || square_piece.color === color)
 }
 
 /**
@@ -70,7 +70,7 @@ export function square_has_piece(
  * @returns - The opposite color of the given color
  */
 export function other_color(color: Color): Color {
-    return color == Color.Black ? Color.White : Color.Black
+    return color === Color.Black ? Color.White : Color.Black
 }
 
 /**
@@ -98,7 +98,7 @@ export function get_king_position(
     color: Color
 ): Coordinates {
     for (const piece of state.pieces) {
-        if (piece.piece == Piece.King && piece.color == color) {
+        if (piece.piece === Piece.King && piece.color === color) {
             return piece.square
         }
     }
@@ -113,7 +113,7 @@ export function get_king_position(
  * @returns true if the piece is a rook, false otherwise
  */
 export function is_rook(piece: BoardPiece): boolean {
-    return piece.piece == Piece.Rook
+    return piece.piece === Piece.Rook
 }
 
 /**
@@ -122,7 +122,7 @@ export function is_rook(piece: BoardPiece): boolean {
  * @returns true if the piece is a bishop, false otherwise
  */
 export function is_bishop(piece: BoardPiece): boolean {
-    return piece.piece == Piece.Bishop
+    return piece.piece === Piece.Bishop
 }
 
 /**
@@ -131,7 +131,7 @@ export function is_bishop(piece: BoardPiece): boolean {
  * @returns true if the piece is a queen, false otherwise
  */
 export function is_queen(piece: BoardPiece): boolean {
-    return piece.piece == Piece.Queen
+    return piece.piece === Piece.Queen
 }
 
 /**
@@ -140,7 +140,7 @@ export function is_queen(piece: BoardPiece): boolean {
  * @returns true if the piece is a knight, false otherwise
  */
 export function is_knight(piece: BoardPiece): boolean {
-    return piece.piece == Piece.Knight
+    return piece.piece === Piece.Knight
 }
 
 /**
@@ -149,7 +149,7 @@ export function is_knight(piece: BoardPiece): boolean {
  * @returns true if the piece is a king, false otherwise
  */
 export function is_king(piece: BoardPiece): boolean {
-    return piece.piece == Piece.King
+    return piece.piece === Piece.King
 }
 
 /**

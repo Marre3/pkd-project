@@ -8,5 +8,5 @@ Start the project:
 deno task start
 ```
 This will watch the project directory and restart as necessary.
-Make sure you have deno installed. 
+Make sure you have deno installed.
 Deno can be installed here: https://deno.land/manual/getting_started/installation

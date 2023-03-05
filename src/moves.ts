@@ -363,7 +363,7 @@ export function is_check(state: BoardState, color: Color): boolean {
  */
 export function apply_move(state: BoardState, move: Move): BoardState {
     const old_piece = get_piece_by_square(move.from, state)
-    if (old_piece == null) {
+    if (old_piece === null) {
         throw new Error(`Invalid move ${move}, origin piece does not exist`)
     }
     const new_piece = {
@@ -399,8 +399,8 @@ export function apply_move(state: BoardState, move: Move): BoardState {
         move.piece_type === Piece.Pawn
         && (
             state.turn === Color.White
-            ? move.from.y === 2 && move.to.y == 4
-            : move.from.y === 7 && move.to.y == 5
+            ? move.from.y === 2 && move.to.y === 4
+            : move.from.y === 7 && move.to.y === 5
         )
         && get_player_pieces(
             new_position, new_position.turn
@@ -608,7 +608,7 @@ export function get_legal_moves_by_piece(
 }
 
 /**
- * Determine if a given piece can move to a specific square 
+ * Determine if a given piece can move to a specific square
  * @param state - the BoardState to consider the move in
  * @param piece - the given piece
  * @param to - the coordinates for the square

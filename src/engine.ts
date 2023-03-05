@@ -2,7 +2,7 @@ import {
     BoardPiece, BoardState, Color, is_bishop, is_king,
     is_knight, is_queen, is_rook, Piece
 } from "./board.ts";
-import { Game, is_checkmate, is_stalemate } from "./game.ts";
+import { Game } from "./game.ts";
 import { apply_move, get_legal_moves, is_check, Move } from "./moves.ts";
 import { move_to_algebraic_notation } from "./notation.ts";
 
@@ -11,8 +11,24 @@ type MoveEval = {
     eval: number
 }
 
+// A record of a move with its corresponding initial evaluation, along with
+// the resulting position after the move is played
+type MoveEvalPosition = {
+    move: Move,
+    eval: number,
+    state: BoardState
+}
+
+// The initial search depth of the engine. Can be increased to increase the
+// strength of the engine at the cost of longer execution time.
 const initial_depth = 3
 
+/**
+ * Get the approximate value of a piece according to the engine.
+ * This is based on piece type and position.
+ * @param piece - The piece to get the value of
+ * @returns The value of the piece
+ */
 function get_piece_value(piece: BoardPiece): number {
     const color_coefficient = piece.color === Color.White ? 1 : -1
     const base_value = is_bishop(piece)
@@ -93,12 +109,20 @@ function get_piece_value(piece: BoardPiece): number {
     return color_coefficient * positional_modifier * base_value
 }
 
+/**
+ * Internal engine function to compute different lines in a position to
+ * evaluate the position and try to find the best move.
+ * @param state - The board state to search
+ * @param depth - The maximum depth to search before terminating
+ * @returns A struct containing the evaluation of the position
+ * and the best move, according to the engine, in the position
+ */
 function search(state: BoardState, depth: number): MoveEval {
     if (depth === 0) {
         return {eval: evaluate_position(state)}
     }
     const legal_moves = get_legal_moves(state)
-    const initial_evaluations = legal_moves.map(
+    const initial_evaluations: Array<MoveEvalPosition> = legal_moves.map(
         (move) => {
             const new_state = apply_move(state, move)
             return {
@@ -108,6 +132,8 @@ function search(state: BoardState, depth: number): MoveEval {
             }
         }
     )
+
+    // Sort the available moves and eliminate moves which are likely to be bad
     const preliminary = initial_evaluations.sort(
         (a, b) => {
             return a.eval === b.eval
@@ -116,7 +142,11 @@ function search(state: BoardState, depth: number): MoveEval {
                 ? state.turn === Color.White ? 1 : -1
                 : state.turn === Color.White ? -1 : 1
         }
-    ).slice(0, Math.ceil(legal_moves.length * 4**(-initial_depth+depth-1)))
+    ).slice(
+        0,
+        Math.ceil(legal_moves.length * 4 ** (-initial_depth + depth - 1))
+    )  // Evaluate a lower proportion of moves at a higher depth for performance
+
     const initial_best = preliminary.at(0)
     if (initial_best === undefined) {
         return { eval: evaluate_position(state) }
@@ -126,12 +156,16 @@ function search(state: BoardState, depth: number): MoveEval {
     ) {
         return {eval: initial_best.eval, move: initial_best.move}
     }
+
+    // Recursively search the moves which were deemed promising
     const searched_moves: Array<MoveEval> = preliminary.map(
         (move_state) => ({
             eval: search(move_state.state, depth - 1).eval,
             move: move_state.move
         })
     )
+
+    // Sort the searched moves from best to worst and return the best move
     searched_moves.sort(
         (a, b) => {
             return a.eval === b.eval
@@ -141,6 +175,8 @@ function search(state: BoardState, depth: number): MoveEval {
                 : state.turn === Color.White ? -1 : 1
         }
     )
+    const move = searched_moves.at(0)
+    return move ?? {eval: 0}
 
     // Debugging
     // if (depth === initial_depth) {
@@ -153,10 +189,17 @@ function search(state: BoardState, depth: number): MoveEval {
     //     }
     // }
 
-    const move = searched_moves.at(0)
-    return move ?? {eval: 0}
 }
 
+/**
+ * Internal engine function to give a simple evaluation with regards to
+ * material balance, placement of pieces and whether
+ * the position is checkmate/stalemate
+ * @param state - The board state to evaluate
+ * @returns A number representing the evaluation of the state, where a negative
+ * number means that the position is good for black and a positive number means
+ * the position is good for white.
+ */
 function evaluate_position(state: BoardState): number {
     const no_moves = get_legal_moves(state).length === 0
     return no_moves
@@ -172,6 +215,12 @@ function evaluate_position(state: BoardState): number {
         )
 }
 
+/**
+ * Get the best move in a position according to our chess engine
+ * (Beware: the engine is not very good...)
+ * @param game - The Game to find the best move in.
+ * @returns A string containing the suggested move in algebraic notation
+ */
 export function get_engine_move(game: Game): string {
     const move = search(game.state, initial_depth)
     if (move.move === undefined) {

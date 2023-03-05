@@ -2,9 +2,10 @@ import { test, expect } from '@jest/globals'
 import {
     Result, export_to_fen, position_from_fen,
     apply_move_by_notation, game_result, get_move_by_notation,
-    is_checkmate, is_game_over, is_stalemate, get_default_board,
+    is_game_over, get_default_board,
     new_game, is_game_in_progress, display_moves, play_move
 } from "everything";
+import { is_checkmate, is_stalemate } from "./mate.ts";
 import { import_from_pgn } from './pgn.ts';
 
 test("checkmate_scholars", () => {

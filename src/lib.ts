@@ -7,10 +7,10 @@
 import { export_to_fen, position_from_fen } from "./fen.ts";
 import { get_legal_moves } from "./moves.ts";
 import { coordinates_eq, coordinates_from_notation } from "./coordinates.ts";
-import { force_move, Game, is_checkmate, is_stalemate, play_move, Result } from "./game.ts";
+import { is_checkmate, is_stalemate } from "./mate.ts";
+import { DEFAULT_BOARD_FEN, force_move, Game, play_move, Result } from "./game.ts";
 import { get_piece_by_letter, move_to_algebraic_notation } from "./notation.ts";
 import { get_engine_move } from "./engine.ts";
-export { DEFAULT_BOARD_FEN } from "./game.ts"
 
 type FrontendState = {
     fen: string,
