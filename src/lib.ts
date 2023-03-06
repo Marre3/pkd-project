@@ -1,4 +1,4 @@
-// The purpose of this file is to be called from the backend.
+// The purpose of this file is to be called from the frontend.
 // It does not expose any functions or type defintions from the backend,
 // ensuring that the backend can be changed bravely. However, this file does
 // export a function (and a custom return type) that make it possible for the
