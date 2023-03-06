@@ -1,6 +1,7 @@
 import { test, expect } from '@jest/globals'
-import { export_to_fen, new_game, play_move } from "everything";
-import { export_to_pgn, import_from_pgn } from './pgn.ts';
+import {
+    export_to_fen, new_game, play_move, export_to_pgn, import_from_pgn
+} from "everything";
 
 test("export_najdorf", () => {
     let game = new_game()
