@@ -1,4 +1,4 @@
-// The purpose of this file is to be called from the backend.
+// The purpose of this file is to be called from the frontend.
 // It does not expose any functions or type defintions from the backend,
 // ensuring that the backend can be changed bravely. However, this file does
 // export a function (and a custom return type) that make it possible for the
@@ -25,6 +25,11 @@ type FrontendState = {
     occured_positions: Map<string, number>,
 }
 
+/**
+ * Convert a FrontendState to a Game
+ * @param state - the FrontendState to convert
+ * @returns the resulting Game
+ */
 function frontend_state_to_game(state: FrontendState): Game {
     return {
         state: position_from_fen(state.fen),
@@ -35,6 +40,11 @@ function frontend_state_to_game(state: FrontendState): Game {
     }
 }
 
+/**
+ * Convert a Game to a FrontendState
+ * @param game - the Game to convert
+ * @returns the resulting FrontendState
+ */
 function game_to_frontend_state(game: Game): FrontendState {
     return {
         starting_fen: game.starting_position,
@@ -52,12 +62,10 @@ function game_to_frontend_state(game: Game): FrontendState {
 }
 
 /**
- * Get the resulting FEN string after applying a move to a position
- * @param fen - the FEN string of the position to apply the move to
- * @param from - square notation of where the move originates from
- * @param to - square notation of the move's destination
- * @returns the resulting FEN string or fen itself if there
- * is no valid move as described by from and to
+ * Get the resulting FrontendState after applying a move to a position
+ * @param state - the FrontendState of the position to apply the move to
+ * @returns the resulting FrontendState or state itself if there
+ * is no valid move as described by the move data of state
  */
 export function next_fen_by_move(state: FrontendState): FrontendState {
     if (state.from === '' || state.to === '') {
@@ -97,6 +105,11 @@ export function next_fen_by_move(state: FrontendState): FrontendState {
     return game_to_frontend_state(game_next)
 }
 
+/**
+ * Get the resulting FrontendState after playing an AI move in a position
+ * @param state - the FrontendState of the position to play the AI move in
+ * @returns the resulting FrontendState
+ */
 export function next_fen_by_ai(state: FrontendState): FrontendState {
     const game = frontend_state_to_game(state)
     const move = get_engine_move(game)
