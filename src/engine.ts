@@ -177,18 +177,6 @@ function search(state: BoardState, depth: number): MoveEval {
     )
     const move = searched_moves.at(0)
     return move ?? {eval: 0}
-
-    // Debugging
-    // if (depth === initial_depth) {
-    //     for (const move of searched_moves) {
-    //         if (move.move !== undefined) {
-    //             console.log(move_to_algebraic_notation(state, move.move), move.eval)
-    //         } else {
-    //             console.log(move.eval)
-    //         }
-    //     }
-    // }
-
 }
 
 /**
