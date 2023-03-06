@@ -2,7 +2,8 @@
   "tasks": {
     "start": "deno run -A --watch=static/,routes/ dev.ts",
     "test": "deno run -A tester.ts",
-    "coverage": "deno run -A tester.ts --coverage"
+    "coverage": "deno run -A tester.ts --coverage",
+    "cli": "deno run src/main.ts"
   },
   "importMap": "./import_map.json",
   "compilerOptions": {
