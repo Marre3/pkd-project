@@ -124,6 +124,9 @@ body {
     text-align: center;
     color: black;
     cursor: grab;
+
+    /* Remove the strange background. */
+    transform: translate(0, 0);
 }
 
 header {
