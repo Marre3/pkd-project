@@ -161,15 +161,17 @@ export function play_move(game: Game, move_notation: string): Game {
 
 /**
  * Create a new Game with the default starting chess position
+ * @param fen - Optional starting position as FEN string
  * @returns the new Game
  */
-export function new_game(): Game {
+export function new_game(fen?: string): Game {
+    const starting_fen = fen ?? DEFAULT_BOARD_FEN
     return {
-        state: get_default_board(),
-        starting_position: DEFAULT_BOARD_FEN,
+        state: position_from_fen(starting_fen),
+        starting_position: starting_fen,
         played_moves: [],
         occured_positions: new Map(
-            [[strip_move_counters(DEFAULT_BOARD_FEN), 1]]
+            [[strip_move_counters(starting_fen), 1]]
         ),
         result: Result["*"]
     }
