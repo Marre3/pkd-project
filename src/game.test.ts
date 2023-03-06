@@ -3,7 +3,7 @@ import {
     Result, export_to_fen, position_from_fen,
     apply_move_by_notation, game_result, get_move_by_notation,
     is_game_over, get_default_board,
-    new_game, is_game_in_progress, display_moves, play_move
+    new_game, is_game_in_progress, display_moves, play_move, force_move, make_coordinates, Piece
 } from "everything";
 import { is_checkmate, is_stalemate } from "./mate.ts";
 import { import_from_pgn } from './pgn.ts';
@@ -125,6 +125,30 @@ test("play_move_checkmate", () => {
     game = play_move(game, "Qxf7#")
     expect(is_game_in_progress(game)).toBe(false)
     expect(game.result).toBe(Result["1-0"])
+})
+
+test("force_move_game_already_over", () => {
+    let game = new_game()
+    game = play_move(game, "e4")
+    game = play_move(game, "e5")
+    game = play_move(game, "Qh5")
+    game = play_move(game, "Nc6")
+    game = play_move(game, "Bc4")
+    game = play_move(game, "Nf6")
+    game = play_move(game, "Qxf7#")
+    expect(() => force_move(
+        game,
+        {
+            from: make_coordinates(4, 7),
+            to: make_coordinates(4, 5),
+            piece_type: Piece.Pawn,
+            is_capture: false,
+            is_castling_kingside: false,
+            is_castling_queenside: false,
+            is_en_passant: false
+        },
+        "d5"
+    )).toThrow()
 })
 
 test("play_move_game_already_over", () => {
