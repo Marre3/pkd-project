@@ -46,11 +46,13 @@ export function get_move_by_notation(
 }
 
 /**
- * Get the resulting BoardState after applying a move by notation to a BoardState
+ * Get the resulting BoardState after applying a move
+ * by notation to a BoardState
  * @param state - the BoardState where the move is applied
  * @param move_notation - algebraic notation of the move
  * @returns the resulting BoardState
- * @throws an error if move_notation does not represent a legal move in the position
+ * @throws an error if move_notation does not represent
+ * a legal move in the position
  */
 export function apply_move_by_notation(
     state: BoardState,
@@ -74,7 +76,8 @@ export function is_game_over(state: BoardState): boolean {
 }
 
 /**
- * Get the moves played in a given Game as a string of the moves in algebraic notation separated by commas
+ * Get a list of the legal moves in a give Game as a string of the moves
+ * in algebraic notation separated by commas.
  * @param game - the given Game
  * @returns a string of the moves in algebraic notation separated by commas
  */
@@ -165,7 +168,9 @@ export function new_game(): Game {
         state: get_default_board(),
         starting_position: DEFAULT_BOARD_FEN,
         played_moves: [],
-        occured_positions: new Map([[strip_move_counters(DEFAULT_BOARD_FEN), 1]]),
+        occured_positions: new Map(
+            [[strip_move_counters(DEFAULT_BOARD_FEN), 1]]
+        ),
         result: Result["*"]
     }
 }
