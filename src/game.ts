@@ -128,10 +128,10 @@ export function force_move(
 
     // Check if the game is drawn by threefold repetition or 50-move rule
     const result = repetition_count === 3 || new_state.halfmove_clock === 100
-        ? Result["1/2-1/2"]
-        : is_game_over(new_state)
-        ? game_result(new_state)
-        : Result["*"]
+                   ? Result["1/2-1/2"]
+                   : is_game_over(new_state)
+                   ? game_result(new_state)
+                   : Result["*"]
 
     return {
         state: new_state,
@@ -193,8 +193,8 @@ export function is_game_in_progress(game: Game): boolean {
 export function game_result(state: BoardState): Result {
     if (is_game_over(state)) {
         return is_checkmate(state)
-            ? (state.turn === Color.Black ? Result["1-0"] : Result["0-1"])
-            : Result["1/2-1/2"]
+               ? (state.turn === Color.Black ? Result["1-0"] : Result["0-1"])
+               : Result["1/2-1/2"]
     } else {
         throw new Error(
             "game_result(): Invalid state, game is still in progress"

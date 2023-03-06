@@ -50,8 +50,8 @@ export function position_from_fen(FEN: string): BoardState {
         halfmove_clock: parseInt(parts[4]),
         fullmove_number: parseInt(parts[5]),
         en_passant_square: parts[3] === "-"
-            ? null
-            : coordinates_from_notation(parts[3]),
+                           ? null
+                           : coordinates_from_notation(parts[3]),
         turn: parts[1] === "w" ? Color.White : Color.Black
     }
 }
@@ -86,8 +86,8 @@ export function export_to_fen(state: BoardState): string {
     }
     function get_en_passant_string(state: BoardState): string {
         return state.en_passant_square === null
-            ? "-"
-            : coordinates_to_notation(state.en_passant_square)
+               ? "-"
+               : coordinates_to_notation(state.en_passant_square)
 
     }
     return (

@@ -19,16 +19,16 @@ import { apply_move, can_piece_move_to, is_check, Move } from "./moves.ts";
 export function get_piece_by_letter(letter: string): Piece {
     letter = letter.toLowerCase()
     return letter === "p"
-        ? Piece.Pawn
-        : letter === "n"
-        ? Piece.Knight
-        : letter === "b"
-        ? Piece.Bishop
-        : letter === "r"
-        ? Piece.Rook
-        : letter === "q"
-        ? Piece.Queen
-        : Piece.King
+           ? Piece.Pawn
+           : letter === "n"
+           ? Piece.Knight
+           : letter === "b"
+           ? Piece.Bishop
+           : letter === "r"
+           ? Piece.Rook
+           : letter === "q"
+           ? Piece.Queen
+           : Piece.King
 }
 
 /**
@@ -40,11 +40,11 @@ export function get_piece_by_letter(letter: string): Piece {
  */
 export function get_letter_by_piece(board_piece: BoardPiece | null): string {
     return is_piece(board_piece)
-    ? get_letter_by_color(
-        get_letter_by_piece_type(board_piece.piece),
-        board_piece.color
-    )
-    : "."
+           ? get_letter_by_color(
+               get_letter_by_piece_type(board_piece.piece),
+               board_piece.color
+           )
+           : "."
 }
 
 /**
@@ -54,16 +54,16 @@ export function get_letter_by_piece(board_piece: BoardPiece | null): string {
  */
 export function get_letter_by_piece_type(piece: Piece): string {
     return piece === Piece.Knight
-        ? "N"
-        : piece === Piece.Bishop
-        ? "B"
-        : piece === Piece.Rook
-        ? "R"
-        : piece === Piece.Queen
-        ? "Q"
-        : piece === Piece.King
-        ? "K"
-        : "P"
+           ? "N"
+           : piece === Piece.Bishop
+           ? "B"
+           : piece === Piece.Rook
+           ? "R"
+           : piece === Piece.Queen
+           ? "Q"
+           : piece === Piece.King
+           ? "K"
+           : "P"
 }
 
 /**
@@ -130,14 +130,14 @@ export function move_to_algebraic_notation(
     const to_square = coordinates_to_notation(move.to)
     const board_after_move = apply_move(state, move)
     const check_symbol = is_checkmate(board_after_move)
-        ? "#"
-        : is_check(board_after_move, other_color(state.turn))
-        ? "+"
-        : ""
+                         ? "#"
+                         : is_check(board_after_move, other_color(state.turn))
+                         ? "+"
+                         : ""
 
     const promotion = move.promotion_piece === undefined
-        ? ""
-        : "=" + get_letter_by_piece_type(move.promotion_piece)
+                      ? ""
+                      : "=" + get_letter_by_piece_type(move.promotion_piece)
 
     const capture_notation = move.is_capture ? "x" : ""
     const from_notation = get_origin_square_notation(
