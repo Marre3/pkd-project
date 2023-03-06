@@ -1,0 +1,23 @@
+{
+  "imports": {
+    "everything": "../src/everything.ts",
+    "$fresh/runtime.ts": "./deno.land/x/fresh@1.1.3/runtime.ts",
+    "$fresh/dev.ts": "./deno.land/x/fresh@1.1.3/dev.ts",
+    "preact/hooks": "./esm.sh/preact@10.11.0/hooks.js",
+    "$fresh/server.ts": "./deno.land/x/fresh@1.1.3/server.ts",
+    "preact/jsx-runtime": "./esm.sh/preact@10.11.0/jsx-runtime.js",
+    "https://deno.land/": "./deno.land/",
+    "https://esm.sh/": "./esm.sh/"
+  },
+  "scopes": {
+    "./deno.land/": {
+      "preact": "./esm.sh/preact@10.11.0.js",
+      "preact/hooks": "./esm.sh/preact@10.11.0/hooks.js",
+      "preact-render-to-string": "./esm.sh/_preact-render-to-string@5.2.4.js"
+    },
+    "./esm.sh/": {
+      "/stable/preact@10.11.0/deno/preact.js": "./esm.sh/stable/preact@10.11.0/deno/preact.js",
+      "preact": "./esm.sh/preact@10.11.0.js"
+    }
+  }
+}
