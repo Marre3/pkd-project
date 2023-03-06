@@ -3,7 +3,7 @@ import { draw } from "./draw.ts";
 import {
     Result, new_game, is_game_in_progress, play_move, display_moves
 } from "./game.ts";
-import { export_to_pgn } from "./pgn.ts";
+import { export_to_pgn, import_from_pgn } from "./pgn.ts";
 import { get_engine_move } from "./engine.ts"
 import { export_to_fen } from "./fen.ts";
 
@@ -54,6 +54,8 @@ while (is_game_in_progress(game)) {
                 + "exit: Exit the program\n"
                 + "fen: get the current position in Forsyth-Edwards Notation\n"
                 + "pgn: get the current game in Portable Game Notation\n"
+                + "import-fen: import a FEN and set the current position\n"
+                + "import-pgn: import a PGN and set the current position\n"
                 + "To play a move, enter the move in Algebraic Notation.\n"
             )
             prompt("Press enter to continue")
@@ -78,6 +80,40 @@ while (is_game_in_progress(game)) {
             console.log("Position FEN: " + export_to_fen(game.state))
         } else if (input === "pgn") {
             console.log("Game PGN: " + export_to_pgn(game))
+        } else if (input === "import-fen") {
+            let done = false
+            let fen: string
+            while (! done) {
+                fen = prompt("Enter FEN (or \"abort\" to cancel)") ?? ""
+                if (fen === "abort") {
+                    done = true
+                } else {
+                    try {
+                        game = new_game(fen)
+                        console.log("Successfully imported FEN")
+                        done = true
+                    } catch {
+                        console.log("Unable to import FEN")
+                    }
+                }
+            }
+        } else if (input === "import-pgn") {
+            let done = false
+            let pgn: string
+            while (! done) {
+                pgn = prompt("Enter PGN (or \"abort\" to cancel)") ?? ""
+                if (pgn === "abort") {
+                    done = true
+                } else {
+                    try {
+                        game = import_from_pgn(pgn)
+                        console.log("Successfully imported PGN")
+                        done = true
+                    } catch {
+                        console.log("Unable to import PGN")
+                    }
+                }
+            }
         } else if (input === "exit") {
             Deno.exit(0)
         } else {
