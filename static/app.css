@@ -124,6 +124,7 @@ body {
     text-align: center;
     color: black;
     cursor: grab;
+    user-select: none;
 
     /* Remove the strange background. */
     transform: translate(0, 0);
