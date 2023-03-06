@@ -55,8 +55,8 @@ function get_moves_in_direction(
                 is_en_passant: false
             },
             square_has_piece(pos, state, other_color(piece.color))
-                ? []
-                : get_moves_in_direction(piece, state, next_square, direction)
+            ? []
+            : get_moves_in_direction(piece, state, next_square, direction)
         )
 }
 
@@ -314,16 +314,16 @@ function get_pawn_moves(piece: BoardPiece, state: BoardState): Moves {
  */
 export function get_piece_moves(piece: BoardPiece, state: BoardState): Moves {
     return is_rook(piece)
-        ? get_rook_moves(piece, state)
-        : is_bishop(piece)
-        ? get_bishop_moves(piece, state)
-        : is_queen(piece)
-        ? get_queen_moves(piece, state)
-        : is_knight(piece)
-        ? get_knight_moves(piece, state)
-        : is_king(piece)
-        ? get_king_moves(piece, state)
-        : get_pawn_moves(piece, state)
+           ? get_rook_moves(piece, state)
+           : is_bishop(piece)
+           ? get_bishop_moves(piece, state)
+           : is_queen(piece)
+           ? get_queen_moves(piece, state)
+           : is_knight(piece)
+           ? get_knight_moves(piece, state)
+           : is_king(piece)
+           ? get_king_moves(piece, state)
+           : get_pawn_moves(piece, state)
 }
 
 /**
@@ -388,8 +388,8 @@ export function apply_move(state: BoardState, move: Move): BoardState {
         turn: other_color(state.turn),
         castling: structuredClone(state.castling),
         halfmove_clock: move.is_capture || move.piece_type === Piece.Pawn
-            ? 0
-            : state.halfmove_clock + 1,
+                        ? 0
+                        : state.halfmove_clock + 1,
         fullmove_number: state.fullmove_number
             + (state.turn === Color.Black ? 1 : 0),
         width: 8,

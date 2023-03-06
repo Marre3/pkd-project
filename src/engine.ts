@@ -32,18 +32,18 @@ const initial_depth = 3
 function get_piece_value(piece: BoardPiece): number {
     const color_coefficient = piece.color === Color.White ? 1 : -1
     const base_value = is_bishop(piece)
-        ? 3
-        : is_knight(piece)
-        ? 3
-        : is_rook(piece)
-        ? 5
-        : is_queen(piece)
-        ? 9
-        : 1
+                       ? 3
+                       : is_knight(piece)
+                       ? 3
+                       : is_rook(piece)
+                       ? 5
+                       : is_queen(piece)
+                       ? 9
+                       : 1
     let positional_modifier = 1
     const relative_y = piece.color === Color.White
-        ? piece.square.y
-        : 9 - piece.square.y
+                       ? piece.square.y
+                       : 9 - piece.square.y
     if (is_knight(piece)) {
         if (
             (piece.square.x === 5 || piece.square.x === 4)
@@ -137,10 +137,10 @@ function search(state: BoardState, depth: number): MoveEval {
     const preliminary = initial_evaluations.sort(
         (a, b) => {
             return a.eval === b.eval
-                ? 0
-                : a.eval < b.eval
-                ? state.turn === Color.White ? 1 : -1
-                : state.turn === Color.White ? -1 : 1
+                   ? 0
+                   : a.eval < b.eval
+                   ? state.turn === Color.White ? 1 : -1
+                   : state.turn === Color.White ? -1 : 1
         }
     ).slice(
         0,
@@ -169,10 +169,10 @@ function search(state: BoardState, depth: number): MoveEval {
     searched_moves.sort(
         (a, b) => {
             return a.eval === b.eval
-                ? 0
-                : a.eval < b.eval
-                ? state.turn === Color.White ? 1 : -1
-                : state.turn === Color.White ? -1 : 1
+                   ? 0
+                   : a.eval < b.eval
+                   ? state.turn === Color.White ? 1 : -1
+                   : state.turn === Color.White ? -1 : 1
         }
     )
     const move = searched_moves.at(0)

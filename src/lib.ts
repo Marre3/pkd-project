@@ -68,8 +68,8 @@ export function next_fen_by_move(state: FrontendState): FrontendState {
     const game: Game = frontend_state_to_game(state)
 
     const piece_id = state.promotion_piece === ''
-        ? undefined
-        : get_piece_by_letter(state.promotion_piece)
+                   ? undefined
+                   : get_piece_by_letter(state.promotion_piece)
     const coord_from = coordinates_from_notation(state.from)
     const coord_to = coordinates_from_notation(state.to)
     const current_state = position_from_fen(state.fen)
