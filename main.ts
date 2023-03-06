@@ -7,7 +7,4 @@
 import { start } from "$fresh/server.ts";
 import manifest from "./fresh.gen.ts";
 
-// Force vendor to include jsx-runtime.
-import {} from "preact/jsx-runtime";
-
 await start(manifest);
